@@ -2,7 +2,7 @@
 // These are presentation snapshots, never a live member account or live draw result.
 const CATEGORIES=[['all','全部活动','gift'],['new','新人豪礼','adduser'],['growth','充值加码','cash'],['surprise','惊喜福利','gift'],['vip','VIP尊享','crown'],['invite','邀友赚礼','friends']];
 const PROMOS=[
-{id:'newcomer-trial-notes',title:'新人免费体验礼',category:'new',readOnly:true},
+{id:'newcomer-trial',title:'新人免费体验礼',category:'new',tag:'新人体验',summary:'免费RM100试玩，达标兑换RM100现金',secondary:'试玩余额达到RM200，即可兑换RM100现金奖励。',badge:'新注册会员 · 终身限领一次',tabs:['活动详情','活动规则']},
 {id:'newcomer',title:'新人专享挑战',fullTitle:'Tpower新人专享挑战活动',category:'new',tag:'新人专享',banner:'new',summary:'实名认证领取 RM88',secondary:'完成挑战，充值解锁最高 RM1,888',badge:'每位新会员限一次',tabs:['活动详情','活动规则']},
 {id:'referral',title:'邀请好友奖励',fullTitle:'邀请好友奖励活动',category:'invite',tag:'邀请好友',banner:'invite',summary:'每位成功邀请最高 RM1,000',secondary:'奖励与邀请进度集中查看',badge:'邀请奖励',tabs:['我的邀请','活动规则']},
 {id:'growth',title:'成长彩金计划',fullTitle:'成长彩金计划',category:'growth',tag:'成长彩金',banner:'growth',summary:'首充200% · 最高 RM5,888',secondary:'首充与 Lv1–Lv4 分阶段解锁',badge:'五个奖励档位',tabs:['成长进度','活动规则']},
@@ -41,9 +41,26 @@ const PRIZES=[['头奖','6位数全中','100,000'],['二奖','前5位或后5位�
 const LEVELS=[['首充','5,888.00','进行中'],['Lv 1','1,888.00','已达标 · 待激活'],['Lv 2','5,888.00','已达标 · 待激活'],['Lv 3','8,888.00','已达标 · 待激活'],['Lv 4','18,888.00','已达标 · 待激活']];
 const RATES=[['电子','0.3%'],['打鱼','0.3%'],['现场','0.1%'],['体育','0.5%']];
 
-// User-supplied wording: read-only source document, no participation controls.
+// Official rules supplied by the user. Items 1–4 are the flow; items 5–8 are important terms.
 const TRIAL_SOURCE={
  reward:'免费RM100试玩，达标兑换RM100现金',
  eligibility:['仅限新注册会员。','必须完成实名认证（KYC）。','同一手机号、真实姓名或设备仅限领取一次。'],
- steps:['完成注册及实名认证。','免费领取RM100试玩额度。','在指定游戏中进行试玩。','试玩余额达到RM200，即可兑换RM100现金奖励。','达标兑换后，试玩额度及剩余试玩余额自动清零。','试玩额度不可直接充值、转账或提款。','每位符合资格的会员终身限领一次。','未达RM200目标，不可兑换部分奖励。']
+ steps:[
+  {title:'实名认证',heading:'完成注册及实名认证',cta:'去实名认证',text:'完成注册及实名认证。'},
+  {title:'领取额度',heading:'免费领取RM100试玩额度',cta:'领取RM100试玩额度',text:'免费领取RM100试玩额度。'},
+  {title:'去试玩',heading:'在指定游戏中进行试玩',cta:'去试玩',text:'在指定游戏中进行试玩。'},
+  {title:'兑换现金',heading:'试玩余额达到RM200，即可兑换RM100现金奖励',cta:'兑换RM100现金',text:'试玩余额达到RM200，即可兑换RM100现金奖励。'}
+ ],
+ terms:[
+  '达标兑换后，试玩额度及剩余试玩余额自动清零。',
+  '试玩额度不可直接充值、转账或提款。',
+  '每位符合资格的会员终身限领一次。',
+  '未达RM200目标，不可兑换部分奖励。'
+ ]
 };
+const TRIAL_RULES=[
+ ['活动奖励',[TRIAL_SOURCE.reward]],
+ ['参与条件',TRIAL_SOURCE.eligibility],
+ ['活动流程',TRIAL_SOURCE.steps.map(s=>s.text)],
+ ['重要条款',TRIAL_SOURCE.terms]
+];

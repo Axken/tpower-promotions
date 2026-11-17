@@ -109,6 +109,42 @@ TPOWER · 活动页面交互预览|TPOWER · 活動頁面互動預覽|TPOWER · 
 立即领取活动金|立即領取活動金|Claim activity credit|Tuntut kredit aktiviti|Nhận điểm hoạt động|รับเครดิตกิจกรรม|Klaim kredit acara|कार्यक्रम क्रेडिट प्राप्त करें
 查看成长彩金计划|查看成長彩金計畫|View growth plan|Lihat pelan pertumbuhan|Xem kế hoạch tăng trưởng|ดูแผนการเติบโต|Lihat rencana pertumbuhan|विकास योजना देखें
 领取前请确认|領取前請確認|Confirm before claiming|Sahkan sebelum menuntut|Xác nhận trước khi nhận|ยืนยันก่อนรับ|Konfirmasi sebelum klaim|प्राप्त करने से पहले पुष्टि करें
+活动奖励|活動獎勵|Reward|Ganjaran|Phần thưởng|รางวัล|Hadiah|पुरस्कार
+参与条件|參與條件|Eligibility|Syarat|Điều kiện|เงื่อนไข|Syarat|पात्रता
+重要条款|重要條款|Important terms|Terma penting|Điều khoản quan trọng|ข้อกำหนดสำคัญ|Ketentuan penting|महत्वपूर्ण शर्तें
+按活动原文整理|按活動原文整理|Based on official rules|Berdasarkan peraturan rasmi|Theo thể lệ gốc|อ้างอิงกติกาอย่างเป็นทางการ|Berdasarkan aturan resmi|आधिकारिक नियमों पर आधारित
+去实名认证|去實名認證|Complete verification|Sahkan identiti|Xác minh danh tính|ยืนยันตัวตน|Verifikasi identitas|सत्यापन पूरा करें
+已完成实名认证|已完成實名認證|Verification completed|Pengesahan selesai|Đã xác minh|ยืนยันแล้ว|Verifikasi selesai|सत्यापन पूरा हुआ
+领取RM100试玩额度|領取RM100試玩額度|Claim RM100 trial credit|Tuntut kredit cuba RM100|Nhận hạn mức thử RM100|รับเครดิตทดลอง RM100|Klaim kredit uji coba RM100|RM100 ट्रायल क्रेडिट प्राप्त करें
+去试玩|去試玩|Start playing|Mula bermain|Đi chơi thử|ไปทดลองเล่น|Mulai bermain|खेलना शुरू करें
+兑换RM100现金|兌換RM100現金|Redeem RM100 cash|Tebus tunai RM100|Đổi RM100 tiền mặt|แลกเงินสด RM100|Tukar tunai RM100|RM100 नकद रिडीम करें
+已兑换|已兌換|Redeemed|Telah ditebus|Đã đổi|แลกแล้ว|Sudah ditukar|रिडीम हो गया
+确认领取|確認領取|Confirm claim|Sahkan tuntutan|Xác nhận nhận|ยืนยันการรับ|Konfirmasi klaim|दावा की पुष्टि करें
+确认兑换|確認兌換|Confirm redeem|Sahkan tebusan|Xác nhận đổi|ยืนยันการแลก|Konfirmasi penukaran|रिडीम की पुष्टि करें
+兑换确认|兌換確認|Confirm redeem|Sahkan tebusan|Xác nhận đổi|ยืนยันการแลก|Konfirmasi penukaran|रिडीम की पुष्टि
+取消|取消|Cancel|Batal|Hủy|ยกเลิก|Batal|रद्द करें
+重置演示|重置演示|Reset demo|Set semula demo|Đặt lại bản xem trước|รีเซ็ตเดโม|Reset demo|डेमो रीसेट करें
+模拟试玩 +RM100|模擬試玩 +RM100|Simulate play +RM100|Simulasi main +RM100|Mô phỏng chơi +RM100|จำลองการเล่น +RM100|Simulasi main +RM100|खेल सिमुलेट करें +RM100
+试玩余额|試玩餘額|Trial balance|Baki cubaan|Số dư thử|ยอดทดลองเล่น|Saldo uji coba|ट्रायल बैलेंस
+达标目标 RM200|達標目標 RM200|Target RM200|Sasaran RM200|Mục tiêu RM200|เป้าหมาย RM200|Target RM200|लक्ष्य RM200
+预览演示|預覽演示|Demo preview|Pratonton demo|Bản xem trước|เดโมตัวอย่าง|Pratinjau demo|डेमो पूर्वावलोकन
+免费试玩|免費試玩|Free trial|Cuba percuma|Chơi thử miễn phí|ทดลองเล่นฟรี|Uji coba gratis|मुफ़्त ट्रायल
+达标余额|達標餘額|Target balance|Baki sasaran|Số dư mục tiêu|ยอดเป้าหมาย|Saldo target|लक्ष्य बैलेंस
+兑换现金|兌換現金|Redeem cash|Tebus tunai|Đổi tiền mặt|แลกเงินสด|Tukar tunai|नकद रिडीम
+实名认证|實名認證|Verification|Pengesahan|Xác minh|ยืนยันตัวตน|Verifikasi|सत्यापन
+领取额度|領取額度|Claim credit|Tuntut kredit|Nhận hạn mức|รับเครดิต|Klaim kredit|क्रेडिट प्राप्त करें
+新人体验|新人體驗|New member trial|Cuba ahli baharu|Trải nghiệm thành viên mới|ทดลองสมาชิกใหม่|Uji coba anggota baru|नए सदस्य ट्रायल
+请先完成实名认证，并领取RM100试玩额度。|請先完成實名認證，並領取RM100試玩額度。|Complete verification first, then claim the RM100 trial credit.|Sahkan identiti dahulu, kemudian tuntut kredit cuba RM100.|Hãy xác minh trước, rồi nhận hạn mức thử RM100.|กรุณายืนยันตัวตนแล้วรับเครดิตทดลอง RM100 ก่อน|Selesaikan verifikasi dulu, lalu klaim kredit uji coba RM100.|पहले सत्यापन पूरा करें, फिर RM100 ट्रायल क्रेडिट प्राप्त करें।
+已达到 RM200，可以兑换 RM100 现金。|已達到 RM200，可以兌換 RM100 現金。|RM200 reached. You can redeem RM100 cash.|Telah capai RM200. Anda boleh tebus tunai RM100.|Đã đạt RM200, có thể đổi RM100 tiền mặt.|ถึง RM200 แล้ว สามารถแลกเงินสด RM100 ได้|Sudah mencapai RM200, dapat menukar tunai RM100.|RM200 पूरा हुआ। आप RM100 नकद रिडीम कर सकते हैं।
+预览演示 · 非实时账户|預覽演示 · 非即時帳戶|Demo preview · Not a live account|Pratonton demo · Bukan akaun langsung|Bản xem trước · Không phải tài khoản thật|เดโมตัวอย่าง · ไม่ใช่บัญชีจริง|Pratinjau demo · Bukan akun nyata|डेमो पूर्वावलोकन · लाइव खाता नहीं
+未参与 · 预览状态|未參與 · 預覽狀態|Not joined · Preview|Belum sertai · Pratonton|Chưa tham gia · Xem trước|ยังไม่เข้าร่วม · ตัวอย่าง|Belum ikut · Pratinjau|शामिल नहीं · पूर्वावलोकन
+已领取 · 试玩中|已領取 · 試玩中|Claimed · In play|Telah dituntut · Sedang main|Đã nhận · Đang chơi|รับแล้ว · กำลังเล่น|Sudah diklaim · Sedang bermain|प्राप्त · खेल जारी
+可兑换|可兌換|Ready to redeem|Boleh ditebus|Có thể đổi|พร้อมแลก|Siap ditukar|रिडीम के लिए तैयार
+已兑换 · 预览状态|已兌換 · 預覽狀態|Redeemed · Preview|Telah ditebus · Pratonton|Đã đổi · Xem trước|แลกแล้ว · ตัวอย่าง|Sudah ditukar · Pratinjau|रिडीम · पूर्वावलोकन
+预览不会验证真实身份或注册状态。|預覽不會驗證真實身分或註冊狀態。|This preview does not verify identity or registration.|Pratonton ini tidak mengesahkan identiti atau pendaftaran.|Bản xem trước không xác minh danh tính hoặc đăng ký.|เดโมนี้จะไม่ตรวจสอบตัวตนหรือการสมัคร|Pratinjau ini tidak memverifikasi identitas atau pendaftaran.|यह पूर्वावलोकन पहचान या पंजीकरण सत्यापित नहीं करता।
+这里只展示领取确认界面，不验证账户、不发放试玩额度。|這裡只展示領取確認介面，不驗證帳戶、不發放試玩額度。|This is only a claim confirmation screen. No account is verified and no trial credit is issued.|Ini hanya skrin pengesahan tuntutan. Akaun tidak disahkan dan kredit cubaan tidak dikeluarkan.|Đây chỉ là màn hình xác nhận nhận thưởng, không xác minh tài khoản và không cấp hạn mức thử.|นี่เป็นเพียงหน้ายืนยันการรับ ไม่มีการตรวจสอบบัญชีและไม่มีการให้เครดิตทดลอง|Ini hanya layar konfirmasi klaim. Akun tidak diverifikasi dan kredit uji coba tidak diberikan.|यह केवल दावा पुष्टि स्क्रीन है। खाते का सत्यापन नहीं होता और ट्रायल क्रेडिट नहीं दिया जाता।
+指定游戏名单请通过正式平台客服咨询。预览不进入真实游戏，可使用页面中的模拟试玩查看进度。|指定遊戲名單請透過正式平台客服諮詢。預覽不進入真實遊戲，可使用頁面中的模擬試玩查看進度。|Ask official support for the designated game list. This preview does not open real games; use Simulate play on the page to view progress.|Tanya khidmat rasmi untuk senarai permainan. Pratonton ini tidak membuka permainan sebenar; guna Simulasi main untuk melihat kemajuan.|Hãy hỏi hỗ trợ chính thức về danh sách trò chơi chỉ định. Bản xem trước không mở trò chơi thật; dùng Mô phỏng chơi trên trang để xem tiến độ.|สอบถามฝ่ายบริการทางการสำหรับรายชื่อเกมที่กำหนด เดโมนี้จะไม่เปิดเกมจริง ใช้การจำลองการเล่นในหน้าเพื่อดูความคืบหน้า|Tanyakan ke bantuan resmi untuk daftar permainan yang ditentukan. Pratinjau ini tidak membuka permainan nyata; gunakan Simulasi main di halaman untuk melihat progres.|निर्धारित खेल सूची के लिए आधिकारिक सहायता से पूछें। यह पूर्वावलोकन असली खेल नहीं खोलता; प्रगति देखने के लिए पेज पर सिमुलेट का उपयोग करें।
+这里只展示兑换确认界面，不会发放现金到真实账户。|這裡只展示兌換確認介面，不會發放現金到真實帳戶。|This is only a redeem confirmation screen. No cash is paid to a real account.|Ini hanya skrin pengesahan tebusan. Tiada tunai dibayar ke akaun sebenar.|Đây chỉ là màn hình xác nhận đổi thưởng, không chi tiền vào tài khoản thật.|นี่เป็นเพียงหน้ายืนยันการแลก จะไม่มีการโอนเงินเข้าบัญชีจริง|Ini hanya layar konfirmasi penukaran. Tidak ada uang tunai yang dikirim ke akun nyata.|यह केवल रिडीम पुष्टि स्क्रीन है। वास्तविक खाते में नकद नहीं दिया जाता।
 `;
 const UI_DICTIONARIES=Object.fromEntries(UI_LANGUAGES.map(([code])=>[code,{}]));
 for(const row of UI_TRANSLATION_ROWS.trim().split('\n')){const cells=row.split('|');if(cells.length!==8)throw new Error('Invalid locale row: '+cells[0]);UI_LANGUAGES.forEach(([code],i)=>UI_DICTIONARIES[code][cells[0]]=cells[i]);}

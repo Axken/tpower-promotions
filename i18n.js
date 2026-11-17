@@ -51,7 +51,7 @@
       originalAttrs.set(el,record);
     });
     // Source prose is explicitly distinguished from translated interface labels.
-    document.querySelectorAll('.rule-content,.step-explanation p,.detail-heading h2,.detail-heading>p,.card-title,.card-type,.banner').forEach(el=>el.lang='zh-CN');
+    document.querySelectorAll('.rule-content,.step-explanation p,.detail-heading h2,.detail-heading>p,.card-title,.card-type,.banner,.trial-prose,.eligibility-list,.trial-terms').forEach(el=>el.lang='zh-CN');
     if(!location.hash.includes('activity='))document.title='TPOWER · '+UI_DICTIONARIES[language]['促销活动'];
     observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','placeholder','title']});
   }

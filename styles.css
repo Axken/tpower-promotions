@@ -124,3 +124,49 @@ html,body{height:100%;overflow:hidden}
 .source-document li+li{margin-top:9px}
 .source-document .preview-note{font-size:11px;color:var(--muted)}
 @media(max-width:360px){.source-card{padding:14px 10px;gap:8px}.source-card .source-icon{width:28px;height:34px}.source-card strong{font-size:13px}}
+
+/* 新人免费体验礼 — list card and interactive detail */
+.trial-list-card{padding:0;overflow:hidden}
+.trial-card-hero{padding:18px 18px 16px;background:radial-gradient(ellipse at top right,#59182355,transparent 70%),linear-gradient(115deg,#251318,#151215);border-bottom:1px solid #3c2b31}
+.trial-card-tag{display:inline-block;padding:3px 8px;border:1px solid #783240;border-radius:20px;background:#54202b57;color:#e4a1af;font-size:10px;margin-bottom:12px}
+.trial-path{display:flex;align-items:stretch;justify-content:space-between;gap:4px}
+.trial-path>div{flex:1;text-align:center;min-width:0}
+.trial-path strong{display:block;font-size:18px;font-weight:650;letter-spacing:-.03em;color:#f5f3f2;font-variant-numeric:tabular-nums}
+.trial-path span{display:block;font-size:11px;color:#b69ba8;margin-top:3px}
+.trial-path-arrow{flex:0 0 16px;position:relative;align-self:center;height:16px}
+.trial-path-arrow:before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#7a4450;transform:translateY(-50%)}
+.trial-path-arrow:after{content:"";position:absolute;right:-1px;top:50%;width:6px;height:6px;border-right:1.5px solid #c88796;border-top:1.5px solid #c88796;transform:translateY(-50%) rotate(45deg)}
+.trial-hero .trial-path{margin:4px 0 2px;padding-top:18px;border-top:1px solid #4a2a34}
+.trial-hero .trial-path strong{font-size:20px}
+.eligibility-list,.trial-terms{list-style:none;margin:0;padding:0}
+.eligibility-list li,.trial-terms li{display:flex;gap:10px;align-items:flex-start;color:#cec1c8;font-size:13px;line-height:1.7}
+.eligibility-list li+li,.trial-terms li+li{margin-top:10px}
+.eligibility-mark{width:18px;height:18px;margin-top:3px;border-radius:50%;border:1.5px solid #b81f31;background:#2a151b;flex:none;position:relative}
+.eligibility-mark:before{content:"";position:absolute;left:5px;top:3px;width:5px;height:8px;border-right:1.7px solid #f2b4be;border-bottom:1.7px solid #f2b4be;transform:rotate(40deg)}
+.trial-terms li:before{content:"";width:6px;height:6px;margin-top:8px;border-radius:50%;background:#b81f31;flex:none}
+.trial-steps button.done{color:#e4c4ce}
+.trial-steps button.done b{background:#3a1d24;border-color:#b81f31;color:#f2d7df}
+.trial-balance{margin-top:16px;padding-top:16px;border-top:1px solid #34252e}
+.trial-balance .outline-wide{margin-top:14px;margin-bottom:6px}
+.trial-reset{display:flex;margin:6px auto 0;font-size:12px}
+.trial-cta-slot{position:sticky;bottom:0;z-index:6;margin:8px 0 0;padding:14px 0 10px;background:linear-gradient(180deg,transparent,#09090b 28%)}
+.trial-cta-slot .primary{margin:0}
+.trial-detail .detail-heading{margin-top:4px}
+@media(max-width:600px){
+  .trial-card-hero{padding:15px 14px 14px}
+  .trial-path strong{font-size:16px}
+  .trial-hero .trial-path strong{font-size:17px}
+  .trial-cta-slot{padding:12px 0 6px}
+}
+@media(max-width:360px){
+  .trial-path strong{font-size:14px}
+  .trial-path span{font-size:10px}
+}
+.trial-card-summary{margin:0 0 12px;color:#f0dce3;font-size:14px;font-weight:550;line-height:1.45}
+@media(max-width:600px){
+  .trial-list-card .card-type{display:block;font-size:12px;color:#c9b3bc}
+  .trial-card-summary{font-size:13px;margin-bottom:10px}
+}
+@media(max-width:600px){
+  .trial-list-card .card-type{display:none}
+}
