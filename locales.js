@@ -1,0 +1,124 @@
+// Interface translations. Promotional artwork and source rule prose are unchanged.
+const UI_LANGUAGES=[['zh-CN','简体中文','简体'],['zh-TW','繁體中文','繁體'],['en','English','English'],['ms','Bahasa Melayu','Melayu'],['vi','Tiếng Việt','Tiếng Việt'],['th','ภาษาไทย','ไทย'],['id','Bahasa Indonesia','Indonesia'],['hi','हिन्दी (Hindi)','हिन्दी']];
+// Columns: source, Traditional Chinese, English, Malay, Vietnamese, Thai, Indonesian, Hindi.
+const UI_TRANSLATION_ROWS=`
+促销活动|促銷活動|Promotions|Promosi|Ưu đãi|โปรโมชั่น|Promosi|प्रमोशन
+领奖记录|領獎紀錄|History|Rekod|Lịch sử|ประวัติ|Riwayat|इतिहास
+全部活动|全部活動|All events|Semua|Tất cả|ทั้งหมด|Semua|सभी
+新人豪礼|新人豪禮|New members|Ahli baharu|Thành viên mới|สมาชิกใหม่|Anggota baru|नए सदस्य
+充值加码|充值加碼|Deposit offers|Tawaran deposit|Ưu đãi nạp|โปรฝากเงิน|Promo deposit|जमा ऑफ़र
+惊喜福利|驚喜福利|Special offers|Istimewa|Ưu đãi đặc biệt|สิทธิพิเศษ|Penawaran spesial|विशेष ऑफ़र
+VIP尊享|VIP尊享|VIP benefits|Faedah VIP|Đặc quyền VIP|สิทธิ์ VIP|Manfaat VIP|VIP लाभ
+邀友赚礼|邀友賺禮|Referrals|Rujukan|Giới thiệu bạn|แนะนำเพื่อน|Referensi|रेफ़रल
+暂无活动|暫無活動|No events yet|Belum ada aktiviti|Chưa có hoạt động|ยังไม่มีกิจกรรม|Belum ada acara|अभी कोई कार्यक्रम नहीं
+查看详情|查看詳情|View details|Lihat butiran|Xem chi tiết|ดูรายละเอียด|Lihat detail|विवरण देखें
+返回活动列表|返回活動列表|Back to events|Kembali ke aktiviti|Về danh sách|กลับไปที่กิจกรรม|Kembali ke acara|कार्यक्रमों पर वापस
+活动详情|活動詳情|Details|Butiran|Chi tiết|รายละเอียด|Detail|विवरण
+活动规则|活動規則|Rules|Peraturan|Thể lệ|กติกา|Aturan|नियम
+活动说明|活動說明|Information|Maklumat|Thông tin|ข้อมูล|Informasi|जानकारी
+我的邀请|我的邀請|My referrals|Rujukan saya|Bạn đã mời|การแนะนำของฉัน|Referensi saya|मेरे रेफ़रल
+成长进度|成長進度|Progress|Kemajuan|Tiến độ|ความคืบหน้า|Progres|प्रगति
+我的抽奖券|我的抽獎券|My tickets|Tiket saya|Vé của tôi|ตั๋วของฉัน|Tiket saya|मेरे टिकट
+首页|首頁|Home|Utama|Trang chủ|หน้าหลัก|Beranda|होम
+通知|通知|Notifications|Notifikasi|Thông báo|การแจ้งเตือน|Notifikasi|सूचनाएँ
+邀请好友|邀請好友|Invite friends|Jemput rakan|Mời bạn bè|เชิญเพื่อน|Undang teman|मित्रों को आमंत्रित करें
+客服|客服|Support|Bantuan|Hỗ trợ|ฝ่ายบริการ|Bantuan|सहायता
+我的|我的|Account|Akaun|Tài khoản|บัญชี|Akun|खाता
+我的账户|我的帳戶|My account|Akaun saya|Tài khoản của tôi|บัญชีของฉัน|Akun saya|मेरा खाता
+联系客服|聯絡客服|Contact support|Hubungi bantuan|Liên hệ hỗ trợ|ติดต่อฝ่ายบริการ|Hubungi bantuan|सहायता से संपर्क करें
+需要帮助？联系客服|需要協助？聯絡客服|Need help? Contact support|Perlukan bantuan? Hubungi kami|Cần giúp? Liên hệ hỗ trợ|ต้องการความช่วยเหลือ? ติดต่อเรา|Butuh bantuan? Hubungi kami|मदद चाहिए? संपर्क करें
+我知道了|我知道了|Got it|Faham|Đã hiểu|เข้าใจแล้ว|Mengerti|समझ गया
+关闭弹窗|關閉視窗|Close dialog|Tutup dialog|Đóng hộp thoại|ปิดหน้าต่าง|Tutup dialog|विंडो बंद करें
+搜索好友账号|搜尋好友帳號|Search friend account|Cari akaun rakan|Tìm tài khoản bạn bè|ค้นหาบัญชีเพื่อน|Cari akun teman|मित्र का खाता खोजें
+清空搜索|清空搜尋|Clear search|Kosongkan carian|Xóa tìm kiếm|ล้างการค้นหา|Hapus pencarian|खोज साफ़ करें
+暂无邀请好友|暫無邀請好友|No referrals yet|Belum ada rujukan|Chưa mời bạn bè|ยังไม่มีการแนะนำ|Belum ada referensi|अभी कोई रेफ़रल नहीं
+没有匹配的好友|沒有符合的好友|No matching friends|Tiada rakan sepadan|Không tìm thấy bạn|ไม่พบเพื่อนที่ตรงกัน|Tidak ada teman yang cocok|कोई मेल खाता मित्र नहीं
+好友记录将显示在这里|好友紀錄將顯示在這裡|Friend records will appear here|Rekod rakan dipaparkan di sini|Hồ sơ bạn bè sẽ hiển thị ở đây|ข้อมูลเพื่อนจะแสดงที่นี่|Data teman akan muncul di sini|मित्रों के रिकॉर्ड यहाँ दिखेंगे
+截图示例 · 非实时账户|截圖範例 · 非即時帳戶|Screenshot example · Not live|Contoh tangkap layar · Bukan masa nyata|Ví dụ ảnh chụp · Không trực tiếp|ตัวอย่างภาพหน้าจอ · ไม่ใช่ข้อมูลสด|Contoh tangkapan layar · Bukan data langsung|स्क्रीनशॉट उदाहरण · लाइव नहीं
+按原截图整理|依原截圖整理|Based on source screenshots|Berdasarkan tangkap layar|Theo ảnh chụp gốc|อ้างอิงภาพหน้าจอต้นฉบับ|Berdasarkan tangkapan layar|मूल स्क्रीनशॉट पर आधारित
+金额单位：MYR|金額單位：MYR|Currency: MYR|Mata wang: MYR|Đơn vị: MYR|สกุลเงิน: MYR|Mata uang: MYR|मुद्रा: MYR
+已邀请好友|已邀請好友|Friends invited|Rakan dijemput|Bạn đã mời|เพื่อนที่เชิญแล้ว|Teman diundang|आमंत्रित मित्र
+已解锁总额|已解鎖總額|Total unlocked|Jumlah dibuka|Tổng đã mở khóa|ยอดปลดล็อกทั้งหมด|Total terbuka|कुल अनलॉक
+已领取总额|已領取總額|Total claimed|Jumlah dituntut|Tổng đã nhận|ยอดรับแล้วทั้งหมด|Total diklaim|कुल प्राप्त
+待领取|待領取|To claim|Belum dituntut|Chờ nhận|รอรับ|Belum diklaim|प्राप्त करना बाकी
+可领取金额|可領取金額|Available amount|Jumlah tersedia|Số tiền có thể nhận|ยอดที่รับได้|Jumlah tersedia|उपलब्ध राशि
+推荐奖励明细|推薦獎勵明細|Referral details|Butiran rujukan|Chi tiết giới thiệu|รายละเอียดการแนะนำ|Detail referensi|रेफ़रल विवरण
+暂无可领取奖励|暫無可領取獎勵|No rewards available|Tiada ganjaran tersedia|Chưa có thưởng để nhận|ยังไม่มีรางวัลให้รับ|Belum ada hadiah tersedia|कोई पुरस्कार उपलब्ध नहीं
+查看活动说明|查看活動說明|View information|Lihat maklumat|Xem thông tin|ดูข้อมูล|Lihat informasi|जानकारी देखें
+查看完整活动规则|查看完整活動規則|View full rules|Lihat peraturan penuh|Xem toàn bộ thể lệ|ดูกติกาทั้งหมด|Lihat aturan lengkap|पूरे नियम देखें
+查看说明|查看說明|View explanation|Lihat penjelasan|Xem giải thích|ดูคำอธิบาย|Lihat penjelasan|स्पष्टीकरण देखें
+活动档位|活動檔位|Tiers|Tahap|Cấp độ|ระดับ|Tingkat|स्तर
+解锁进度|解鎖進度|Unlock progress|Kemajuan buka kunci|Tiến độ mở khóa|ความคืบหน้าการปลดล็อก|Progres pembukaan|अनलॉक प्रगति
+可领取|可領取|Available|Tersedia|Có thể nhận|รับได้|Tersedia|उपलब्ध
+已领取|已領取|Claimed|Dituntut|Đã nhận|รับแล้ว|Diklaim|प्राप्त
+待解锁|待解鎖|Locked|Terkunci|Chưa mở khóa|ยังไม่ปลดล็อก|Terkunci|लॉक
+解锁比例|解鎖比例|Unlock rates|Kadar buka kunci|Tỷ lệ mở khóa|อัตราปลดล็อก|Rasio pembukaan|अनलॉक दर
+解锁比例说明|解鎖比例說明|About unlock rates|Tentang kadar buka kunci|Thông tin tỷ lệ mở khóa|เกี่ยวกับอัตราปลดล็อก|Tentang rasio pembukaan|अनलॉक दर का विवरण
+进行中|進行中|In progress|Sedang berjalan|Đang diễn ra|กำลังดำเนินการ|Berlangsung|जारी है
+已达标 · 待激活|已達標 · 待啟用|Qualified · Pending|Layak · Menunggu|Đạt yêu cầu · Chờ kích hoạt|ผ่านเกณฑ์ · รอเปิดใช้งาน|Memenuhi syarat · Menunggu|पात्र · सक्रियण बाकी
+进行中 · 不限时|進行中 · 不限時|In progress · No time limit|Berjalan · Tiada had masa|Đang diễn ra · Không giới hạn|กำลังดำเนินการ · ไม่จำกัดเวลา|Berlangsung · Tanpa batas waktu|जारी · समय सीमा नहीं
+暂无可领取彩金|暫無可領取彩金|No bonus available|Tiada bonus tersedia|Chưa có tiền thưởng để nhận|ยังไม่มีโบนัสให้รับ|Belum ada bonus tersedia|कोई बोनस उपलब्ध नहीं
+活动开始|活動開始|Starts|Mula|Bắt đầu|เริ่ม|Mulai|शुरू
+活动结束|活動結束|Ends|Tamat|Kết thúc|สิ้นสุด|Berakhir|समाप्त
+开奖参考|開獎參考|Draw reference|Rujukan cabutan|Tham chiếu kết quả|ข้อมูลอ้างอิงผลรางวัล|Referensi undian|ड्रॉ संदर्भ
+查看参考说明|查看參考說明|View reference|Lihat rujukan|Xem tham chiếu|ดูข้อมูลอ้างอิง|Lihat referensi|संदर्भ देखें
+奖项一览|獎項一覽|Prize overview|Senarai hadiah|Danh sách giải|รายการรางวัล|Daftar hadiah|पुरस्कार सूची
+奖项|獎項|Prize|Hadiah|Giải thưởng|รางวัล|Hadiah|पुरस्कार
+中奖要求|中獎要求|Match requirement|Syarat padanan|Điều kiện trúng|เงื่อนไขการถูกรางวัล|Syarat kecocokan|मिलान की शर्त
+奖金（RM）|獎金（RM）|Prize (RM)|Hadiah (RM)|Tiền thưởng (RM)|รางวัล (RM)|Hadiah (RM)|पुरस्कार (RM)
+抽奖券数|抽獎券數|Tickets|Tiket|Số vé|จำนวนตั๋ว|Jumlah tiket|टिकट
+中奖总额|中獎總額|Total winnings|Jumlah kemenangan|Tổng trúng thưởng|ยอดรางวัลรวม|Total kemenangan|कुल जीत
+未领取奖额|未領取獎額|Unclaimed amount|Jumlah belum dituntut|Số tiền chưa nhận|ยอดที่ยังไม่ได้รับ|Jumlah belum diklaim|अप्राप्त राशि
+暂无可领取奖金|暫無可領取獎金|No prize available|Tiada hadiah tersedia|Chưa có giải để nhận|ยังไม่มีรางวัลให้รับ|Belum ada hadiah tersedia|कोई पुरस्कार उपलब्ध नहीं
+查看抽奖券|查看抽獎券|View tickets|Lihat tiket|Xem vé|ดูตั๋ว|Lihat tiket|टिकट देखें
+查看中奖规则|查看中獎規則|View prize rules|Lihat peraturan hadiah|Xem thể lệ trúng thưởng|ดูกติการางวัล|Lihat aturan hadiah|पुरस्कार नियम देखें
+没有抽奖券|沒有抽獎券|No tickets|Tiada tiket|Không có vé|ไม่มีตั๋ว|Tidak ada tiket|कोई टिकट नहीं
+参与资格|參與資格|Eligibility|Kelayakan|Điều kiện tham gia|คุณสมบัติ|Kelayakan|पात्रता
+查看参与资格|查看參與資格|Check eligibility|Semak kelayakan|Xem điều kiện|ดูคุณสมบัติ|Lihat kelayakan|पात्रता देखें
+活动流程|活動流程|Process|Proses|Quy trình|ขั้นตอน|Alur|प्रक्रिया
+参与活动|參與活動|Join event|Sertai aktiviti|Tham gia|เข้าร่วมกิจกรรม|Ikuti acara|भाग लें
+可玩游戏|可玩遊戲|Available games|Permainan tersedia|Trò chơi khả dụng|เกมที่เปิดให้เล่น|Permainan tersedia|उपलब्ध गेम
+不符资格 · 截图状态|不符資格 · 截圖狀態|Ineligible · Screenshot|Tidak layak · Tangkap layar|Không đủ điều kiện · Ảnh chụp|ไม่ผ่านเกณฑ์ · ภาพหน้าจอ|Tidak memenuhi syarat · Tangkapan layar|अपात्र · स्क्रीनशॉट
+未参与 · 截图状态|未參與 · 截圖狀態|Not joined · Screenshot|Belum sertai · Tangkap layar|Chưa tham gia · Ảnh chụp|ยังไม่เข้าร่วม · ภาพหน้าจอ|Belum bergabung · Tangkapan layar|भाग नहीं लिया · स्क्रीनशॉट
+点击步骤查看要求|點擊步驟查看要求|Tap a step for details|Tekan langkah untuk butiran|Chạm bước để xem chi tiết|แตะขั้นตอนเพื่อดูรายละเอียด|Ketuk langkah untuk detail|विवरण के लिए चरण टैप करें
+活动余额|活動餘額|Event balance|Baki aktiviti|Số dư hoạt động|ยอดกิจกรรม|Saldo acara|कार्यक्रम शेष
+充值金额|充值金額|Deposit amount|Jumlah deposit|Số tiền nạp|จำนวนเงินฝาก|Jumlah deposit|जमा राशि
+领取|領取|Claim|Tuntut|Nhận|รับ|Klaim|प्राप्त करें
+挑战|挑戰|Challenge|Cabaran|Thử thách|ภารกิจ|Tantangan|चुनौती
+解锁|解鎖|Unlock|Buka kunci|Mở khóa|ปลดล็อก|Buka|अनलॉक
+彩金|彩金|Bonus|Bonus|Tiền thưởng|โบนัส|Bonus|बोनस
+完成|完成|Complete|Selesai|Hoàn thành|เสร็จสิ้น|Selesai|पूर्ण
+首充|首充|First deposit|Deposit pertama|Nạp lần đầu|ฝากครั้งแรก|Deposit pertama|पहली जमा
+电子|電子|Slots|Slot|Slot|สล็อต|Slot|स्लॉट
+打鱼|捕魚|Fishing|Memancing|Bắn cá|ยิงปลา|Tembak ikan|फ़िशिंग
+现场|現場|Live|Langsung|Trực tiếp|สด|Langsung|लाइव
+体育|體育|Sports|Sukan|Thể thao|กีฬา|Olahraga|खेल
+头奖|頭獎|First prize|Hadiah pertama|Giải nhất|รางวัลที่ 1|Hadiah pertama|प्रथम पुरस्कार
+二奖|二獎|Second prize|Hadiah kedua|Giải nhì|รางวัลที่ 2|Hadiah kedua|द्वितीय पुरस्कार
+三奖|三獎|Third prize|Hadiah ketiga|Giải ba|รางวัลที่ 3|Hadiah ketiga|तृतीय पुरस्कार
+四奖|四獎|Fourth prize|Hadiah keempat|Giải tư|รางวัลที่ 4|Hadiah keempat|चतुर्थ पुरस्कार
+五奖|五獎|Fifth prize|Hadiah kelima|Giải năm|รางวัลที่ 5|Hadiah kelima|पाँचवाँ पुरस्कार
+暂无可展示的通知。|暫無可顯示的通知。|No notifications to display.|Tiada notifikasi untuk dipaparkan.|Chưa có thông báo.|ไม่มีการแจ้งเตือน|Tidak ada notifikasi.|कोई सूचना नहीं है।
+暂未提供逐笔领奖记录。|尚未提供逐筆領獎紀錄。|Individual claim records are not provided.|Rekod tuntutan individu belum disediakan.|Chưa có lịch sử nhận thưởng chi tiết.|ยังไม่มีข้อมูลการรับรางวัลรายรายการ|Riwayat klaim per transaksi belum tersedia.|अलग-अलग प्राप्ति रिकॉर्ड उपलब्ध नहीं हैं।
+TPOWER · 活动页面交互预览|TPOWER · 活動頁面互動預覽|TPOWER · Interactive preview|TPOWER · Pratonton interaktif|TPOWER · Bản xem thử tương tác|TPOWER · ตัวอย่างแบบโต้ตอบ|TPOWER · Pratinjau interaktif|TPOWER · इंटरैक्टिव पूर्वावलोकन
+内容依据提供的14张截图整理，未连接真实账户或领奖接口|內容依據提供的14張截圖整理，未連接真實帳戶或領獎介面|Based on 14 screenshots. No live account or claim connection.|Berdasarkan 14 tangkap layar. Tiada sambungan akaun atau tuntutan sebenar.|Theo 14 ảnh chụp. Không kết nối tài khoản hay nhận thưởng thật.|อ้างอิงจากภาพหน้าจอ 14 ภาพ ไม่เชื่อมต่อบัญชีหรือการรับรางวัลจริง|Berdasarkan 14 tangkapan layar. Tidak terhubung ke akun atau klaim nyata.|14 स्क्रीनशॉट पर आधारित। वास्तविक खाते या पुरस्कार से जुड़ा नहीं।
+活动分类|活動分類|Event categories|Kategori aktiviti|Danh mục hoạt động|หมวดหมู่กิจกรรม|Kategori acara|कार्यक्रम श्रेणियाँ
+活动列表|活動列表|Event list|Senarai aktiviti|Danh sách hoạt động|รายการกิจกรรม|Daftar acara|कार्यक्रम सूची
+活动内容|活動內容|Event content|Kandungan aktiviti|Nội dung hoạt động|เนื้อหากิจกรรม|Konten acara|कार्यक्रम सामग्री
+底部菜单|底部選單|Bottom navigation|Navigasi bawah|Điều hướng dưới|เมนูด้านล่าง|Navigasi bawah|निचला नेविगेशन
+立即领取活动金|立即領取活動金|Claim activity credit|Tuntut kredit aktiviti|Nhận điểm hoạt động|รับเครดิตกิจกรรม|Klaim kredit acara|कार्यक्रम क्रेडिट प्राप्त करें
+查看成长彩金计划|查看成長彩金計畫|View growth plan|Lihat pelan pertumbuhan|Xem kế hoạch tăng trưởng|ดูแผนการเติบโต|Lihat rencana pertumbuhan|विकास योजना देखें
+领取前请确认|領取前請確認|Confirm before claiming|Sahkan sebelum menuntut|Xác nhận trước khi nhận|ยืนยันก่อนรับ|Konfirmasi sebelum klaim|प्राप्त करने से पहले पुष्टि करें
+`;
+const UI_DICTIONARIES=Object.fromEntries(UI_LANGUAGES.map(([code])=>[code,{}]));
+for(const row of UI_TRANSLATION_ROWS.trim().split('\n')){const cells=row.split('|');if(cells.length!==8)throw new Error('Invalid locale row: '+cells[0]);UI_LANGUAGES.forEach(([code],i)=>UI_DICTIONARIES[code][cells[0]]=cells[i]);}
+const UI_NOTES={
+ 'zh-CN':'',
+ 'zh-TW':'介面語言已切換。活動名稱、規則正文及圖片文字保留簡體中文原文。',
+ en:'Interface translated. Activity names, rule text and artwork remain in the original Chinese.',
+ ms:'Bahasa antara muka ditukar. Nama aktiviti, teks peraturan dan imej kekal dalam bahasa Cina asal.',
+ vi:'Đã đổi ngôn ngữ giao diện. Tên hoạt động, nội dung thể lệ và hình ảnh giữ nguyên tiếng Trung.',
+ th:'เปลี่ยนภาษาของส่วนติดต่อแล้ว ชื่อกิจกรรม เนื้อหากติกา และข้อความในภาพยังเป็นภาษาจีนต้นฉบับ',
+ id:'Bahasa antarmuka diubah. Nama acara, isi aturan, dan gambar tetap dalam bahasa Mandarin asli.',
+ hi:'इंटरफ़ेस की भाषा बदल गई है। कार्यक्रम के नाम, नियमों का पाठ और चित्र मूल चीनी में हैं।'
+};
