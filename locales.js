@@ -145,6 +145,42 @@ TPOWER · 活动页面交互预览|TPOWER · 活動頁面互動預覽|TPOWER · 
 这里只展示领取确认界面，不验证账户、不发放试玩额度。|這裡只展示領取確認介面，不驗證帳戶、不發放試玩額度。|This is only a claim confirmation screen. No account is verified and no trial credit is issued.|Ini hanya skrin pengesahan tuntutan. Akaun tidak disahkan dan kredit cubaan tidak dikeluarkan.|Đây chỉ là màn hình xác nhận nhận thưởng, không xác minh tài khoản và không cấp hạn mức thử.|นี่เป็นเพียงหน้ายืนยันการรับ ไม่มีการตรวจสอบบัญชีและไม่มีการให้เครดิตทดลอง|Ini hanya layar konfirmasi klaim. Akun tidak diverifikasi dan kredit uji coba tidak diberikan.|यह केवल दावा पुष्टि स्क्रीन है। खाते का सत्यापन नहीं होता और ट्रायल क्रेडिट नहीं दिया जाता।
 指定游戏名单请通过正式平台客服咨询。预览不进入真实游戏，可使用页面中的模拟试玩查看进度。|指定遊戲名單請透過正式平台客服諮詢。預覽不進入真實遊戲，可使用頁面中的模擬試玩查看進度。|Ask official support for the designated game list. This preview does not open real games; use Simulate play on the page to view progress.|Tanya khidmat rasmi untuk senarai permainan. Pratonton ini tidak membuka permainan sebenar; guna Simulasi main untuk melihat kemajuan.|Hãy hỏi hỗ trợ chính thức về danh sách trò chơi chỉ định. Bản xem trước không mở trò chơi thật; dùng Mô phỏng chơi trên trang để xem tiến độ.|สอบถามฝ่ายบริการทางการสำหรับรายชื่อเกมที่กำหนด เดโมนี้จะไม่เปิดเกมจริง ใช้การจำลองการเล่นในหน้าเพื่อดูความคืบหน้า|Tanyakan ke bantuan resmi untuk daftar permainan yang ditentukan. Pratinjau ini tidak membuka permainan nyata; gunakan Simulasi main di halaman untuk melihat progres.|निर्धारित खेल सूची के लिए आधिकारिक सहायता से पूछें। यह पूर्वावलोकन असली खेल नहीं खोलता; प्रगति देखने के लिए पेज पर सिमुलेट का उपयोग करें।
 这里只展示兑换确认界面，不会发放现金到真实账户。|這裡只展示兌換確認介面，不會發放現金到真實帳戶。|This is only a redeem confirmation screen. No cash is paid to a real account.|Ini hanya skrin pengesahan tebusan. Tiada tunai dibayar ke akaun sebenar.|Đây chỉ là màn hình xác nhận đổi thưởng, không chi tiền vào tài khoản thật.|นี่เป็นเพียงหน้ายืนยันการแลก จะไม่มีการโอนเงินเข้าบัญชีจริง|Ini hanya layar konfirmasi penukaran. Tidak ada uang tunai yang dikirim ke akun nyata.|यह केवल रिडीम पुष्टि स्क्रीन है। वास्तविक खाते में नकद नहीं दिया जाता।
+注册并开始演示|註冊並開始演示|Sign up to start demo|Daftar untuk mula demo|Đăng ký để xem demo|สมัครเพื่อเริ่มเดโม|Daftar untuk mulai demo|डेमो शुरू करने के लिए साइन अप करें
+注册 / 登录|註冊 / 登入|Register / Log in|Daftar / Log masuk|Đăng ký / Đăng nhập|สมัคร / เข้าสู่ระบบ|Daftar / Masuk|पंजीकरण / लॉग इन
+获取验证码|獲取驗證碼|Get code|Dapatkan kod|Lấy mã|รับรหัส|Dapatkan kode|कोड प्राप्त करें
+重新获取验证码|重新獲取驗證碼|Resend code|Hantar semula kod|Gửi lại mã|ส่งรหัสอีกครั้ง|Kirim ulang kode|कोड फिर भेजें
+注册|註冊|Register|Daftar|Đăng ký|สมัคร|Daftar|पंजीकरण
+手机号码|手機號碼|Phone number|Nombor telefon|Số điện thoại|เบอร์โทรศัพท์|Nomor telepon|फ़ोन नंबर
+验证码|驗證碼|Verification code|Kod pengesahan|Mã xác minh|รหัสยืนยัน|Kode verifikasi|सत्यापन कोड
+真实姓名|真實姓名|Full name|Nama penuh|Họ và tên|ชื่อ-นามสกุล|Nama lengkap|पूरा नाम
+证件类型|證件類型|ID type|Jenis ID|Loại giấy tờ|ประเภทเอกสาร|Jenis identitas|पहचान प्रकार
+身份证|身份證|National ID|Kad pengenalan|CMND|บัตรประชาชน|KTP|राष्ट्रीय पहचान पत्र
+护照|護照|Passport|Pasport|Hộ chiếu|หนังสือเดินทาง|Paspor|पासपोर्ट
+证件号码|證件號碼|ID number|Nombor ID|Số giấy tờ|เลขเอกสาร|Nomor identitas|पहचान संख्या
+上传证件正面|上傳證件正面|Upload ID front|Muat naik depan ID|Tải mặt trước|อัปโหลดหน้าเอกสาร|Unggah sisi depan|पहचान पत्र सामने अपलोड करें
+上传证件反面|上傳證件反面|Upload ID back|Muat naik belakang ID|Tải mặt sau|อัปโหลดด้านหลัง|Unggah sisi belakang|पहचान पत्र पीछे अपलोड करें
+上传手持自拍照|上傳手持自拍照|Upload a handheld selfie|Muat naik swafoto|Tải ảnh selfie cầm giấy tờ|อัปโหลดเซลฟีถือเอกสาร|Unggah selfie dengan dokumen|सेल्फी अपलोड करें
+已上传（演示）|已上傳（演示）|Uploaded (demo)|Telah dimuat naik (demo)|Đã tải lên (demo)|อัปโหลดแล้ว (เดโม)|Sudah diunggah (demo)|अपलोड हो गया (डेमो)
+提交认证|提交認證|Submit verification|Hantar pengesahan|Gửi xác minh|ส่งการยืนยัน|Kirim verifikasi|सत्यापन जमा करें
+资料审核中|資料審核中|Under review|Sedang disemak|Đang xét duyệt|กำลังตรวจสอบ|Sedang ditinjau|समीक्षा जारी है
+认证成功|認證成功|Verified|Pengesahan berjaya|Xác minh thành công|ยืนยันสำเร็จ|Verifikasi berhasil|सत्यापन सफल
+已认证|已認證|Verified|Telah disahkan|Đã xác minh|ยืนยันแล้ว|Terverifikasi|सत्यापित
+返回活动领取额度|返回活動領取額度|Back to claim credit|Kembali untuk tuntut kredit|Về trang nhận hạn mức|กลับไปรับเครดิต|Kembali klaim kredit|क्रेडिट प्राप्त करने के लिए वापस जाएँ
+已领取 RM100 试玩额度|已領取 RM100 試玩額度|RM100 trial credit added|Kredit cubaan RM100 ditambah|Đã nhận hạn mức thử RM100|ได้รับเครดิตทดลอง RM100 แล้ว|Kredit uji coba RM100 ditambahkan|RM100 ट्रायल क्रेडिट जुड़ गया
+试玩钱包|試玩錢包|Trial wallet|Dompet cubaan|Ví thử|กระเป๋าทดลองเล่น|Dompet uji coba|ट्रायल वॉलेट
+主钱包|主錢包|Cash wallet|Dompet tunai|Ví chính|กระเป๋าเงินหลัก|Dompet utama|मुख्य वॉलेट
+指定游戏|指定遊戲|Designated games|Permainan ditetapkan|Trò chơi chỉ định|เกมที่กำหนด|Permainan yang ditentukan|निर्धारित खेल
+指定试玩|指定試玩|Trial only|Cuba sahaja|Chỉ chơi thử|ทดลองเล่นเท่านั้น|Hanya uji coba|केवल ट्रायल
+开始旋转|開始旋轉|Spin|Putar|Quay|หมุน|Putar|स्पिन
+恭喜达标|恭喜達標|Target reached|Sasaran tercapai|Đã đạt mục tiêu|ถึงเป้าหมายแล้ว|Target tercapai|लक्ष्य पूरा
+兑换成功|兌換成功|Redeemed successfully|Tebusan berjaya|Đổi thành công|แลกสำเร็จ|Penukaran berhasil|रिडीम सफल
+已到账|已到賬|Credited|Telah dikreditkan|Đã vào tài khoản|เข้าบัญชีแล้ว|Sudah masuk|जमा हो गया
+确认重置|確認重置|Confirm reset|Sahkan set semula|Xác nhận đặt lại|ยืนยันรีเซ็ต|Konfirmasi reset|रीसेट की पुष्टि करें
+演示模式|演示模式|Demo mode|Mod demo|Chế độ demo|โหมดเดโม|Mode demo|डेमो मोड
+查看领奖记录|查看領獎紀錄|View history|Lihat rekod|Xem lịch sử|ดูประวัติ|Lihat riwayat|इतिहास देखें
+返回活动|返回活動|Back to event|Kembali ke aktiviti|Về hoạt động|กลับไปที่กิจกรรม|Kembali ke acara|कार्यक्रम पर वापस
+演示未达标（余额归零）|演示未達標（餘額歸零）|Demo miss target (balance to 0)|Demo tidak capai sasaran (baki 0)|Demo không đạt mục tiêu (về 0)|เดโมไม่ถึงเป้า (ยอดเป็น 0)|Demo gagal target (saldo 0)|डेमो लक्ष्य पूरा नहीं (शेष 0)
+完整领奖流程预览，不连接真实账户|完整領獎流程預覽，不連接真實帳戶|Preview of the full reward journey. No live account is connected.|Pratonton perjalanan ganjaran penuh. Tiada akaun langsung.|Xem trước toàn bộ quy trình nhận thưởng, không kết nối tài khoản thật.|ตัวอย่างขั้นตอนรับรางวัลแบบเต็ม ไม่เชื่อมบัญชีจริง|Pratinjau alur hadiah lengkap. Tidak terhubung ke akun nyata.|पूरी इनाम यात्रा का पूर्वावलोकन। कोई लाइव खाता नहीं जुड़ा है।
 `;
 const UI_DICTIONARIES=Object.fromEntries(UI_LANGUAGES.map(([code])=>[code,{}]));
 for(const row of UI_TRANSLATION_ROWS.trim().split('\n')){const cells=row.split('|');if(cells.length!==8)throw new Error('Invalid locale row: '+cells[0]);UI_LANGUAGES.forEach(([code],i)=>UI_DICTIONARIES[code][cells[0]]=cells[i]);}
