@@ -210,7 +210,17 @@ TPOWER · 活动页面交互预览|TPOWER · 活動頁面互動預覽|TPOWER · 
 不符资格|不符資格|Not eligible|Tidak layak|Không đủ điều kiện|ไม่มีคุณสมบัติ|Tidak memenuhi syarat|अयोग्य
 演示不符资格|演示不符資格|Demo: not eligible|Demo: tidak layak|Demo: không đủ điều kiện|เดโม: ไม่มีคุณสมบัติ|Demo: tidak memenuhi syarat|डेमो: अयोग्य
 重置演示|重置演示|Reset demo|Tetapkan semula demo|Đặt lại bản demo|รีเซ็ตเดโม|Reset demo|डेमो रीसेट करें
-查看领奖记录|查看領獎紀錄|View history|Lihat rekod|Xem lịch sử|ดูประวัติ|Lihat riwayat|इतिहास देखें`;
+查看领奖记录|查看領獎紀錄|View history|Lihat rekod|Xem lịch sử|ดูประวัติ|Lihat riwayat|इतिहास देखें
+分享邀请码|分享邀請碼|Share invite code|Kongsi kod jemputan|Chia sẻ mã mời|แชร์รหัสเชิญ|Bagikan kode undangan|इनवाइट कोड साझा करें
+继续邀请好友|繼續邀請好友|Invite more friends|Jemput lagi rakan|Tiếp tục mời bạn|เชิญเพื่อนต่อ|Undang teman lagi|और मित्रों को आमंत्रित करें
+立即领取|立即領取|Claim now|Tuntut sekarang|Nhận ngay|รับทันที|Klaim sekarang|अभी प्राप्त करें
+演示首次充值 RM100|演示首次儲值 RM100|Demo first deposit RM100|Demo deposit pertama RM100|Demo nạp lần đầu RM100|เดโมฝากครั้งแรก RM100|Demo deposit pertama RM100|डेमो पहली जमा RM100
+去累计有效投注|去累計有效投注|Accrue valid bets|Kumpul pertaruhan sah|Tích lũy cược hợp lệ|สะสมเดิมพันที่มีผล|Kumpulkan taruhan valid|मान्य दांव जोड़ें
+演示开奖|演示開獎|Demo draw|Demo cabutan|Demo quay thưởng|เดโมออกรางวัล|Demo undian|डेमो ड्रॉ
+奖金已自动到账|獎金已自動到帳|Prize auto-paid|Hadiah dibayar automatik|Tiền thưởng đã vào ví|เงินรางวัลเข้าบัญชีอัตโนมัติ|Hadiah otomatis masuk|पुरस्कार स्वतः जमा
+未中奖|未中獎|No winning ticket|Tidak menang|Không trúng thưởng|ไม่ถูกรางวัล|Tidak menang|कोई जीत नहीं
+当期档位已失效|當期檔位已失效|This tier expired|Peringkat ini tamat|Cấp hiện tại đã hết hạn|ระดับนี้หมดอายุ|Tingkat ini kedaluwarsa|यह स्तर समाप्त
+已完成全部档位|已完成全部檔位|All tiers completed|Semua peringkat selesai|Đã hoàn tất mọi cấp|ครบทุกระดับ|Semua tingkat selesai|सभी स्तर पूरे`;
 const UI_DICTIONARIES=Object.fromEntries(UI_LANGUAGES.map(([code])=>[code,{}]));
 for(const row of UI_TRANSLATION_ROWS.trim().split('\n')){const cells=row.split('|');if(cells.length!==8)throw new Error('Invalid locale row: '+cells[0]);UI_LANGUAGES.forEach(([code],i)=>UI_DICTIONARIES[code][cells[0]]=cells[i]);}
 const UI_NOTES={

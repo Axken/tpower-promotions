@@ -275,3 +275,13 @@ html,body{height:100%;overflow:hidden}
 .rate-actions{display:grid;gap:8px;margin:12px 0}
 .rate-actions .outline-wide{margin:0;text-align:left;font-size:13px}
 .ticket-list strong{letter-spacing:.06em}
+
+.friend-card{margin:0 0 14px;padding:14px;border:1px solid #3d3036;border-radius:16px;background:#171316}
+.friend-card.is-void{opacity:.85;border-color:#5a3030}
+.friend-card.is-pending{border-style:dashed}
+.task-list{list-style:none;margin:10px 0 12px;padding:0}
+.task-list li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #2c2428;font-size:13px;color:#cec1c8}
+.task-list li:last-child{border-bottom:0}
+.task-list strong{color:#f5f3f2;font-weight:550;text-align:right}
+.friend-actions{display:grid;gap:8px;margin-top:10px}
+.friend-actions .outline-wide,.friend-actions .text-button{margin:0;text-align:left;font-size:13px}

@@ -4,9 +4,9 @@
   const demoOf = () => store().get();
 
   const NC_JOURNEY = ['领取', '流水', '解锁', '彩金流水', '完成'];
-  const RF_JOURNEY = ['邀请', '成功邀请', '解锁', '领取', '到账'];
-  const GR_JOURNEY = ['首充档位', '解锁彩金', '领取', '下一档', '完成'];
-  const AN_JOURNEY = ['累计流水', '抽奖券', '开奖', '领取', '到账'];
+  const RF_JOURNEY = ['邀请', '绑定好友', '任务解锁', '自动到账'];
+  const GR_JOURNEY = ['首次充值', '累计投注', '解锁领取', '下一档', '完成'];
+  const AN_JOURNEY = ['累计投注', '获得抽奖券', '等待开奖', '自动比对', '到账'];
   const MT_JOURNEY = ['参与', '挑战', '达标', '完成任务', '到账'];
 
   const NC_SPINS = [
@@ -30,8 +30,9 @@
     { delta: -40, symbols: ['铃', 'BAR', '星'] },
     { delta: -20, symbols: ['7', '星', 'BAR'] }
   ];
-  const AN_TICKETS = ['582130', '619204', '305816'];
-  const AN_DRAW = '582917';
+  const AN_TICKETS = ['582930', '619204', '305816'];
+  const AN_DRAW_WIN = '582917';
+  const AN_DRAW_MISS = '104763';
   const GAMES = [
     { id: 'lucky-star', name: '幸运星老虎机', tag: '指定游戏', icon: 'slot' },
     { id: 'golden-spin', name: '黄金旋转', tag: '指定游戏', icon: 'crown' },
@@ -84,31 +85,7 @@
     if (n.claimed) return 1;
     return 0;
   }
-  function rfIndex(r) {
-    if (r.claimedTotal > 0) return 4;
-    if (r.pending > 0) return 3;
-    if (r.friends.some(f => f.status === '成功邀请')) return 2;
-    if (r.friends.length) return 1;
-    return 0;
-  }
-  function grIndex(g) {
-    const caps = GROWTH_SOURCE.caps;
-    const claimedAll = caps.every((c, i) => g.claimed[i] >= c);
-    if (claimedAll) return 4;
-    if (g.tier > 0) return 3;
-    const claimable = g.unlocked[g.tier] - g.claimed[g.tier];
-    if (claimable > 0) return 2;
-    if (g.unlocked.some(v => v > 0)) return 1;
-    return 0;
-  }
-  function anIndex(a) {
-    if (a.claimed) return 4;
-    if (a.expired && a.drawDone) return 3;
-    if (a.drawDone) return 3;
-    if (a.tickets.length) return 1;
-    if (a.turnover > 0) return 0;
-    return 0;
-  }
+  /* rfIndex/grIndex/anIndex defined with activity renderers */
   function mtIndex(m) {
     if (m.completed) return 4;
     if (m.reached) return 3;
@@ -123,9 +100,9 @@
     const prefix = screen.split('-')[0];
     const map = {
       newcomer: () => ({ labels: NC_JOURNEY, current: ncIndex(demo.newcomer), finished: demo.newcomer.completed }),
-      referral: () => ({ labels: RF_JOURNEY, current: rfIndex(demo.referral), finished: demo.referral.claimedTotal > 0 }),
-      growth: () => ({ labels: GR_JOURNEY, current: grIndex(demo.growth), finished: GROWTH_SOURCE.caps.every((c, i) => demo.growth.claimed[i] >= c) }),
-      anniversary: () => ({ labels: AN_JOURNEY, current: anIndex(demo.anniversary), finished: demo.anniversary.claimed }),
+      referral: () => ({ labels: RF_JOURNEY, current: rfIndex(demo.referral), finished: rfUnlockedTotal(demo.referral) > 0 }),
+      growth: () => ({ labels: GR_JOURNEY, current: grIndex(demo.growth), finished: GROWTH_SOURCE.caps.every((c, i) => (demo.growth.claimed[i] || 0) >= c) }),
+      anniversary: () => ({ labels: AN_JOURNEY, current: anIndex(demo.anniversary), finished: demo.anniversary.paid }),
       maintenance: () => ({ labels: MT_JOURNEY, current: mtIndex(demo.maintenance), finished: demo.maintenance.completed })
     };
     if (map[id]) return map[id]();
@@ -278,196 +255,238 @@
   }
 
   /* ------------ 邀请好友 ------------ */
+  /* ------------ 邀请好友挑战 ------------ */
+  function rfUnlockedTotal(r) {
+    return r2((r.friends || []).reduce((s, f) => s + (f.disqualified ? 0 : (f.unlocked || 0)), 0));
+  }
+  function rfIndex(r) {
+    if (rfUnlockedTotal(r) > 0) return 3;
+    if ((r.friends || []).some(f => !f.disqualified && (f.kyc || f.registered))) return 2;
+    if ((r.friends || []).length) return 1;
+    return 0;
+  }
+  function friendCard(f, i) {
+    const cap = REFERRAL_SOURCE.cap;
+    const pct = Math.min(100, (f.unlocked / cap) * 100);
+    if (f.disqualified) {
+      return `<article class="friend-card is-void"><div class="section-header"><h3>${f.name}</h3><span class="status-badge muted">已取消资格</span></div><p class="trial-prose">${f.reason}</p><p class="fine-print">已解锁 RM 0.00</p></article>`;
+    }
+    const kyc = f.kyc ? '已完成 · +RM2.00' : '未完成';
+    const dep = f.deposited ? '已完成 · +RM3.00' : (f.kyc ? '待完成' : '需先完成实名认证');
+    const bet = `已累计 ${f.betUnits || 0} 次 × RM1,000 · +RM ${money((f.betUnits || 0) * 0.5)}`;
+    return `<article class="friend-card ${f.kyc ? '' : 'is-pending'}" data-friend="${i}">
+      <div class="section-header"><h3>${f.name}</h3><span class="status-badge">${f.kyc ? '合格好友' : '仅注册未认证'}</span></div>
+      <p class="fine-print">${f.account}</p>
+      <ul class="task-list trial-prose">
+        <li><span>完成实名认证（KYC）</span><strong>${kyc}</strong></li>
+        <li><span>累计成功充值RM100</span><strong>${dep}</strong></li>
+        <li><span>每累计有效投注RM1,000</span><strong>${bet}</strong></li>
+      </ul>
+      <div class="bar-label"><span>本好友已解锁</span><span>RM ${money(f.unlocked)} / RM ${money(cap)}</span></div>
+      <progress max="${cap}" value="${Math.min(cap, f.unlocked)}" aria-label="好友奖励上限"></progress>
+      ${f.kyc ? `<div class="friend-actions">
+        ${f.deposited ? '' : `<button type="button" class="outline-wide" data-action="ref-friend-deposit" data-friend="${i}">演示好友累计充值 RM100</button>`}
+        <button type="button" class="outline-wide" data-action="ref-friend-bet" data-friend="${i}">演示好友有效投注 RM1,000（+RM0.50）</button>
+        <button type="button" class="text-button" data-action="ref-friend-cap" data-friend="${i}">演示累计投注至本好友上限</button>
+      </div>` : '<p class="fine-print trial-prose">未完成实名认证，邀请奖励为 RM0.00。</p>'}
+    </article>`;
+  }
   function rfCta(r) {
-    if (r.pending > 0) return ['领取奖励', 'ref-go-claim', false];
-    if (r.claimedTotal > 0 && r.pending <= 0) return ['暂无可领取奖励', 'demo-done', true];
-    return ['邀请好友', 'ref-go-invite', false];
+    if ((r.friends || []).length) return ['继续邀请好友', 'ref-go-invite', false];
+    return ['分享邀请码', 'ref-go-invite', false];
   }
   window.renderReferralDemo = function () {
     store().ensureBanner();
     const demo = store().load();
     const r = demo.referral;
-    const viewStep = inspect('referral', 3, Math.min(3, rfIndex(r) === 4 ? 3 : rfIndex(r)));
+    const total = rfUnlockedTotal(r);
+    r.unlocked = total;
+    const viewStep = inspect('referral', 3, Math.min(3, rfIndex(r)));
     const s = REFERRAL_SOURCE.steps[viewStep];
-    const rows = r.friends.length
-      ? `<ul class="record-list">${r.friends.map(f => `<li><div><strong>${f.name}</strong><small>${f.account} · ${f.status}</small></div><div class="record-right"><b>${f.amount ? 'RM ' + money(f.amount) : '—'}</b><span class="status-badge">${f.status}</span></div></li>`).join('')}</ul>`
-      : `<div class="compact-empty" id="friend-empty">${icon('friends')}<h4>暂无邀请好友</h4><p>好友记录将显示在这里</p></div>`;
-    return `${store().journeyBar()}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">每位成功邀请</span><span class="status-badge">${r.claimedTotal > 0 ? '已领取' : r.pending > 0 ? '待领取' : '未参加'}</span></div><div class="amount"><small>最高 RM</small>1,000</div><p class="trial-prose">${REFERRAL_SOURCE.reward}</p></section><section class="section-panel"><div class="section-header"><h3>参与说明</h3></div>${checks(REFERRAL_SOURCE.eligibility)}</section><section class="section-panel"><div class="section-header"><h3>我的邀请</h3></div>${statRow([['已邀请好友', r.friends.length + '<span> 位</span>'], ['已解锁总额', money(r.unlocked)], ['已领取总额', money(r.claimedTotal)], ['待领取', money(r.pending)]], 'four-stats')}<span class="unit-note">金额单位：MYR</span></section><section class="section-panel flow-panel"><div class="section-header"><h3>活动流程</h3><span>点击步骤查看要求</span></div>${stepper(REFERRAL_SOURCE.steps, viewStep, 'referral')}<div class="step-explanation trial-prose"><div class="step-heading"><span class="step-kicker">0${viewStep + 1} / 04</span><h4>${s.heading}</h4></div><p class="trial-prose">${s.text}</p></div></section><section class="section-panel"><div class="section-header"><h3>推荐奖励明细</h3><span>${r.friends.length} 位好友</span></div>${rows}<div class="total-line"><span>可领取金额</span><strong>MYR ${money(r.pending)}</strong></div><p class="fine-print trial-prose">截图未包含有效邀请的判定标准、解锁条件、奖励档位、流水要求及领取期限。演示中「成功邀请」按页面展示的最高奖励 RM1,000 记入待领取，正式金额以平台为准。</p></section><section class="section-panel"><div class="section-header"><h3>重要条款</h3></div>${termsList(REFERRAL_SOURCE.terms)}</section><button type="button" class="outline-wide" data-tab="1">查看活动说明 ${icon('arrow')}</button>`;
+    const cards = r.friends.length ? r.friends.map(friendCard).join('') : `<div class="compact-empty">${icon('friends')}<h4>暂无邀请好友</h4><p>好友任务进度将显示在这里</p></div>`;
+    return `${store().journeyBar()}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">每成功邀请一名好友</span><span class="status-badge">${total > 0 ? '已自动解锁' : r.friends.length ? '进行中' : '未参加'}</span></div><div class="amount"><small>最高累计 RM</small>1,000</div><p class="trial-prose">${REFERRAL_SOURCE.reward}</p></section><section class="section-panel"><div class="section-header"><h3>参与方式</h3></div>${checks(REFERRAL_SOURCE.eligibility)}</section><section class="section-panel"><div class="section-header"><h3>好友任务与奖励</h3></div><div class="table-wrap"><table><thead><tr><th>好友完成条件</th><th>邀请人获得</th></tr></thead><tbody><tr><td>完成实名认证（KYC）</td><td>RM2</td></tr><tr><td>累计成功充值RM100</td><td>RM3</td></tr><tr><td>每累计有效投注RM1,000</td><td>RM0.50</td></tr></tbody></table></div></section><section class="section-panel"><div class="section-header"><h3>已解锁奖励</h3><span>自动到账</span></div>${statRow([['已邀请好友', r.friends.length + '<span> 位</span>'], ['已自动解锁', money(total)], ['主钱包', money(demo.mainWallet)]], 'four-stats')}<span class="unit-note">金额单位：MYR · 系统自动解锁对应邀请奖励</span></section><section class="section-panel flow-panel"><div class="section-header"><h3>活动流程</h3><span>点击步骤查看要求</span></div>${stepper(REFERRAL_SOURCE.steps, viewStep, 'referral')}<div class="step-explanation trial-prose"><div class="step-heading"><span class="step-kicker">0${viewStep + 1} / 04</span><h4>${s.heading}</h4></div><p>${s.text}</p></div></section><section class="section-panel"><div class="section-header"><h3>好友奖励进度</h3><span>${r.friends.length} 位好友</span></div>${cards}</section><section class="section-panel"><div class="section-header"><h3>重要条款</h3></div>${termsList(REFERRAL_SOURCE.terms)}</section><button type="button" class="outline-wide" data-tab="1">查看活动说明 ${icon('arrow')}</button>`;
   };
   function renderRefInvite() {
     const r = demoOf().referral;
-    $('#app').innerHTML = page('邀请好友', `
-      <p class="demo-lead trial-prose">每位成功邀请最高可获得 MYR 1,000.00 邀请奖励。截图未提供专属邀请链接与有效邀请门槛，预览不生成或发送邀请，仅在本机展示演示邀请码。</p>
+    $('#app').innerHTML = page('分享邀请', `
+      <p class="demo-lead trial-prose">分享专属邀请链接或邀请码。好友成功注册并完成指定任务后，系统自动解锁对应邀请奖励。预览不向外发送邀请。</p>
       <section class="section-panel invite-code-card">
         <div class="section-header"><h3>演示邀请码</h3></div>
         <p class="invite-code" id="invite-code">${r.code}</p>
+        <p class="fine-print" id="invite-link">${r.link}</p>
         <button type="button" class="outline-wide" data-action="ref-copy">复制邀请码</button>
       </section>
-      <button type="button" class="primary" data-action="ref-friend-success">演示一位好友成功加入</button>
-      <button type="button" class="outline-wide" data-action="ref-friend-fail">演示邀请未成功</button>
+      <button type="button" class="primary" data-action="ref-friend-kyc">演示好友注册并完成实名认证</button>
+      <button type="button" class="outline-wide" data-action="ref-friend-nokyc">演示好友仅注册、未完成KYC</button>
+      <button type="button" class="text-button trial-reset" data-action="ref-friend-self">演示自行邀请自己的其他账号</button>
+      <button type="button" class="text-button trial-reset" data-action="ref-friend-dup">演示相同实名身份重复邀请</button>
     `, 'activity=referral');
-    document.title = '邀请好友 · TPOWER';
-  }
-  function renderRefClaim() {
-    const r = demoOf().referral;
-    $('#app').innerHTML = page('领取邀请奖励', `
-      <section class="reward-feature trial-hero">
-        <div class="panel-top"><span class="eyebrow">待领取</span><span class="status-badge">已解锁</span></div>
-        <div class="amount"><small>RM</small>${money(r.pending).split('.')[0]}<span>.${money(r.pending).split('.')[1]}</span></div>
-        <p class="trial-prose">已解锁且未领取的奖励可在活动页领取。演示按页面展示的最高奖励入账，正式金额以平台为准。</p>
-      </section>
-      <button type="button" class="primary" data-action="ref-claim-confirm">确认领取</button>
-    `, 'activity=referral');
-    document.title = '领取邀请奖励 · TPOWER';
+    document.title = '分享邀请 · TPOWER';
   }
 
-  /* ------------ 成长彩金 ------------ */
-  function grClaimable(g, i) { return r2(Math.max(0, (g.unlocked[i] || 0) - (g.claimed[i] || 0))); }
-  function grCta(g) {
-    const caps = GROWTH_SOURCE.caps;
-    if (caps.every((c, i) => g.claimed[i] >= c)) return ['已完成全部档位', 'demo-done', true];
-    if (grClaimable(g, g.tier) > 0) return ['领取已解锁彩金', 'gr-go-claim', false];
-    return ['去解锁彩金', 'gr-go-play', false];
+  /* ------------ 成长彩金200%扶持计划 ------------ */
+  function grClaimable(g, i) {
+    if (!g.started || (g.expired && g.expired[i])) return 0;
+    return r2(Math.max(0, (g.unlocked[i] || 0) - (g.claimed[i] || 0)));
+  }
+  function grIndex(g) {
+    if (!g.started) return 0;
+    if (GROWTH_SOURCE.caps.every((c, i) => (g.claimed[i] || 0) >= c)) return 4;
+    if (g.expired && g.expired[g.tier]) return 3;
+    if (g.tier > 0) return 3;
+    if (grClaimable(g, g.tier) > 0) return 2;
+    if (g.unlocked.some(v => v > 0)) return 1;
+    return 1;
   }
   function growthLevelStatus(g, i) {
-    const cap = GROWTH_SOURCE.caps[i];
-    if (g.claimed[i] >= cap) return '已完成';
-    if (i === g.tier) return '进行中 · 不限时';
-    if (i > g.tier) return '等待当前档位完成后自动激活';
+    if (!g.started) return i === 0 ? '待首次充值启动' : '可提前点亮，不可累计';
+    if (g.expired && g.expired[i]) return '已失效，不能恢复';
+    if ((g.claimed[i] || 0) >= GROWTH_SOURCE.caps[i]) return '已完成';
+    if (i === g.tier) return i === 0 ? '进行中 · 不设完成期限' : `进行中 · 剩余 ${g.daysLeft[i] == null ? 10 : g.daysLeft[i]} 天`;
+    if (i > g.tier) return '已点亮 · 不可提前累计流水';
     return '已结束';
+  }
+  function grCta(g) {
+    if (!g.started) return ['演示首次充值 RM100', 'gr-first-deposit', false];
+    if (g.expired && g.expired[g.tier]) return ['当期档位已失效', 'demo-done', true];
+    if (GROWTH_SOURCE.caps.every((c, i) => (g.claimed[i] || 0) >= c)) return ['已完成全部档位', 'demo-done', true];
+    if (grClaimable(g, g.tier) > 0) return ['立即领取', 'gr-go-claim', false];
+    return ['去累计有效投注', 'gr-go-play', false];
   }
   window.renderGrowthDemo = function () {
     store().ensureBanner();
     const demo = store().load();
     const g = demo.growth;
-    const cap = GROWTH_SOURCE.caps[g.tier];
-    const title = GROWTH_SOURCE.titles[g.tier];
-    const unlocked = g.unlocked[g.tier];
-    const claimed = g.claimed[g.tier];
-    const left = r2(cap - unlocked);
+    const cap = GROWTH_SOURCE.caps[g.tier] || GROWTH_SOURCE.caps[0];
+    const title = GROWTH_SOURCE.titles[g.tier] || GROWTH_SOURCE.titles[0];
     const claimable = grClaimable(g, g.tier);
+    const unlocked = g.started ? (g.unlocked[g.tier] || 0) : 0;
     const pct = cap ? Math.floor((unlocked / cap) * 100) : 0;
-    const viewStep = inspect('growth', 3, Math.min(3, grIndex(g) === 4 ? 3 : grIndex(g)));
+    const viewStep = inspect('growth', 3, Math.min(3, grIndex(g)));
     const s = GROWTH_SOURCE.steps[viewStep];
-    const levels = GROWTH_SOURCE.titles.map((t, i) => `<details class="level-card" ${i === g.tier ? 'open' : ''}><summary><span class="level-icon">${icon('gift')}</span><span class="level-title"><b>${t}</b><small>成长彩金 MYR ${money(GROWTH_SOURCE.caps[i])}</small></span><span class="level-status ${i === g.tier ? 'current' : ''}">${growthLevelStatus(g, i)}</span>${icon('arrow')}</summary><div class="level-content"><div class="bar-label"><span>已解锁 MYR ${money(g.unlocked[i])}</span><span>MYR ${money(GROWTH_SOURCE.caps[i])}</span></div><progress max="${GROWTH_SOURCE.caps[i]}" value="${Math.min(GROWTH_SOURCE.caps[i], g.unlocked[i])}" aria-label="${t}解锁进度"></progress><p class="fine-print">已领取 MYR ${money(g.claimed[i])} · 可领取 MYR ${money(grClaimable(g, i))}</p>${i === g.tier && claimable <= 0 && g.claimed[i] < cap ? `<p class="fine-print center trial-prose">可领取金额为 MYR 0.00，需先按比例解锁。</p>` : ''}</div></details>`).join('');
-    return `${store().journeyBar()}<section class="section-panel growth-overview"><div class="section-header"><h3>当前档位 · ${title}</h3></div><div class="growth-main"><div><span class="eyebrow">${g.tier === 0 ? '首充200% · 最高彩金' : title + ' · 最高彩金'}</span><div class="growth-amount"><small>RM</small> ${money(cap).replace('.00', '')}<span>.00</span></div><span class="status-badge">${growthLevelStatus(g, g.tier)}</span></div><div class="progress-ring" role="img" aria-label="解锁进度${pct}%"><div><b>${pct}<span>%</span></b><small>解锁进度</small></div></div></div>${statRow([['可领取', '<em>' + money(claimable) + '</em>'], ['已领取', money(g.claimed.reduce((a, b) => a + b, 0))], ['待解锁', money(left)]])}<span class="unit-note">金额单位：MYR</span></section><section class="section-panel"><div class="section-header"><h3>参与说明</h3></div>${checks(GROWTH_SOURCE.eligibility)}</section><section class="section-panel flow-panel"><div class="section-header"><h3>活动流程</h3><span>点击步骤查看要求</span></div>${stepper(GROWTH_SOURCE.steps, viewStep, 'growth')}<div class="step-explanation trial-prose"><div class="step-heading"><span class="step-kicker">0${viewStep + 1} / 04</span><h4>${s.heading}</h4></div><p>${s.text}</p></div></section><div class="section-header outside"><h3>活动档位</h3><span>已完成 ${g.claimed.filter((v, i) => v >= GROWTH_SOURCE.caps[i]).length} / 5</span></div><section class="level-list">${levels}</section><section class="section-panel"><div class="section-header"><h3>解锁比例</h3><span>首充档位截图</span></div>${rateTable()}<p class="fine-print trial-prose">这些比例来自当前首充档位截图，其他档位的比例截图未展开。演示暂按已展示的比例计算，正式比例以平台为准。</p></section><section class="section-panel"><div class="section-header"><h3>重要条款</h3></div>${termsList(GROWTH_SOURCE.terms)}</section><button type="button" class="outline-wide" data-tab="1">查看活动说明 ${icon('arrow')}</button>`;
+    const levels = GROWTH_SOURCE.titles.map((t, i) => {
+      const demoNote = i === 0 ? '按演示首充 RM100 的 200% 计算，本档彩金 RM200。' : '规则未写明后续档位彩金金额，演示暂以同一 RM200 示例展示，正式金额以平台为准。';
+      return `<details class="level-card" ${i === (g.started ? g.tier : 0) ? 'open' : ''}><summary><span class="level-icon">${icon('gift')}</span><span class="level-title"><b>${t}</b><small>${i === 0 ? '首充200% 彩金 MYR ' + money(GROWTH_SOURCE.caps[i]) : '演示示例档位 MYR ' + money(GROWTH_SOURCE.caps[i])}</small></span><span class="level-status ${i === g.tier && g.started ? 'current' : ''}">${growthLevelStatus(g, i)}</span>${icon('arrow')}</summary><div class="level-content"><p class="fine-print trial-prose">${demoNote}</p><div class="bar-label"><span>已解锁 MYR ${money(g.unlocked[i] || 0)}</span><span>MYR ${money(GROWTH_SOURCE.caps[i])}</span></div><progress max="${GROWTH_SOURCE.caps[i]}" value="${Math.min(GROWTH_SOURCE.caps[i], g.unlocked[i] || 0)}" aria-label="${t}解锁进度"></progress><p class="fine-print">已领取 MYR ${money(g.claimed[i] || 0)} · 可领取 MYR ${money(grClaimable(g, i))}${i > 0 && g.started && i === g.tier && !(g.expired && g.expired[i]) ? ' · 剩余 ' + (g.daysLeft[i] == null ? 10 : g.daysLeft[i]) + ' 天' : ''}</p></div></details>`;
+    }).join('');
+    const status = !g.started ? ['待首次充值', ''] : (g.expired && g.expired[g.tier]) ? ['当期档位已失效', 'muted'] : claimable > 0 ? ['可立即领取', ''] : '进行中';
+    const statusText = Array.isArray(status) ? status : [status, ''];
+    return `${store().journeyBar()}<section class="section-panel growth-overview"><div class="section-header"><h3>当前档位 · ${title}</h3></div><div class="growth-main"><div><span class="eyebrow">${g.started ? '逐步解锁 · 领取后无需额外流水' : '首次充值启动 200% 彩金'}</span><div class="growth-amount"><small>RM</small> ${money(cap).replace('.00', '')}<span>.00</span></div><span class="status-badge ${statusText[1]}">${statusText[0]}</span></div><div class="progress-ring" role="img" aria-label="解锁进度${pct}%"><div><b>${pct}<span>%</span></b><small>解锁进度</small></div></div></div>${statRow([['可领取', '<em>' + money(g.started ? claimable : 0) + '</em>'], ['已领取', money((g.claimed || []).reduce((a, b) => a + b, 0))], ['待解锁', money(Math.max(0, cap - unlocked))]])}<span class="unit-note">金额单位：MYR</span></section><section class="section-panel"><div class="section-header"><h3>参与说明</h3></div>${checks(GROWTH_SOURCE.eligibility)}<p class="fine-print trial-prose">演示以首次有效充值 RM100 为例，200% 成长彩金为 RM200，按进度逐步解锁。</p></section><section class="section-panel flow-panel"><div class="section-header"><h3>活动流程</h3><span>首次充值 → 激活200%档位 → 累计有效投注 → 解锁彩金 → 领取奖励 → 完成当前档位 → 进入下一档位</span></div>${stepper(GROWTH_SOURCE.steps, viewStep, 'growth')}<div class="step-explanation trial-prose"><div class="step-heading"><span class="step-kicker">0${viewStep + 1} / 04</span><h4>${s.heading}</h4></div><p>${s.text}</p></div></section><div class="section-header outside"><h3>活动档位</h3><span>已完成 ${(g.claimed || []).filter((v, i) => v >= GROWTH_SOURCE.caps[i]).length} / 3</span></div><section class="level-list">${levels}</section><section class="section-panel"><div class="section-header"><h3>指定游戏</h3></div><div class="rule-chips">${GROWTH_SOURCE.games.map(x => `<span>${x}</span>`).join('')}</div><p class="fine-print trial-prose">${GROWTH_SOURCE.demoUnlock.note} 其他游戏投注不计入活动进度。</p></section><section class="section-panel"><div class="section-header"><h3>重要条款</h3></div>${termsList(GROWTH_SOURCE.terms)}</section><button type="button" class="outline-wide" data-tab="1">查看活动说明 ${icon('arrow')}</button>`;
   };
   function renderGrPlay() {
     const g = demoOf().growth;
     const cap = GROWTH_SOURCE.caps[g.tier];
     const claimable = grClaimable(g, g.tier);
-    $('#app').innerHTML = page('解锁彩金', `
+    const expired = g.expired && g.expired[g.tier];
+    const demo = GROWTH_SOURCE.demoUnlock;
+    $('#app').innerHTML = page('累计有效投注', `
       <div class="play-wallet">
         <div><span>${GROWTH_SOURCE.titles[g.tier]} 已解锁</span><strong>RM ${money(g.unlocked[g.tier])} / ${money(cap)}</strong></div>
         <div class="play-progress"><div class="bar-label"><span>可领取</span><span>RM ${money(claimable)}</span></div><progress max="${cap}" value="${Math.min(cap, g.unlocked[g.tier])}" aria-label="解锁进度"></progress></div>
       </div>
-      <p class="trial-prose">截图当前首充档位显示的解锁比例：电子0.3%；打鱼0.3%；现场0.1%；体育0.5%。</p>
-      <div class="rate-actions">${GROWTH_SOURCE.rates.map(([name, rate, label]) => `<button type="button" class="outline-wide" data-action="gr-bet" data-type="${name}" data-stake="10000">演示${name}投注 RM10,000（${label} → RM ${money(10000 * rate)}）</button>`).join('')}</div>
-      <button type="button" class="primary" data-action="gr-accelerate">演示加速解锁当前档位</button>
-      <p class="fine-print trial-prose">「演示加速」仅用于预览领奖流程，不是官方解锁速度或投注要求。各档位充值门槛、最低领取金额及提现规则，截图没有完整展示。</p>
-      ${claimable > 0 ? '<button type="button" class="primary" data-action="gr-go-claim">领取已解锁彩金</button>' : ''}
+      <p class="trial-prose">会员参与指定游戏，系统自动计算有效投注进度。指定游戏类型：老虎机、捕鱼、真人、体育。其他游戏投注不计入活动进度。</p>
+      <p class="fine-print trial-prose">${demo.note}</p>
+      <div class="rate-actions">${GROWTH_SOURCE.games.map(name => `<button type="button" class="outline-wide" data-action="gr-bet-valid" data-game="${name}" ${expired ? 'disabled' : ''}>演示${name}投注 RM${demo.bet}（示例解锁 RM${money(demo.bonus)}）</button>`).join('')}
+        <button type="button" class="outline-wide" data-action="gr-bet-other" ${expired ? 'disabled' : ''}>演示其他游戏投注 RM${demo.bet}（不计入）</button>
+      </div>
+      ${g.tier > 0 && !expired ? `<button type="button" class="text-button trial-reset" data-action="gr-expire">演示超过10天未完成</button><p class="fine-print trial-prose">后续每个档位有效期为10天。超过10天未完成，当期档位自动失效，不能恢复。</p>` : ''}
+      ${g.tier === 0 ? '<p class="fine-print trial-prose">首充档位不设完成期限。</p>' : ''}
+      <button type="button" class="primary" data-action="gr-accelerate" ${expired || g.unlocked[g.tier] >= cap ? 'disabled' : ''}>演示累计至本档全部解锁</button>
+      <p class="fine-print trial-prose">「演示累计至本档全部解锁」仅用于预览领取流程，不是官方投注要求。</p>
+      ${claimable > 0 && !expired ? '<button type="button" class="primary" data-action="gr-go-claim">立即领取</button>' : ''}
     `, 'activity=growth');
-    document.title = '解锁彩金 · TPOWER';
+    document.title = '累计有效投注 · TPOWER';
   }
   function renderGrClaim() {
     const g = demoOf().growth;
     const amt = grClaimable(g, g.tier);
-    $('#app').innerHTML = page('领取彩金', `
+    $('#app').innerHTML = page('立即领取', `
       <section class="reward-feature trial-hero">
         <div class="panel-top"><span class="eyebrow">${GROWTH_SOURCE.titles[g.tier]} 可领取</span><span class="status-badge">已解锁</span></div>
         <div class="amount"><small>RM</small>${money(amt).split('.')[0]}<span>.${money(amt).split('.')[1] || '00'}</span></div>
-        <p class="trial-prose">已解锁的彩金可在当前档位领取。截图没有完整展示最低领取金额及提现规则，演示将已解锁金额记入主钱包，不增设额外门槛。</p>
+        <p class="trial-prose">玩家点击「立即领取」。奖励直接发放至现金钱包。已领取的成长彩金无需额外流水要求。</p>
       </section>
-      <button type="button" class="primary" data-action="gr-claim-confirm" ${amt > 0 ? '' : 'disabled'}>确认领取</button>
+      <button type="button" class="primary" data-action="gr-claim-confirm" ${amt > 0 ? '' : 'disabled'}>立即领取</button>
     `, 'activity=growth');
-    document.title = '领取彩金 · TPOWER';
+    document.title = '立即领取 · TPOWER';
   }
 
-  /* ------------ 周年抽奖 ------------ */
+  /* ------------ 每周6D幸运大抽奖 ------------ */
   function prizeMatch(ticket, draw) {
-    if (ticket === draw) return ['头奖', 100000];
-    if (ticket.slice(0, 5) === draw.slice(0, 5) || ticket.slice(1) === draw.slice(1)) return ['二奖', 3000];
-    if (ticket.slice(0, 4) === draw.slice(0, 4) || ticket.slice(2) === draw.slice(2)) return ['三奖', 300];
-    if (ticket.slice(0, 3) === draw.slice(0, 3) || ticket.slice(3) === draw.slice(3)) return ['四奖', 30];
-    if (ticket.slice(0, 2) === draw.slice(0, 2) || ticket.slice(4) === draw.slice(4)) return ['五奖', 4];
+    if (!ticket || !draw) return null;
+    if (ticket === draw) return ['完整匹配6位数字', 28888];
+    if (ticket.slice(0, 5) === draw.slice(0, 5) || ticket.slice(1) === draw.slice(1)) return ['匹配前5位或后5位', 888];
+    if (ticket.slice(0, 4) === draw.slice(0, 4) || ticket.slice(2) === draw.slice(2)) return ['匹配前4位或后4位', 188];
+    if (ticket.slice(0, 3) === draw.slice(0, 3) || ticket.slice(3) === draw.slice(3)) return ['匹配前3位或后3位', 18];
     return null;
   }
+  function anIndex(a) {
+    if (a.paid) return 4;
+    if (a.missed) return 3;
+    if (a.drawDone) return 3;
+    if (a.tickets.length) return 2;
+    if (a.turnover > 0) return 0;
+    return 0;
+  }
   function anCta(a) {
-    if (a.expired) return ['奖金已作废', 'demo-done', true];
-    if (a.claimed) return ['已领取', 'demo-done', true];
-    if (a.drawDone && a.winAmount > 0) return ['领取奖金', 'an-go-claim', false];
-    if (a.drawDone && a.winAmount <= 0) return ['未中奖', 'demo-done', true];
-    if (a.tickets.length) return ['演示开奖', 'an-go-draw', false];
-    return ['去累计有效流水', 'an-go-play', false];
+    if (a.paid) return ['奖金已自动到账', 'demo-done', true];
+    if (a.missed) return ['未中奖', 'demo-done', true];
+    if (a.tickets.length && !a.drawDone) return ['演示开奖', 'an-go-draw', false];
+    return ['去累计有效投注', 'an-go-play', false];
   }
   window.renderAnniversaryDemo = function () {
     store().ensureBanner();
     const demo = store().load();
     const a = demo.anniversary;
-    const [status, cls] = a.claimed ? ['已领取', 'muted'] : a.expired ? ['奖金已作废', 'muted'] : a.drawDone && a.winAmount > 0 ? ['待领取', ''] : a.tickets.length ? ['已获抽奖券', ''] : ['第3期进行中', ''];
+    const [status, cls] = a.paid ? ['奖金已自动到账', 'muted'] : a.missed ? ['未中奖', 'muted'] : a.tickets.length ? ['已获抽奖券', ''] : ['待累计投注', ''];
     const viewStep = inspect('anniversary', 3, Math.min(3, anIndex(a)));
     const s = DRAW_SOURCE.steps[viewStep];
     const balls = a.drawDone
       ? a.drawNumber.split('').map(d => `<span>${d}</span>`).join('')
       : Array(6).fill('<span>—</span>').join('');
-    return `${store().journeyBar()}<section class="reward-feature draw-hero trial-hero"><div class="panel-top"><span class="eyebrow">3周年幸运大抽奖</span><span class="status-badge ${cls}">${status}</span></div><div class="amount"><small>头奖 RM</small>100,000</div><p class="trial-prose">有效流水累计每满 RM200，获得1张抽奖券。</p><div class="period-dates"><div><span>活动开始</span><b>2026.11.15 <small>19:00:00</small></b></div><div><span>活动结束</span><b>2026.11.22 <small>18:59:59</small></b></div></div></section>${note('中奖奖金须在48小时内手动领取，逾期自动作废。')}<section class="section-panel"><div class="section-header"><h3>参与说明</h3></div>${checks(DRAW_SOURCE.eligibility)}</section><section class="section-panel flow-panel"><div class="section-header"><h3>活动流程</h3><span>点击步骤查看要求</span></div>${stepper(DRAW_SOURCE.steps, viewStep, 'anniversary')}<div class="step-explanation trial-prose"><div class="step-heading"><span class="step-kicker">0${viewStep + 1} / 04</span><h4>${s.heading}</h4></div><p>${s.text}</p></div></section><section class="section-panel"><div class="section-header"><h3>开奖参考</h3><span>TOTO 6D</span></div><div class="draw-reference"><div><b>2026年11月22日</b><p>根据当周星期日 TOTO 6D 开奖号码兑奖</p></div></div><div class="number-balls" aria-label="${a.drawDone ? '演示开奖号码' : '尚未开奖'}">${balls}</div><p class="fine-print center trial-prose">${a.drawDone ? '以上为演示开奖号码，非官方 TOTO 6D 结果，仅用于预览兑奖流程。' : '官方开奖以当周星期日 TOTO 6D 为准。演示中可使用「演示开奖」预览兑奖。'}</p></section><section class="section-panel"><div class="section-header"><h3>奖项一览</h3><span>共5个奖项</span></div>${prizeTable()}</section><section class="section-panel"><div class="section-header"><h3>重要条款</h3></div>${termsList(DRAW_SOURCE.terms)}</section><button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button><button type="button" class="text-button" data-tab="2">我的抽奖券 ${icon('arrow')}</button>`;
+    return `${store().journeyBar()}<section class="reward-feature draw-hero trial-hero"><div class="panel-top"><span class="eyebrow">每周6D幸运大抽奖</span><span class="status-badge ${cls}">${status}</span></div><div class="amount"><small>最高 RM</small>28,888</div><p class="trial-prose">${DRAW_SOURCE.reward}</p><div class="period-dates"><div><span>每周开奖</span><b>星期日 <small>9:00pm</small></b></div><div><span>开奖参考</span><b>Sports Toto <small>官方6D</small></b></div></div></section>${note('系统自动比对号码并发放奖金。同一张抽奖券只可获得最高匹配档位的奖金，不重复领取。')}<section class="section-panel"><div class="section-header"><h3>参与条件</h3></div>${checks(DRAW_SOURCE.eligibility)}</section><section class="section-panel flow-panel"><div class="section-header"><h3>活动流程</h3><span>点击步骤查看要求</span></div>${stepper(DRAW_SOURCE.steps, viewStep, 'anniversary')}<div class="step-explanation trial-prose"><div class="step-heading"><span class="step-kicker">0${viewStep + 1} / 04</span><h4>${s.heading}</h4></div><p>${s.text}</p></div></section><section class="section-panel"><div class="section-header"><h3>开奖参考</h3><span>Sports Toto 6D</span></div><div class="draw-reference"><div><b>每周日晚上 9:00pm</b><p>开奖结果参考指定期次的Sports Toto官方6D开奖结果。</p></div></div><div class="number-balls" aria-label="${a.drawDone ? '演示开奖号码' : '尚未开奖'}">${balls}</div><p class="fine-print center trial-prose">${a.drawDone ? '以上为演示开奖号码，非官方 Sports Toto 6D 结果，仅用于预览自动比对与派奖。' : '官方开奖以指定期次 Sports Toto 6D 为准。演示中可使用「演示开奖」预览自动比对。'}</p></section><section class="section-panel"><div class="section-header"><h3>奖金规则</h3><span>共4个奖项</span></div>${prizeTable()}</section><section class="section-panel"><div class="section-header"><h3>重要条款</h3></div>${termsList(DRAW_SOURCE.terms)}</section><button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button><button type="button" class="text-button" data-tab="2">我的抽奖券 ${icon('arrow')}</button>`;
   };
   window.renderAnniversaryTickets = function () {
     store().ensureBanner();
     const demo = store().load();
     const a = demo.anniversary;
-    const period = state.period;
-    const day = { 3: '22', 2: '15', 1: '08' }[period];
-    const current = period === 3;
-    const list = current && a.tickets.length
+    const list = a.tickets.length
       ? `<ul class="record-list ticket-list">${a.tickets.map((no, i) => {
           const hit = a.drawDone ? prizeMatch(no, a.drawNumber) : null;
-          const st = !a.drawDone ? '待开奖' : a.expired && hit ? '已作废' : hit ? hit[0] : '未中奖';
+          const st = !a.drawDone ? '待开奖' : hit ? hit[0] : '未中奖';
           return `<li><div><strong>抽奖券 ${i + 1}</strong><small>号码 ${no}</small></div><div class="record-right"><b>${hit ? 'RM ' + money(hit[1]) : '—'}</b><span class="status-badge">${st}</span></div></li>`;
         }).join('')}</ul>`
-      : '';
-    return `${store().journeyBar()}<section class="section-panel tickets-panel"><div class="section-header"><h3>我的抽奖券</h3></div><div class="period-tabs" aria-label="抽奖期数">${[3, 2, 1].map(n => `<button data-period="${n}" aria-pressed="${n === period}" class="${n === period ? 'active' : ''}">第${n}期<small>11月${{ 3: '22', 2: '15', 1: '08' }[n]}日</small></button>`).join('')}</div><div class="ticket-period"><b>第${period}期 · 2026年11月${day}日</b>${current ? '<p>2026.11.15 19:00:00 — 2026.11.22 18:59:59</p>' : '<p>仅提供了该期期数与开奖参考日期。</p>'}</div>${current ? `${a.drawDone ? `<div class="number-balls small-balls">${a.drawNumber.split('').map(d => `<span>${d}</span>`).join('')}</div><p class="fine-print center trial-prose">演示开奖号码 ${a.drawNumber}，非官方结果。</p>` : `<div class="number-balls small-balls">${Array(6).fill('<span>—</span>').join('')}</div><p class="fine-print center">尚未开奖</p>`}${statRow([['抽奖券数', String(a.tickets.length)], ['中奖总额', a.drawDone ? money(a.winAmount) : '—'], ['未领取奖额', a.drawDone && !a.claimed && !a.expired ? money(a.winAmount) : money(0)]])}${list}` : `<p class="fine-print center">该期开奖号码未提供</p>${action('该期领奖数据未提供', 'ticket-claim', true)}`}</section>${note('奖金须在48小时内点击领取，逾期作废。')}`;
+      : `<div class="compact-empty">${icon('receipt')}<h4>暂无抽奖券</h4><p class="trial-prose">每累计RM200有效投注，即可获得1张抽奖券。</p></div>`;
+    const balls = a.drawDone ? a.drawNumber.split('').map(d => `<span>${d}</span>`).join('') : Array(6).fill('<span>—</span>').join('');
+    return `${store().journeyBar()}<section class="section-panel tickets-panel"><div class="section-header"><h3>我的抽奖券</h3></div><div class="ticket-period"><b>本期 · 每周日 9:00pm 开奖</b><p>开奖结果参考指定期次的Sports Toto官方6D开奖结果。</p></div><div class="number-balls small-balls">${balls}</div><p class="fine-print center trial-prose">${a.drawDone ? '演示开奖号码 ' + a.drawNumber + '，非官方结果。系统已自动比对并处理派奖。' : '尚未开奖'}</p>${statRow([['抽奖券数', String(a.tickets.length)], ['中奖总额', a.drawDone ? money(a.winAmount) : '—'], ['到账状态', a.paid ? '已自动到账' : a.missed ? '未中奖' : '待开奖']])}${list}</section>${note('同一张抽奖券只可获得最高匹配档位的奖金，不重复领取。系统自动比对号码并发放奖金。')}`;
   };
   function renderAnPlay() {
     const a = demoOf().anniversary;
-    const nextNeed = 200 - (a.turnover % 200 || (a.turnover > 0 && a.turnover % 200 === 0 ? 200 : a.turnover % 200));
-    const remainToTicket = a.turnover % 200 === 0 ? (a.tickets.length >= 3 && a.turnover >= 600 ? 0 : 200) : 200 - (a.turnover % 200);
-    $('#app').innerHTML = page('累计有效流水', `
+    $('#app').innerHTML = page('累计有效投注', `
       <div class="play-wallet">
-        <div><span>有效流水</span><strong>RM ${money(a.turnover)}</strong></div>
-        <div class="play-progress"><div class="bar-label"><span>已获抽奖券</span><span>${a.tickets.length} 张 · 每满 RM200 得1张</span></div><progress max="600" value="${Math.min(600, a.turnover)}" aria-label="流水进度"></progress></div>
+        <div><span>有效投注</span><strong>RM ${money(a.turnover)}</strong></div>
+        <div class="play-progress"><div class="bar-label"><span>已获抽奖券</span><span>${a.tickets.length} 张 · 每满 RM200 得1张</span></div><progress max="600" value="${Math.min(600, a.turnover)}" aria-label="投注进度"></progress></div>
       </div>
-      <p class="trial-prose">活动期间，有效投注流水每累计满 RM200 获得1张抽奖券。除4D及平台指定的特殊游戏外，其他游戏的有效投注均计入活动流水。</p>
-      <button type="button" class="primary" data-action="an-add-turnover" ${a.tickets.length >= 3 ? 'disabled' : ''}>演示累计 RM200 有效流水</button>
+      <p class="trial-prose">每累计RM200有效投注，即可获得1张抽奖券。系统自动记录符合条件的投注金额。仅计算实际结算完成的有效投注。</p>
+      <button type="button" class="primary" data-action="an-add-turnover" ${a.tickets.length >= 3 || a.drawDone ? 'disabled' : ''}>演示累计 RM200 有效投注</button>
+      <button type="button" class="outline-wide" data-action="an-invalid-bet" ${a.drawDone ? 'disabled' : ''}>演示无效投注（不计入）</button>
+      <p class="fine-print trial-prose">取消、无效、对冲以及异常投注不计入。</p>
       ${a.tickets.length ? '<button type="button" class="outline-wide" data-demo-nav="activity=anniversary&tab=2">查看我的抽奖券</button>' : ''}
-      ${a.tickets.length >= 3 ? '<button type="button" class="primary" data-action="an-go-draw">演示开奖</button>' : ''}
+      ${a.tickets.length >= 1 && !a.drawDone ? '<button type="button" class="primary" data-action="an-go-draw">演示开奖</button>' : ''}
     `, 'activity=anniversary');
-    document.title = '累计有效流水 · TPOWER';
+    document.title = '累计有效投注 · TPOWER';
   }
   function renderAnDraw() {
     const a = demoOf().anniversary;
     const balls = a.drawDone ? a.drawNumber.split('').map(d => `<span>${d}</span>`).join('') : Array(6).fill('<span>?</span>').join('');
     const hits = a.drawDone ? a.tickets.map(no => ({ no, hit: prizeMatch(no, a.drawNumber) })) : [];
-    $('#app').innerHTML = page('开奖核对', `
-      <p class="demo-lead trial-prose">每张抽奖券包含一组6位数号码，以当周星期日 TOTO 6D 开奖号码为兑奖依据。号码和顺序必须一致；二至五奖按前段或后段号码匹配。以下开奖号码为演示示例，非官方结果。</p>
+    $('#app').innerHTML = page('开奖比对', `
+      <p class="demo-lead trial-prose">每周日晚上9:00pm进行一次幸运开奖。开奖结果参考指定期次的Sports Toto官方6D开奖结果。以下开奖号码为演示示例，非官方结果。系统自动比对号码并发放奖金。同一张抽奖券只可获得最高匹配档位的奖金，不重复领取。</p>
       <div class="number-balls" id="an-draw-balls">${balls}</div>
-      ${a.drawDone ? `<p class="fine-print center trial-prose">演示开奖号码 ${a.drawNumber}</p><ul class="record-list">${hits.map(h => `<li><div><strong>${h.no}</strong></div><div class="record-right"><b>${h.hit ? 'RM ' + money(h.hit[1]) : '—'}</b><span class="status-badge">${h.hit ? h.hit[0] : '未中奖'}</span></div></li>`).join('')}</ul>${a.winAmount > 0 && !a.claimed && !a.expired ? '<button type="button" class="primary" data-action="an-go-claim">领取奖金</button><button type="button" class="outline-wide" data-action="an-expire">演示超过48小时未领取</button>' : ''}` : '<button type="button" class="primary" data-action="an-draw-confirm">开始演示开奖</button>'}
+      ${a.drawDone ? `<p class="fine-print center trial-prose">演示开奖号码 ${a.drawNumber}</p><ul class="record-list">${hits.map(h => `<li><div><strong>${h.no}</strong></div><div class="record-right"><b>${h.hit ? 'RM ' + money(h.hit[1]) : '—'}</b><span class="status-badge">${h.hit ? h.hit[0] : '未中奖'}</span></div></li>`).join('')}</ul>${a.paid ? `<p class="trial-prose">奖金 RM ${money(a.winAmount)} 已自动发放至现金钱包。</p><button type="button" class="primary" data-demo-nav="demo=records">查看领奖记录</button>` : `<p class="trial-prose">未匹配任何奖项，本期没有奖金发放。</p>`}` : `<button type="button" class="primary" data-action="an-draw-win">演示开奖（有匹配）</button><button type="button" class="outline-wide" data-action="an-draw-miss">演示开奖（全部未中奖）</button>`}
     `, 'activity=anniversary&tab=2');
-    document.title = '开奖核对 · TPOWER';
+    document.title = '开奖比对 · TPOWER';
   }
-  function renderAnClaim() {
-    const a = demoOf().anniversary;
-    $('#app').innerHTML = page('领取奖金', `
-      <section class="reward-feature trial-hero">
-        <div class="panel-top"><span class="eyebrow">${a.prizeName || '中奖奖金'}</span><span class="status-badge">待领取 · 48小时</span></div>
-        <div class="amount"><small>RM</small>${money(a.winAmount).split('.')[0]}<span>.${money(a.winAmount).split('.')[1]}</span></div>
-        <p class="trial-prose">奖金必须在48小时内点击领取；超过指定时间，奖金将自动作废。</p>
-      </section>
-      <button type="button" class="primary" data-action="an-claim-confirm">确认领取</button>
-      <button type="button" class="outline-wide" data-action="an-expire">演示超过48小时未领取</button>
-    `, 'activity=anniversary&tab=2');
-    document.title = '领取奖金 · TPOWER';
-  }
+
 
   /* ------------ 维护补偿 ------------ */
   function mtCta(m) {
@@ -533,12 +552,10 @@
       'nc-wager': renderNcWager,
       'nc-done': renderNcDone,
       'ref-invite': renderRefInvite,
-      'ref-claim': renderRefClaim,
       'gr-play': renderGrPlay,
       'gr-claim': renderGrClaim,
       'an-play': renderAnPlay,
       'an-draw': renderAnDraw,
-      'an-claim': renderAnClaim,
       'mt-play': renderMtPlay,
       'mt-finish': renderMtFinish
     };
@@ -550,10 +567,9 @@
       'nc-unlock': () => demo.newcomer.challengeDone && !demo.newcomer.deposited && !demo.newcomer.expired && !demo.newcomer.abandoned,
       'nc-wager': () => demo.newcomer.deposited && !demo.newcomer.completed,
       'nc-done': () => demo.newcomer.completed || demo.newcomer.expired || demo.newcomer.abandoned,
-      'ref-claim': () => demo.referral.pending > 0,
-      'gr-claim': () => grClaimable(demo.growth, demo.growth.tier) > 0,
+      'gr-play': () => demo.growth.started,
+      'gr-claim': () => demo.growth.started && grClaimable(demo.growth, demo.growth.tier) > 0,
       'an-draw': () => demo.anniversary.tickets.length > 0,
-      'an-claim': () => demo.anniversary.drawDone && demo.anniversary.winAmount > 0 && !demo.anniversary.claimed && !demo.anniversary.expired,
       'mt-play': () => demo.maintenance.joined && demo.maintenance.eligible,
       'mt-finish': () => demo.maintenance.reached && !demo.maintenance.completed
     };
@@ -567,6 +583,45 @@
     pages[screen]();
     return true;
   };
+
+
+  function settleDraw(demo, a, drawNo) {
+    if (!a.tickets.length || a.drawDone) return;
+    a.drawDone = true;
+    a.drawNumber = drawNo;
+    let total = 0, names = [];
+    a.tickets.forEach(no => {
+      const hit = prizeMatch(no, drawNo);
+      if (hit) { total = r2(total + hit[1]); names.push(hit[0]); }
+    });
+    a.winAmount = total;
+    a.prizeName = names[0] || '';
+    if (total > 0) {
+      a.paid = true;
+      a.missed = false;
+      demo.mainWallet = r2(demo.mainWallet + total);
+      record('每周6D幸运大抽奖 · ' + (a.prizeName || '奖金'), total, '已到账');
+      store().save();
+      toast('系统已自动比对并发放奖金 RM ' + money(total));
+    } else {
+      a.paid = false;
+      a.missed = true;
+      store().save();
+      toast('未匹配任何奖项，没有奖金发放');
+    }
+    navigate('demo=an-draw');
+  }
+  function creditReferral(demo, friend, amount, label) {
+    const cap = REFERRAL_SOURCE.cap;
+    const room = r2(Math.max(0, cap - (friend.unlocked || 0)));
+    const add = r2(Math.min(amount, room));
+    if (add <= 0) { toast('该好友邀请奖励已达最高 RM1,000'); return 0; }
+    friend.unlocked = r2((friend.unlocked || 0) + add);
+    demo.referral.unlocked = rfUnlockedTotal(demo.referral);
+    demo.mainWallet = r2(demo.mainWallet + add);
+    record('邀请好友挑战 · ' + friend.name + ' · ' + label, add, '已到账');
+    return add;
+  }
 
   window.PromoHandleAction = function (name) {
     const demo = store().load();
@@ -643,52 +698,71 @@
       case 'ref-go-invite':
         navigate('demo=ref-invite'); return true;
       case 'ref-copy':
-        try { navigator.clipboard && navigator.clipboard.writeText(r.code); } catch {}
+        try { navigator.clipboard && navigator.clipboard.writeText(demo.referral.code); } catch {}
         toast('已复制演示邀请码'); return true;
-      case 'ref-friend-success': {
-        r.friends.push({ name: '演示好友 ' + String.fromCharCode(65 + r.friends.length), account: 'user****' + (12 + r.friends.length), status: '成功邀请', amount: 1000 });
-        r.unlocked = r2(r.unlocked + 1000);
-        r.pending = r2(r.pending + 1000);
-        store().save(); toast('一位好友已成功加入，待领取 RM1,000.00（按最高可获奖励演示）'); navigate('activity=referral'); return true;
+      case 'ref-friend-kyc': {
+        const i = r.friends.length;
+        const f = { name: '演示好友 ' + String.fromCharCode(65 + i), account: 'user****' + (12 + i), registered: true, kyc: true, deposited: false, betUnits: 0, unlocked: 2, disqualified: false, reason: '' };
+        r.friends.push(f);
+        r.unlocked = rfUnlockedTotal(r);
+        demo.mainWallet = r2(demo.mainWallet + 2);
+        record('邀请好友挑战 · ' + f.name + ' · 实名认证', 2, '已到账');
+        store().save(); toast('好友已完成实名认证，系统自动解锁 RM2.00'); navigate('activity=referral'); return true;
       }
-      case 'ref-friend-fail':
-        r.friends.push({ name: '演示好友 ' + String.fromCharCode(65 + r.friends.length), account: 'user****' + (12 + r.friends.length), status: '未成功', amount: 0 });
-        store().save(); toast('该次邀请未成功，奖励未解锁'); navigate('activity=referral'); return true;
-      case 'ref-go-claim':
-        if (r.pending <= 0) { toast('暂无可领取奖励'); return true; }
-        navigate('demo=ref-claim'); return true;
-      case 'ref-claim-confirm': {
-        if (r.pending <= 0) return true;
-        const amt = r.pending;
-        r.claimedTotal = r2(r.claimedTotal + amt);
-        r.pending = 0;
-        demo.mainWallet = r2(demo.mainWallet + amt);
-        record('邀请好友奖励', amt, '已到账');
-        store().save(); toast('邀请奖励已到账'); navigate('demo=records'); return true;
+      case 'ref-friend-nokyc': {
+        const i = r.friends.length;
+        r.friends.push({ name: '演示好友 ' + String.fromCharCode(65 + i), account: 'user****' + (12 + i), registered: true, kyc: false, deposited: false, betUnits: 0, unlocked: 0, disqualified: false, reason: '' });
+        store().save(); toast('好友仅完成注册、未完成实名认证，邀请奖励为 RM0.00'); navigate('activity=referral'); return true;
       }
+      case 'ref-friend-self':
+        r.friends.push({ name: '自己的其他账号', account: demo.phone, registered: true, kyc: false, deposited: false, betUnits: 0, unlocked: 0, disqualified: true, reason: '禁止自行邀请自己的其他账号领取奖励。异常邀请关系一律取消资格。' });
+        store().save(); toast('自行邀请自己的其他账号，资格已取消'); navigate('activity=referral'); return true;
+      case 'ref-friend-dup':
+        r.friends.push({ name: '重复实名身份', account: 'user****99', registered: true, kyc: false, deposited: false, betUnits: 0, unlocked: 0, disqualified: true, reason: '相同实名身份不得重复计算邀请人数。重复身份及刷量行为一律取消资格。' });
+        store().save(); toast('相同实名身份重复邀请，资格已取消'); navigate('activity=referral'); return true;
+      case 'ref-friend-deposit':
+      case 'ref-friend-bet':
+      case 'ref-friend-cap':
+        return true;
 
+      case 'gr-first-deposit':
+        if (g.started) { toast('每位会员仅限开启一次成长计划'); return true; }
+        g.started = true; g.firstDeposit = GROWTH_SOURCE.depositExample; g.tier = 0;
+        store().save(); toast('已完成首次有效充值 RM100，已启动首充200%彩金档位（RM200）'); navigate('activity=growth'); return true;
       case 'gr-go-play':
+        if (!g.started) { toast('请先完成首次有效充值'); return true; }
         navigate('demo=gr-play'); return true;
-      case 'gr-bet':
-        return true; // handled via data-type click
+      case 'gr-bet-valid':
+      case 'gr-bet-other':
+        return true;
       case 'gr-accelerate': {
+        if (!g.started || (g.expired && g.expired[g.tier])) return true;
         const cap = GROWTH_SOURCE.caps[g.tier];
-        g.lastUnlock = r2(cap - g.unlocked[g.tier]);
         g.unlocked[g.tier] = cap;
-        store().save(); toast('当前档位已演示加速解锁（非正式解锁速度）'); navigate('demo=gr-play'); return true;
+        store().save(); toast('本档彩金已按演示进度全部解锁（非正式投注要求）'); navigate('demo=gr-play'); return true;
       }
+      case 'gr-expire':
+        if (!g.started || g.tier === 0) return true;
+        if (g.claimed[g.tier] >= GROWTH_SOURCE.caps[g.tier]) return true;
+        g.expired[g.tier] = true;
+        g.daysLeft[g.tier] = 0;
+        store().save(); toast('超过10天未完成，当期档位已失效，不能恢复'); navigate('activity=growth'); return true;
       case 'gr-go-claim':
-        if (grClaimable(g, g.tier) <= 0) { toast('暂无可领取彩金'); return true; }
+        if (!g.started || grClaimable(g, g.tier) <= 0) { toast('暂无可领取彩金'); return true; }
         navigate('demo=gr-claim'); return true;
       case 'gr-claim-confirm': {
+        if (g.expired && g.expired[g.tier]) { toast('已失效档位不可重复领取或重新启动'); return true; }
         const amt = grClaimable(g, g.tier);
         if (amt <= 0) return true;
-        g.claimed[g.tier] = r2(g.claimed[g.tier] + amt);
+        g.claimed[g.tier] = r2((g.claimed[g.tier] || 0) + amt);
         demo.mainWallet = r2(demo.mainWallet + amt);
-        record('成长彩金计划 · ' + GROWTH_SOURCE.titles[g.tier], amt, '已到账');
-        if (g.claimed[g.tier] >= GROWTH_SOURCE.caps[g.tier] && g.tier < 4) g.tier += 1;
+        record('成长彩金200%扶持计划 · ' + GROWTH_SOURCE.titles[g.tier], amt, '已到账');
+        if (g.claimed[g.tier] >= GROWTH_SOURCE.caps[g.tier] && g.tier < GROWTH_SOURCE.caps.length - 1) {
+          g.tier += 1;
+          g.daysLeft[g.tier] = 10;
+        }
         store().save();
-        toast('彩金已记入主钱包');
+        toast('奖励已发放至现金钱包，无需额外流水');
         navigate('activity=growth');
         return true;
       }
@@ -696,42 +770,21 @@
       case 'an-go-play':
         navigate('demo=an-play'); return true;
       case 'an-add-turnover': {
-        if (a.tickets.length >= 3) return true;
+        if (a.drawDone || a.tickets.length >= 3) return true;
         a.turnover = r2(a.turnover + 200);
         const no = AN_TICKETS[a.tickets.length] || String(100000 + a.tickets.length * 173).slice(0, 6);
         a.tickets.push(no);
-        store().save(); toast('有效流水满 RM200，获得1张抽奖券'); navigate('demo=an-play'); return true;
+        store().save(); toast('有效投注满 RM200，自动获得1张抽奖券'); navigate('demo=an-play'); return true;
       }
+      case 'an-invalid-bet':
+        toast('取消、无效、对冲以及异常投注不计入'); return true;
       case 'an-go-draw':
         if (!a.tickets.length) return true;
         navigate('demo=an-draw'); return true;
-      case 'an-draw-confirm': {
-        a.drawDone = true;
-        a.drawNumber = AN_DRAW;
-        let best = 0, name = '';
-        a.tickets.forEach(no => {
-          const hit = prizeMatch(no, a.drawNumber);
-          if (hit && hit[1] > best) { best = hit[1]; name = hit[0]; }
-        });
-        a.winAmount = best;
-        a.prizeName = name;
-        store().save();
-        toast(best ? '已按演示开奖号码完成核对' : '未中奖');
-        navigate('demo=an-draw');
-        return true;
-      }
-      case 'an-go-claim':
-        if (!a.drawDone || a.claimed || a.expired || a.winAmount <= 0) return true;
-        navigate('demo=an-claim'); return true;
-      case 'an-claim-confirm':
-        if (!a.drawDone || a.claimed || a.expired || a.winAmount <= 0) return true;
-        a.claimed = true;
-        demo.mainWallet = r2(demo.mainWallet + a.winAmount);
-        record('3周年幸运大抽奖 · ' + (a.prizeName || '奖金'), a.winAmount, '已到账');
-        store().save(); toast('奖金已到账'); navigate('demo=records'); return true;
-      case 'an-expire':
-        if (a.claimed || !a.drawDone) return true;
-        a.expired = true; store().save(); toast('超过指定时间，奖金已自动作废'); navigate('activity=anniversary&tab=2'); return true;
+      case 'an-draw-win':
+        settleDraw(demo, a, AN_DRAW_WIN); return true;
+      case 'an-draw-miss':
+        settleDraw(demo, a, AN_DRAW_MISS); return true;
 
       case 'mt-join':
         if (!m.eligible || m.joined || m.completed) return true;
@@ -836,24 +889,53 @@
   }
 
   document.addEventListener('click', e => {
-    const bet = e.target.closest('[data-action="gr-bet"]');
-    if (bet) {
+    const btn = e.target.closest('button[data-action]');
+    if (btn && !btn.disabled) {
+      const name = btn.getAttribute('data-action');
       const demo = store().load();
       const g = demo.growth;
-      const type = bet.getAttribute('data-type');
-      const stake = Number(bet.getAttribute('data-stake') || 0);
-      const rateRow = GROWTH_SOURCE.rates.find(x => x[0] === type);
-      if (!rateRow || !stake) return;
-      const cap = GROWTH_SOURCE.caps[g.tier];
-      const add = r2(Math.min(stake * rateRow[1], cap - g.unlocked[g.tier]));
-      g.unlocked[g.tier] = r2(g.unlocked[g.tier] + add);
-      g.lastUnlock = add;
-      g.lastRate = rateRow[2];
-      g.lastStake = stake;
-      store().save();
-      toast(`演示${type}投注 RM ${money(stake)}，按 ${rateRow[2]} 解锁 RM ${money(add)}`);
-      renderGrPlay();
-      return;
+      const r = demo.referral;
+      const fi = Number(btn.getAttribute('data-friend'));
+      const friend = Number.isInteger(fi) ? r.friends[fi] : null;
+      if (name === 'gr-bet-valid') {
+        if (!g.started || (g.expired && g.expired[g.tier])) return;
+        const game = btn.getAttribute('data-game') || '指定游戏';
+        const cap = GROWTH_SOURCE.caps[g.tier];
+        const add = r2(Math.min(GROWTH_SOURCE.demoUnlock.bonus, cap - (g.unlocked[g.tier] || 0)));
+        g.turnover[g.tier] = r2((g.turnover[g.tier] || 0) + GROWTH_SOURCE.demoUnlock.bet);
+        g.unlocked[g.tier] = r2((g.unlocked[g.tier] || 0) + add);
+        store().save();
+        toast(add > 0 ? `演示${game}有效投注 RM ${money(GROWTH_SOURCE.demoUnlock.bet)}，按示例解锁 RM ${money(add)}` : '本档彩金已全部解锁');
+        renderGrPlay();
+        return;
+      }
+      if (name === 'gr-bet-other') {
+        toast('其他游戏投注不计入活动进度');
+        return;
+      }
+      if (name === 'ref-friend-deposit' && friend && !friend.disqualified) {
+        if (!friend.kyc) { toast('需先完成实名认证'); return; }
+        if (friend.deposited) { toast('该好友充值任务已完成'); return; }
+        friend.deposited = true;
+        creditReferral(demo, friend, 3, '累计充值RM100');
+        store().save(); toast('好友累计充值 RM100，系统自动解锁 RM3.00'); refreshPromo(); return;
+      }
+      if (name === 'ref-friend-bet' && friend && !friend.disqualified) {
+        if (!friend.kyc) { toast('需先完成实名认证'); return; }
+        friend.betUnits = (friend.betUnits || 0) + 1;
+        const add = creditReferral(demo, friend, 0.5, '有效投注RM1,000');
+        store().save();
+        if (add) toast('好友有效投注满 RM1,000，系统自动解锁 RM0.50');
+        refreshPromo(); return;
+      }
+      if (name === 'ref-friend-cap' && friend && !friend.disqualified) {
+        if (!friend.kyc) { toast('需先完成实名认证'); return; }
+        const room = r2(Math.max(0, REFERRAL_SOURCE.cap - (friend.unlocked || 0)));
+        if (room <= 0) { toast('该好友邀请奖励已达最高 RM1,000'); return; }
+        friend.betUnits = (friend.betUnits || 0) + Math.ceil(room / 0.5);
+        creditReferral(demo, friend, room, '有效投注累计至上限');
+        store().save(); toast('该好友邀请奖励已达最高 RM1,000，系统自动解锁'); refreshPromo(); return;
+      }
     }
     const stepBtn = e.target.closest('[data-promo-step]');
     if (stepBtn) {
