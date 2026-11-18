@@ -1,6 +1,6 @@
 (() => {
-  const DEMO_KEY = 'tpower-trial-demo-v1';
-  const JOURNEY = ['注册', '实名', '领取', '试玩', '达标', '兑换', '到账'];
+  const DEMO_KEY = 'tpower-trial-demo-v2';
+  const JOURNEY = ['领取', '试玩', '达标', '兑换', '到账'];
   const WIN_SPINS = [
     { delta: 20, symbols: ['7', '7', '7'] },
     { delta: -10, symbols: ['星', 'BAR', '7'] },
@@ -26,10 +26,10 @@
   function defaultDemo() {
     return {
       phone: '012-3456789',
-      otp: '',
-      otpSent: false,
-      loggedIn: false,
-      kyc: { status: 'none', name: '陈美玲', idType: 'ic', idNumber: '990101-14-1234', idFront: false, idBack: false, selfie: false },
+      otp: '123456',
+      otpSent: true,
+      loggedIn: true,
+      kyc: { status: 'approved', name: '陈美玲', idType: 'ic', idNumber: '990101-14-1234', idFront: true, idBack: true, selfie: true },
       claimed: false,
       trialBalance: 0,
       trialEnded: false,
@@ -66,17 +66,15 @@
   const later = (fn, ms) => { clearTimeout(demoTimer); demoTimer = setTimeout(fn, ms); };
 
   function journeyIndex() {
-    if (!demo.loggedIn) return 0;
-    if (demo.kyc.status !== 'approved') return 1;
-    if (!demo.claimed) return 2;
-    if (demo.redeemed) return 6;
+    if (!demo.claimed) return 0;
+    if (demo.redeemed) return 4;
     if (demo.reachedTarget) {
       const screen = currentRoute().get('demo');
-      if (screen === 'redeem-success') return 6;
-      if (screen === 'redeem' || screen === 'redeem-process') return 5;
-      return 4;
+      if (screen === 'redeem-success') return 4;
+      if (screen === 'redeem' || screen === 'redeem-process') return 3;
+      return 2;
     }
-    return 3;
+    return 1;
   }
   function journeyBar() {
     const current = journeyIndex();
@@ -327,15 +325,15 @@
   }
 
   function renderAccount() {
-    const kycLabel = demo.kyc.status === 'approved' ? '已认证' : demo.loggedIn ? '未认证' : '未登录';
+    const kycLabel = '已认证';
     $('#app').innerHTML = demoPage('我的账户', `
       <section class="account-card">
         <div class="account-avatar">${icon('user')}</div>
         <div>
-          <strong>${demo.loggedIn ? esc(demo.kyc.name || '演示会员') : '游客'}</strong>
-          <p>${demo.loggedIn ? esc(demo.phone) : '登录后可体验完整领奖流程'}</p>
+          <strong>${esc(demo.kyc.name || '演示会员')}</strong>
+          <p>${esc(demo.phone)}</p>
         </div>
-        <span class="status-badge ${demo.kyc.status === 'approved' ? '' : 'muted'}">${kycLabel}</span>
+        <span class="status-badge">${kycLabel}</span>
       </section>
       <div class="wallet-pair">
         <div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>RM ${money(demo.mainWallet)}</strong></div>
@@ -344,12 +342,11 @@
       <section class="section-panel">
         <div class="section-header"><h3>账户状态</h3><span class="demo-badge">演示模式</span></div>
         <ul class="kyc-summary">
-          <li><span>登录</span><strong>${demo.loggedIn ? '已登录' : '未登录'}</strong></li>
+          <li><span>登录</span><strong>已登录</strong></li>
           <li><span>实名认证</span><strong>${kycLabel}</strong></li>
           <li><span>体验礼</span><strong>${demo.redeemed ? '已领取' : demo.claimed ? '进行中' : '未参加'}</strong></li>
         </ul>
       </section>
-      ${demo.loggedIn ? '' : '<button type="button" class="primary" data-demo-nav="demo=register">注册 / 登录</button>'}
       <button type="button" class="outline-wide" data-action="demo-reset">重置演示</button>
     `, 'category=all');
     document.title = '我的账户 · TPOWER';
@@ -359,26 +356,23 @@
     ensureBanner();
     clearTimeout(demoTimer);
     demo = loadDemo();
+    if (['register', 'kyc', 'kyc-review', 'kyc-success'].includes(screen)) {
+      navigate('activity=newcomer-trial');
+      return;
+    }
     const gate = {
-      claim: () => demo.loggedIn && demo.kyc.status === 'approved' && !demo.claimed && !demo.redeemed,
+      claim: () => !demo.claimed && !demo.redeemed,
       games: () => demo.claimed && !demo.redeemed,
       play: () => demo.claimed && !demo.redeemed,
       redeem: () => demo.reachedTarget && !demo.redeemed,
       'redeem-process': () => demo.reachedTarget && !demo.redeemed,
-      'redeem-success': () => demo.redeemed,
-      kyc: () => demo.loggedIn && demo.kyc.status !== 'approved',
-      'kyc-review': () => demo.loggedIn,
-      'kyc-success': () => demo.kyc.status === 'approved'
+      'redeem-success': () => demo.redeemed
     };
     if (gate[screen] && !gate[screen]()) {
       navigate('activity=newcomer-trial');
       return;
     }
     const pages = {
-      register: renderRegister,
-      kyc: renderKyc,
-      'kyc-review': renderKycReview,
-      'kyc-success': renderKycSuccess,
       claim: renderClaim,
       games: renderGames,
       play: renderPlay,
@@ -394,8 +388,6 @@
   };
 
   function trialCurrentAction() {
-    if (!demo.loggedIn) return ['注册并开始演示', 'demo-start', false];
-    if (demo.kyc.status !== 'approved') return ['去实名认证', 'demo-go-kyc', false];
     if (demo.redeemed) return ['已领取', 'demo-done', true];
     if (!demo.claimed) return ['领取RM100试玩额度', 'demo-go-claim', false];
     if (demo.trialEnded) return ['未达RM200，不可兑换', 'demo-done', true];
@@ -408,9 +400,7 @@
     if (demo.trialEnded) return ['未达标 · 不可兑换', 'muted'];
     if (demo.reachedTarget) return ['已达标 · 可兑换', ''];
     if (demo.claimed) return ['已领取 · 试玩中', ''];
-    if (demo.kyc.status === 'approved') return ['已认证 · 待领取', ''];
-    if (demo.loggedIn) return ['已注册 · 待实名', ''];
-    return ['未参与 · 演示模式', 'muted'];
+    return ['已认证 · 待领取', ''];
   };
   window.trialAction = trialCurrentAction;
   window.trialSticky = function () {
@@ -434,8 +424,8 @@
     demo = loadDemo();
     const [status, statusCls] = trialStatus();
     const stage = journeyIndex();
-    const viewMap = { 0: 0, 1: 0, 2: 1, 3: 2, 4: 3, 5: 3, 6: 3 };
-    const auto = viewMap[stage] ?? 0;
+    const viewMap = { 0: 1, 1: 2, 2: 3, 3: 3, 4: 3 };
+    const auto = viewMap[stage] ?? 1;
     const viewStep = Number.isInteger(state.trial && state.trial.inspect) ? Math.max(0, Math.min(3, state.trial.inspect)) : auto;
     const s = TRIAL_SOURCE.steps[viewStep];
     const path = `<div class="trial-path" aria-label="活动奖励"><div><strong>RM100</strong><span>免费试玩</span></div><span class="trial-path-arrow" aria-hidden="true"></span><div><strong>RM200</strong><span>达标余额</span></div><span class="trial-path-arrow" aria-hidden="true"></span><div><strong>RM100</strong><span>兑换现金</span></div></div>`;
@@ -521,36 +511,10 @@
     demo = loadDemo();
     switch (name) {
       case 'demo-start':
-        navigate('demo=register');
-        break;
-      case 'demo-otp': {
-        readForm();
-        if (!demo.phone) { toast('请先填写手机号码'); return; }
-        demo.otpSent = true;
-        demo.otp = '123456';
-        saveDemo();
-        const field = document.getElementById('otp-field');
-        const input = document.getElementById('demo-otp');
-        const submit = document.getElementById('register-submit');
-        if (field) field.hidden = false;
-        if (input) input.value = '123456';
-        if (submit) submit.disabled = false;
-        toast('验证码已发送（演示码 123456）');
-        break;
-      }
+      case 'demo-otp':
       case 'demo-register':
-        readForm();
-        if (!demo.otpSent) { toast('请先获取验证码'); return; }
-        if (!demo.phone) { toast('请填写手机号码'); return; }
-        if (demo.otp !== '123456') { toast('验证码不正确，演示码为 123456'); return; }
-        demo.loggedIn = true;
-        saveDemo();
-        toast('注册成功');
-        navigate('demo=kyc');
-        break;
       case 'demo-go-kyc':
-        if (!demo.loggedIn) return navigate('demo=register');
-        navigate('demo=kyc');
+        navigate('activity=newcomer-trial');
         break;
       case 'demo-upload':
         break;
@@ -564,13 +528,10 @@
         break;
       case 'demo-go-claim':
         if (demo.redeemed) return;
-        if (!demo.loggedIn) return navigate('demo=register');
-        if (demo.kyc.status !== 'approved') return navigate('demo=kyc');
         navigate('demo=claim');
         break;
       case 'demo-claim-confirm':
         if (demo.claimed || demo.redeemed) return;
-        if (demo.kyc.status !== 'approved') return navigate('demo=kyc');
         demo.claimed = true;
         demo.trialBalance = 100;
         demo.spinIndex = 0;
@@ -603,7 +564,7 @@
         navigate('demo=redeem-process');
         break;
       case 'demo-reset':
-        openModal(`<div class="dialog-illustration">${icon('shield')}</div><h2>重置演示</h2><p>将清除本机演示进度，包括登录、实名、钱包和领奖记录。</p><button type="button" class="primary" data-action="demo-reset-confirm">确认重置</button><button type="button" class="outline-wide" data-close>取消</button>`);
+        openModal(`<div class="dialog-illustration">${icon('shield')}</div><h2>重置演示</h2><p>将清除本机演示进度，包括领取、试玩、钱包和领奖记录。</p><button type="button" class="primary" data-action="demo-reset-confirm">确认重置</button><button type="button" class="outline-wide" data-close>取消</button>`);
         break;
       case 'demo-reset-confirm':
         resetDemo(false);
