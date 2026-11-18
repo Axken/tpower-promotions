@@ -1,6 +1,6 @@
 (() => {
-  const DEMO_KEY = 'tpower-promo-demo-v4';
-  const LEGACY_DEMO_KEYS = ['tpower-promo-demo-v3', 'tpower-trial-demo-v2', 'tpower-trial-demo-v1'];
+  const DEMO_KEY = 'tpower-promo-demo-v5';
+  const LEGACY_DEMO_KEYS = ['tpower-promo-demo-v4', 'tpower-promo-demo-v3', 'tpower-trial-demo-v2', 'tpower-trial-demo-v1'];
   const JOURNEY = ['领取', '试玩', '达标', '兑换', '到账'];
   const WIN_SPINS = [
     { delta: 20, symbols: ['7', '7', '7'] },
@@ -39,12 +39,12 @@
   function defaultGrowth() {
     return {
       started: false, firstDeposit: 0, tier: 0,
-      unlocked: [0, 0, 0], claimed: [0, 0, 0], expired: [false, false, false],
-      turnover: [0, 0, 0], daysLeft: [null, 10, 10]
+      unlocked: [0, 0, 0, 0, 0], claimed: [0, 0, 0, 0, 0], expired: [false, false, false, false, false],
+      turnover: [0, 0, 0, 0, 0], daysLeft: [null, 10, 10, 10, 10]
     };
   }
   function defaultAnniversary() {
-    return { turnover: 0, tickets: [], drawNumber: '', drawDone: false, paid: false, winAmount: 0, prizeName: '', missed: false };
+    return { turnover: 0, tickets: [], drawNumber: '', drawDone: false, claimed: false, expired: false, winAmount: 0, prizeName: '' };
   }
   function defaultMaintenance() {
     return {
@@ -94,12 +94,14 @@
       parsed.newcomer = Object.assign(base.newcomer, parsed.newcomer || {});
       parsed.referral = Object.assign(base.referral, parsed.referral || {});
       parsed.growth = Object.assign(base.growth, parsed.growth || {});
-      if (!Array.isArray(parsed.growth.unlocked) || parsed.growth.unlocked.length !== 3) parsed.growth.unlocked = [0, 0, 0];
-      if (!Array.isArray(parsed.growth.claimed) || parsed.growth.claimed.length !== 3) parsed.growth.claimed = [0, 0, 0];
-      if (!Array.isArray(parsed.growth.expired) || parsed.growth.expired.length !== 3) parsed.growth.expired = [false, false, false];
-      if (!Array.isArray(parsed.growth.turnover) || parsed.growth.turnover.length !== 3) parsed.growth.turnover = [0, 0, 0];
+      if (!Array.isArray(parsed.growth.unlocked) || parsed.growth.unlocked.length !== 5) parsed.growth = defaultGrowth();
       parsed.anniversary = Object.assign(base.anniversary, parsed.anniversary || {});
       if (!Array.isArray(parsed.anniversary.tickets)) parsed.anniversary.tickets = [];
+      if (typeof parsed.anniversary.claimed !== 'boolean' || 'paid' in (parsed.anniversary || {})) {
+        const tickets = parsed.anniversary.tickets;
+        parsed.anniversary = defaultAnniversary();
+        // do not carry v4 auto-pay state into the restored 48-hour claim flow
+      }
       parsed.maintenance = Object.assign(base.maintenance, parsed.maintenance || {});
       if (!Array.isArray(parsed.records)) parsed.records = [];
       return Object.assign(base, parsed, { spinning: false });
@@ -420,7 +422,7 @@
           <li><span>新人挑战</span><strong>${demo.newcomer.completed ? '已完成' : demo.newcomer.abandoned ? '已放弃' : demo.newcomer.expired ? '资格已失效' : demo.newcomer.claimed ? '进行中' : '未参加'}</strong></li>
           <li><span>邀请挑战</span><strong>${demo.referral.unlocked > 0 ? '已解锁' : demo.referral.friends.length ? '进行中' : '未参加'}</strong></li>
           <li><span>成长彩金</span><strong>${!demo.growth.started ? '未参加' : (demo.growth.expired && demo.growth.expired[demo.growth.tier]) ? '档位已失效' : demo.growth.claimed.every((v, i) => v >= (GROWTH_SOURCE.caps[i] || 0)) ? '已完成' : '进行中'}</strong></li>
-          <li><span>6D抽奖</span><strong>${demo.anniversary.paid ? '已到账' : demo.anniversary.missed ? '未中奖' : demo.anniversary.tickets.length ? '进行中' : '未参加'}</strong></li>
+          <li><span>周年抽奖</span><strong>${demo.anniversary.claimed ? '已领取' : demo.anniversary.expired ? '已作废' : demo.anniversary.tickets.length ? '进行中' : '未参加'}</strong></li>
           <li><span>维护补偿</span><strong>${demo.maintenance.completed ? '已领取' : !demo.maintenance.eligible ? '不符资格' : demo.maintenance.joined ? '进行中' : '未参加'}</strong></li>
         </ul>
       </section>

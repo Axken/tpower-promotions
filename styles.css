@@ -285,3 +285,11 @@ html,body{height:100%;overflow:hidden}
 .task-list strong{color:#f5f3f2;font-weight:550;text-align:right}
 .friend-actions{display:grid;gap:8px;margin-top:10px}
 .friend-actions .outline-wide,.friend-actions .text-button{margin:0;text-align:left;font-size:13px}
+
+.growth-hero-copy{margin:10px 0 0;color:#d7b8c4;font-size:13px;line-height:1.7}
+.rate-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 10px}
+.rate-head h4{margin:0;font-size:13px;font-weight:550}
+.info-icon{width:22px;height:22px;border-radius:50%;border:1px solid #5e303f;background:#34202a;color:#dfadbf;font-size:12px;font-weight:600;padding:0;display:grid;place-items:center;flex:none}
+.level-status.waiting{color:#ed9eb2}
+.growth-overview .primary{margin-top:18px}
+.rate-modal h2{font-size:18px;margin:0 0 14px}
