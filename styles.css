@@ -269,3 +269,9 @@ html,body{height:100%;overflow:hidden}
 .trial-detail #detail-content{padding-bottom:88px}
 .demo-status-card.success{background:linear-gradient(160deg,#2a1a20,#171318);border-color:#6a3c48}
 .journey-steps li.done.current b{background:#b81f31;border-color:#f4495e;color:#fff}
+
+.invite-code-card{text-align:center}
+.invite-code{font-size:22px;letter-spacing:.14em;text-align:center;font-weight:650;margin:8px 0 16px;color:#ffe8ec}
+.rate-actions{display:grid;gap:8px;margin:12px 0}
+.rate-actions .outline-wide{margin:0;text-align:left;font-size:13px}
+.ticket-list strong{letter-spacing:.06em}

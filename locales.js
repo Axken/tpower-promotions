@@ -1,8 +1,7 @@
 // Interface translations. Promotional artwork and source rule prose are unchanged.
 const UI_LANGUAGES=[['zh-CN','简体中文','简体'],['zh-TW','繁體中文','繁體'],['en','English','English'],['ms','Bahasa Melayu','Melayu'],['vi','Tiếng Việt','Tiếng Việt'],['th','ภาษาไทย','ไทย'],['id','Bahasa Indonesia','Indonesia'],['hi','हिन्दी (Hindi)','हिन्दी']];
 // Columns: source, Traditional Chinese, English, Malay, Vietnamese, Thai, Indonesian, Hindi.
-const UI_TRANSLATION_ROWS=`
-促销活动|促銷活動|Promotions|Promosi|Ưu đãi|โปรโมชั่น|Promosi|प्रमोशन
+const UI_TRANSLATION_ROWS=`促销活动|促銷活動|Promotions|Promosi|Ưu đãi|โปรโมชั่น|Promosi|प्रमोशन
 领奖记录|領獎紀錄|History|Rekod|Lịch sử|ประวัติ|Riwayat|इतिहास
 全部活动|全部活動|All events|Semua|Tất cả|ทั้งหมด|Semua|सभी
 新人豪礼|新人豪禮|New members|Ahli baharu|Thành viên mới|สมาชิกใหม่|Anggota baru|नए सदस्य
@@ -181,7 +180,37 @@ TPOWER · 活动页面交互预览|TPOWER · 活動頁面互動預覽|TPOWER · 
 返回活动|返回活動|Back to event|Kembali ke aktiviti|Về hoạt động|กลับไปที่กิจกรรม|Kembali ke acara|कार्यक्रम पर वापस
 演示未达标（余额归零）|演示未達標（餘額歸零）|Demo miss target (balance to 0)|Demo tidak capai sasaran (baki 0)|Demo không đạt mục tiêu (về 0)|เดโมไม่ถึงเป้า (ยอดเป็น 0)|Demo gagal target (saldo 0)|डेमो लक्ष्य पूरा नहीं (शेष 0)
 完整领奖流程预览，不连接真实账户|完整領獎流程預覽，不連接真實帳戶|Preview of the full reward journey. No live account is connected.|Pratonton perjalanan ganjaran penuh. Tiada akaun langsung.|Xem trước toàn bộ quy trình nhận thưởng, không kết nối tài khoản thật.|ตัวอย่างขั้นตอนรับรางวัลแบบเต็ม ไม่เชื่อมบัญชีจริง|Pratinjau alur hadiah lengkap. Tidak terhubung ke akun nyata.|पूरी इनाम यात्रा का पूर्वावलोकन। कोई लाइव खाता नहीं जुड़ा है।
-`;
+领取RM88活动金|領取RM88活動金|Claim RM88 credit|Tuntut kredit RM88|Nhận hạn mức RM88|รับเครดิต RM88|Klaim kredit RM88|RM88 क्रेडिट प्राप्त करें
+确认领取|確認領取|Confirm claim|Sahkan tuntutan|Xác nhận nhận|ยืนยันการรับ|Konfirmasi klaim|दावा की पुष्टि करें
+去完成流水|去完成流水|Complete turnover|Selesaikan pusing ganti|Hoàn thành doanh thu|ทำเทิร์นให้ครบ|Selesaikan turnover|टर्नओवर पूरा करें
+去充值解锁|去充值解鎖|Deposit to unlock|Deposit untuk buka|Nạp để mở khóa|ฝากเพื่อปลดล็อก|Deposit untuk buka|जमा करके अनलॉक करें
+去完成12倍流水|去完成12倍流水|Complete 12x turnover|Selesaikan 12x pusing ganti|Hoàn thành 12 lần doanh thu|ทำเทิร์น 12 เท่า|Selesaikan turnover 12x|12x टर्नओवर पूरा करें
+去完成本金流水|去完成本金流水|Complete principal turnover|Selesaikan pusing ganti prinsipal|Hoàn thành doanh thu gốc|ทำเทิร์นเงินต้น|Selesaikan turnover modal|मूल टर्नओवर पूरा करें
+演示加速完成流水|演示加速完成流水|Demo: finish turnover|Demo: selesaikan pusing ganti|Demo: hoàn thành doanh thu|เดโม: ทำเทิร์นให้เสร็จ|Demo: selesaikan turnover|डेमो: टर्नओवर पूरा करें
+已完成|已完成|Completed|Selesai|Đã hoàn tất|เสร็จแล้ว|Selesai|पूर्ण
+解锁资格已失效|解鎖資格已失效|Unlock expired|Kelayakan buka tamat|Tư cách mở khóa hết hạn|สิทธิ์ปลดล็อกหมดอายุ|Kelayakan buka kedaluwarsa|अनलॉक अवधि समाप्त
+已放弃，不能再次参加|已放棄，不能再次參加|Given up, cannot rejoin|Telah berhenti, tidak boleh sertai semula|Đã từ bỏ, không thể tham gia lại|สละสิทธิ์ เข้าร่วมอีกไม่ได้|Sudah mundur, tidak bisa ikut lagi|छोड़ दिया, दोबारा शामिल नहीं हो सकते
+邀请好友|邀請好友|Invite friends|Jemput rakan|Mời bạn bè|เชิญเพื่อน|Undang teman|मित्रों को आमंत्रित करें
+领取奖励|領取獎勵|Claim reward|Tuntut ganjaran|Nhận thưởng|รับรางวัล|Klaim hadiah|इनाम प्राप्त करें
+暂无可领取奖励|暫無可領取獎勵|Nothing to claim|Tiada ganjaran|Không có thưởng để nhận|ยังไม่มีรางวัลให้รับ|Tidak ada hadiah|कोई दावा नहीं
+复制邀请码|複製邀請碼|Copy invite code|Salin kod jemputan|Sao chép mã mời|คัดลอกรหัสเชิญ|Salin kode undangan|इनवाइट कोड कॉपी करें
+演示一位好友成功加入|演示一位好友成功加入|Demo: friend joined|Demo: rakan berjaya sertai|Demo: bạn đã tham gia|เดโม: เพื่อนเข้าร่วมสำเร็จ|Demo: teman berhasil bergabung|डेमो: मित्र शामिल हुए
+演示邀请未成功|演示邀請未成功|Demo: invite unsuccessful|Demo: jemputan tidak berjaya|Demo: lời mời không thành công|เดโม: คำเชิญไม่สำเร็จ|Demo: undangan tidak berhasil|डेमो: आमंत्रण असफल
+去解锁彩金|去解鎖彩金|Unlock bonus|Buka bonus|Mở khóa thưởng|ปลดล็อกโบนัส|Buka bonus|बोनस अनलॉक करें
+领取已解锁彩金|領取已解鎖彩金|Claim unlocked bonus|Tuntut bonus terbuka|Nhận thưởng đã mở khóa|รับโบนัสที่ปลดล็อก|Klaim bonus terbuka|अनलॉक बोनस प्राप्त करें
+演示加速解锁当前档位|演示加速解鎖當前檔位|Demo: finish this tier|Demo: selesaikan peringkat ini|Demo: hoàn tất cấp hiện tại|เดโม: ปลดล็อกระดับนี้ให้ครบ|Demo: selesaikan tingkat ini|डेमो: यह स्तर पूरा करें
+去累计有效流水|去累計有效流水|Accrue valid turnover|Kumpul pusing ganti sah|Tích lũy doanh thu hợp lệ|สะสมเทิร์นที่มีผล|Kumpulkan turnover valid|मान्य टर्नओवर जोड़ें
+演示开奖|演示開獎|Demo draw|Demo cabutan|Demo quay thưởng|เดโมออกรางวัล|Demo undian|डेमो ड्रॉ
+领取奖金|領取獎金|Claim prize|Tuntut hadiah|Nhận tiền thưởng|รับเงินรางวัล|Klaim hadiah|पुरस्कार प्राप्त करें
+奖金已作废|獎金已作廢|Prize voided|Hadiah batal|Tiền thưởng đã hết hạn|รางวัลหมดอายุ|Hadiah hangus|पुरस्कार रद्द
+我的抽奖券|我的抽獎券|My tickets|Tiket saya|Vé của tôi|ตั๋วของฉัน|Tiket saya|मेरे टिकट
+参与活动|參與活動|Join event|Sertai aktiviti|Tham gia|เข้าร่วมกิจกรรม|Ikuti acara|कार्यक्रम में शामिल हों
+去指定游戏|去指定遊戲|Go to games|Pergi ke permainan|Đến trò chơi chỉ định|ไปที่เกมที่กำหนด|Ke permainan|निर्धारित खेल पर जाएँ
+完成任务|完成任務|Complete task|Selesaikan tugasan|Hoàn thành nhiệm vụ|ทำภารกิจให้สำเร็จ|Selesaikan tugas|कार्य पूरा करें
+不符资格|不符資格|Not eligible|Tidak layak|Không đủ điều kiện|ไม่มีคุณสมบัติ|Tidak memenuhi syarat|अयोग्य
+演示不符资格|演示不符資格|Demo: not eligible|Demo: tidak layak|Demo: không đủ điều kiện|เดโม: ไม่มีคุณสมบัติ|Demo: tidak memenuhi syarat|डेमो: अयोग्य
+重置演示|重置演示|Reset demo|Tetapkan semula demo|Đặt lại bản demo|รีเซ็ตเดโม|Reset demo|डेमो रीसेट करें
+查看领奖记录|查看領獎紀錄|View history|Lihat rekod|Xem lịch sử|ดูประวัติ|Lihat riwayat|इतिहास देखें`;
 const UI_DICTIONARIES=Object.fromEntries(UI_LANGUAGES.map(([code])=>[code,{}]));
 for(const row of UI_TRANSLATION_ROWS.trim().split('\n')){const cells=row.split('|');if(cells.length!==8)throw new Error('Invalid locale row: '+cells[0]);UI_LANGUAGES.forEach(([code],i)=>UI_DICTIONARIES[code][cells[0]]=cells[i]);}
 const UI_NOTES={

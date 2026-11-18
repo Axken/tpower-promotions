@@ -1,5 +1,6 @@
 (() => {
-  const DEMO_KEY = 'tpower-trial-demo-v2';
+  const DEMO_KEY = 'tpower-promo-demo-v3';
+  const LEGACY_DEMO_KEYS = ['tpower-trial-demo-v2', 'tpower-trial-demo-v1'];
   const JOURNEY = ['领取', '试玩', '达标', '兑换', '到账'];
   const WIN_SPINS = [
     { delta: 20, symbols: ['7', '7', '7'] },
@@ -23,6 +24,30 @@
   function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
+  function defaultNewcomer() {
+    return {
+      claimed: false, bonus: 0, turnover: 0, challengeDone: false, remaining: 0,
+      expired: false, abandoned: false, deposited: false, depositAmount: 0, unlockedBonus: 0,
+      walletTotal: 0, wager12: 0, wager12Need: 0, bonusReleased: false,
+      principalWager: 0, principalNeed: 0, completed: false,
+      playMode: 'win', spinIndex: 0, lastSymbols: ['7', '星', '铃'], spinning: false, currentGame: 'lucky-star'
+    };
+  }
+  function defaultReferral() {
+    return { friends: [], pending: 0, unlocked: 0, claimedTotal: 0, code: 'TPOWER-INVITE-DEMO' };
+  }
+  function defaultGrowth() {
+    return { tier: 0, unlocked: [0, 0, 0, 0, 0], claimed: [0, 0, 0, 0, 0], lastUnlock: 0, lastRate: '', lastStake: 0 };
+  }
+  function defaultAnniversary() {
+    return { turnover: 0, tickets: [], drawNumber: '', drawDone: false, claimed: false, expired: false, winAmount: 0, prizeName: '' };
+  }
+  function defaultMaintenance() {
+    return {
+      eligible: true, joined: false, points: 0, reached: false, completed: false, ended: false,
+      playMode: 'win', spinIndex: 0, lastSymbols: ['7', '星', '铃'], spinning: false, currentGame: 'lucky-star'
+    };
+  }
   function defaultDemo() {
     return {
       phone: '012-3456789',
@@ -41,16 +66,37 @@
       playMode: 'win',
       currentGame: 'lucky-star',
       spinning: false,
-      lastSymbols: ['7', '星', '铃']
+      lastSymbols: ['7', '星', '铃'],
+      newcomer: defaultNewcomer(),
+      referral: defaultReferral(),
+      growth: defaultGrowth(),
+      anniversary: defaultAnniversary(),
+      maintenance: defaultMaintenance()
     };
   }
   function loadDemo() {
     try {
-      const raw = localStorage.getItem(DEMO_KEY);
+      let raw = localStorage.getItem(DEMO_KEY);
+      if (!raw) {
+        for (const key of LEGACY_DEMO_KEYS) {
+          raw = localStorage.getItem(key);
+          if (raw) break;
+        }
+      }
       if (!raw) return defaultDemo();
       const parsed = JSON.parse(raw);
-      parsed.kyc = Object.assign(defaultDemo().kyc, parsed.kyc || {});
-      return Object.assign(defaultDemo(), parsed, { spinning: false });
+      const base = defaultDemo();
+      parsed.kyc = Object.assign(base.kyc, parsed.kyc || {});
+      parsed.newcomer = Object.assign(base.newcomer, parsed.newcomer || {});
+      parsed.referral = Object.assign(base.referral, parsed.referral || {});
+      parsed.growth = Object.assign(base.growth, parsed.growth || {});
+      if (!Array.isArray(parsed.growth.unlocked) || parsed.growth.unlocked.length !== 5) parsed.growth.unlocked = [0, 0, 0, 0, 0];
+      if (!Array.isArray(parsed.growth.claimed) || parsed.growth.claimed.length !== 5) parsed.growth.claimed = [0, 0, 0, 0, 0];
+      parsed.anniversary = Object.assign(base.anniversary, parsed.anniversary || {});
+      if (!Array.isArray(parsed.anniversary.tickets)) parsed.anniversary.tickets = [];
+      parsed.maintenance = Object.assign(base.maintenance, parsed.maintenance || {});
+      if (!Array.isArray(parsed.records)) parsed.records = [];
+      return Object.assign(base, parsed, { spinning: false });
     } catch {
       return defaultDemo();
     }
@@ -76,10 +122,28 @@
     }
     return 1;
   }
+  function buildJourney(labels, current, finished) {
+    if (!labels || !labels.length) return '';
+    return `<ol class="journey-steps" aria-label="演示流程">${labels.map((label, i) => `<li class="${i < current || (finished && i === current) ? 'done' : ''} ${i === current ? 'current' : ''}"><b>${i < current || (finished && i === current) ? '✓' : i + 1}</b><span>${label}</span></li>`).join('')}</ol>`;
+  }
+  function getActiveJourney() {
+    if (typeof window.PromoJourney === 'function') {
+      const custom = window.PromoJourney(currentRoute(), demo);
+      if (custom) return custom;
+    }
+    const params = currentRoute();
+    const screen = params.get('demo');
+    const id = params.get('activity');
+    const trialScreens = ['claim', 'games', 'play', 'redeem', 'redeem-process', 'redeem-success'];
+    if (id === 'newcomer-trial' || (screen && trialScreens.includes(screen))) {
+      return { labels: JOURNEY, current: journeyIndex(), finished: demo.redeemed };
+    }
+    return null;
+  }
   function journeyBar() {
-    const current = journeyIndex();
-    const finished = demo.redeemed;
-    return `<ol class="journey-steps" aria-label="演示流程">${JOURNEY.map((label, i) => `<li class="${i < current || (finished && i === current) ? 'done' : ''} ${i === current ? 'current' : ''}"><b>${i < current || (finished && i === current) ? '✓' : i + 1}</b><span>${label}</span></li>`).join('')}</ol>`;
+    const j = getActiveJourney();
+    if (!j) return '';
+    return buildJourney(j.labels, j.current, j.finished);
   }
   function demoPage(title, body, backHash) {
     const back = backHash != null
@@ -319,8 +383,8 @@
   function renderRecords() {
     const rows = demo.records.length
       ? `<ul class="record-list">${demo.records.map(r => `<li><div><strong>${esc(r.title)}</strong><small>${formatRecordTime(r.time)}</small></div><div class="record-right"><b>RM ${money(r.amount)}</b><span class="status-badge">${esc(r.status)}</span></div></li>`).join('')}</ul>`
-      : `<div class="compact-empty">${icon('receipt')}<h4>暂无领奖记录</h4><p>完成新人免费体验礼兑换后，记录将显示在这里。</p></div>`;
-    $('#app').innerHTML = demoPage('领奖记录', `${rows}<p class="fine-print center">演示记录仅保存在本机浏览器中。</p>`, 'activity=newcomer-trial');
+      : `<div class="compact-empty">${icon('receipt')}<h4>暂无领奖记录</h4><p>完成活动领奖后，记录将显示在这里。</p></div>`;
+    $('#app').innerHTML = demoPage('领奖记录', `${rows}<p class="fine-print center">演示记录仅保存在本机浏览器中。</p>`, (() => { const id = currentRoute().get('activity'); return id ? 'activity=' + id : 'category=all'; })());
     document.title = '领奖记录 · TPOWER';
   }
 
@@ -339,12 +403,19 @@
         <div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>RM ${money(demo.mainWallet)}</strong></div>
         <div class="wallet-card trial"><span>试玩钱包</span><strong>RM ${money(demo.trialBalance)}</strong></div>
       </div>
+      ${demo.newcomer.claimed && !demo.newcomer.completed ? `<div class="wallet-pair compact"><div class="wallet-card"><span>挑战活动余额</span><strong>RM ${money(demo.newcomer.deposited ? demo.newcomer.walletTotal : demo.newcomer.bonus)}</strong></div></div>` : ''}
+      ${demo.maintenance.joined && !demo.maintenance.completed ? `<div class="wallet-pair compact"><div class="wallet-card"><span>维护活动分</span><strong>${money(demo.maintenance.points)}</strong></div></div>` : ''}
       <section class="section-panel">
         <div class="section-header"><h3>账户状态</h3><span class="demo-badge">演示模式</span></div>
         <ul class="kyc-summary">
           <li><span>登录</span><strong>已登录</strong></li>
           <li><span>实名认证</span><strong>${kycLabel}</strong></li>
           <li><span>体验礼</span><strong>${demo.redeemed ? '已领取' : demo.claimed ? '进行中' : '未参加'}</strong></li>
+          <li><span>新人挑战</span><strong>${demo.newcomer.completed ? '已完成' : demo.newcomer.abandoned ? '已放弃' : demo.newcomer.expired ? '资格已失效' : demo.newcomer.claimed ? '进行中' : '未参加'}</strong></li>
+          <li><span>邀请奖励</span><strong>${demo.referral.claimedTotal > 0 ? '已领取' : demo.referral.friends.length ? '进行中' : '未参加'}</strong></li>
+          <li><span>成长彩金</span><strong>${demo.growth.claimed.reduce((a, b) => a + b, 0) >= 5888 + 1888 + 5888 + 8888 + 18888 ? '已完成' : demo.growth.claimed.some(v => v > 0) || demo.growth.unlocked.some(v => v > 0) ? '进行中' : '未参加'}</strong></li>
+          <li><span>周年抽奖</span><strong>${demo.anniversary.claimed ? '已领取' : demo.anniversary.expired ? '已作废' : demo.anniversary.tickets.length ? '进行中' : '未参加'}</strong></li>
+          <li><span>维护补偿</span><strong>${demo.maintenance.completed ? '已领取' : !demo.maintenance.eligible ? '不符资格' : demo.maintenance.joined ? '进行中' : '未参加'}</strong></li>
         </ul>
       </section>
       <button type="button" class="outline-wide" data-action="demo-reset">重置演示</button>
@@ -359,6 +430,12 @@
     if (['register', 'kyc', 'kyc-review', 'kyc-success'].includes(screen)) {
       navigate('activity=newcomer-trial');
       return;
+    }
+    if (typeof window.PromoRenderDemo === 'function' && !['claim', 'games', 'play', 'redeem', 'redeem-process', 'redeem-success', 'records', 'account'].includes(screen)) {
+      if (window.PromoRenderDemo(screen, demo)) {
+        $('#app').scrollTo(0, 0);
+        return;
+      }
     }
     const gate = {
       claim: () => !demo.claimed && !demo.redeemed,
@@ -383,7 +460,8 @@
       account: renderAccount
     };
     if (pages[screen]) pages[screen]();
-    else navigate('activity=newcomer-trial');
+    else if (typeof window.PromoRenderDemo === 'function' && window.PromoRenderDemo(screen, demo)) { /* handled */ }
+    else navigate('category=all');
     $('#app').scrollTo(0, 0);
   };
 
@@ -460,7 +538,9 @@
     saveDemo();
     if ($('#modal') && $('#modal').open) closeModal();
     if (!silent) toast('演示已重置');
-    navigate('activity=newcomer-trial');
+    const id = currentRoute().get('activity');
+    const known = ['newcomer-trial', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'];
+    navigate(id && known.includes(id) ? 'activity=' + id : 'category=all');
   }
 
   function showGoalModal() {
@@ -509,6 +589,7 @@
   window.handleDemoAction = function handleDemoAction(name) {
     ensureBanner();
     demo = loadDemo();
+    if (typeof window.PromoHandleAction === 'function' && window.PromoHandleAction(name, demo)) return;
     switch (name) {
       case 'demo-start':
       case 'demo-otp':
@@ -564,7 +645,7 @@
         navigate('demo=redeem-process');
         break;
       case 'demo-reset':
-        openModal(`<div class="dialog-illustration">${icon('shield')}</div><h2>重置演示</h2><p>将清除本机演示进度，包括领取、试玩、钱包和领奖记录。</p><button type="button" class="primary" data-action="demo-reset-confirm">确认重置</button><button type="button" class="outline-wide" data-close>取消</button>`);
+        openModal(`<div class="dialog-illustration">${icon('shield')}</div><h2>重置演示</h2><p>将清除本机全部活动的演示进度，包括领取、钱包和领奖记录。</p><button type="button" class="primary" data-action="demo-reset-confirm">确认重置</button><button type="button" class="outline-wide" data-close>取消</button>`);
         break;
       case 'demo-reset-confirm':
         resetDemo(false);
@@ -615,7 +696,7 @@
 
   const _handleAction = handleAction;
   handleAction = function (name) {
-    if (name && (name.startsWith('demo-') || name.startsWith('trial-'))) return handleDemoAction(name);
+    if (name && /^(demo-|trial-|nc-|ref-|gr-|an-|mt-)/.test(name)) return handleDemoAction(name);
     return _handleAction(name);
   };
 
@@ -656,6 +737,20 @@
       refreshTrial();
     }
   }, true);
+
+  window.DemoAPI = {
+    get: () => demo,
+    load: () => { demo = loadDemo(); return demo; },
+    save: saveDemo,
+    reset: resetDemo,
+    later,
+    demoPage,
+    journeyBar,
+    formatRecordTime,
+    addRecord(rec) { demo.records.unshift(rec); saveDemo(); },
+    ensureBanner,
+    buildJourney
+  };
 
   ensureBanner();
   route();
