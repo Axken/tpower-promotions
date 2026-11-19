@@ -69,7 +69,7 @@
     const p = PROMOS.find(x => x.id === id);
     if (!p) return;
     const tab = Number(params.get('tab') || 0);
-    (window.renderDetail || renderDetail)(p, Number.isFinite(tab) ? tab : 0);
+    renderDetail(p, Number.isFinite(tab) ? tab : 0);
     $('#app').scrollTo(0, y);
   }
   function record(title, amount, status) {

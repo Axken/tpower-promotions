@@ -20,9 +20,6 @@
       const friends=key.match(/^(\d+) 位好友$/);
       if(friends){const labels={'zh-TW':'位好友',en:'friends',ms:'rakan',vi:'bạn bè',th:'คน',id:'teman',hi:'मित्र'};translated=friends[1]+' '+labels[language];}
     }
-    if(translated===undefined && language!=='zh-CN' && language!=='zh-TW' && UI_DICTIONARIES.en){
-      translated=UI_DICTIONARIES.en[key];
-    }
     if(translated===undefined)return source;
     return source.slice(0,source.length-source.trimStart().length)+translated+source.slice(source.trimEnd().length);
   }
@@ -53,10 +50,8 @@
       }
       originalAttrs.set(el,record);
     });
-    // Official copy is translated when a dictionary entry exists. Untranslated zh-CN strings stay as written.
-    if(language==='zh-CN' || language==='zh-TW'){
-      /* source language */
-    }
+    // Source prose is explicitly distinguished from translated interface labels.
+    document.querySelectorAll('.rule-content,.step-explanation p,.detail-heading h2,.detail-heading>p,.card-title,.card-type,.banner,.trial-prose,.eligibility-list,.trial-terms,.demo-lead').forEach(el=>el.lang='zh-CN');
     if(!location.hash.includes('activity='))document.title='TPOWER · '+UI_DICTIONARIES[language]['促销活动'];
     observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','placeholder','title']});
   }
