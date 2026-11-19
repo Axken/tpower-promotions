@@ -220,7 +220,44 @@ TPOWER · 活动页面交互预览|TPOWER · 活動頁面互動預覽|TPOWER · 
 奖金已自动到账|獎金已自動到帳|Prize auto-paid|Hadiah dibayar automatik|Tiền thưởng đã vào ví|เงินรางวัลเข้าบัญชีอัตโนมัติ|Hadiah otomatis masuk|पुरस्कार स्वतः जमा
 未中奖|未中獎|No winning ticket|Tidak menang|Không trúng thưởng|ไม่ถูกรางวัล|Tidak menang|कोई जीत नहीं
 当期档位已失效|當期檔位已失效|This tier expired|Peringkat ini tamat|Cấp hiện tại đã hết hạn|ระดับนี้หมดอายุ|Tingkat ini kedaluwarsa|यह स्तर समाप्त
-已完成全部档位|已完成全部檔位|All tiers completed|Semua peringkat selesai|Đã hoàn tất mọi cấp|ครบทุกระดับ|Semua tingkat selesai|सभी स्तर पूरे`;
+已完成全部档位|已完成全部檔位|All tiers completed|Semua peringkat selesai|Đã hoàn tất mọi cấp|ครบทุกระดับ|Semua tingkat selesai|सभी स्तर पूरे
+我的记录|我的記錄|My records|Rekod saya|Hồ sơ của tôi|บันทึกของฉัน|Catatan saya|मेरे रिकॉर्ड
+查看我的VIP记录|查看我的VIP記錄|View my VIP records|Lihat rekod VIP saya|Xem hồ sơ VIP của tôi|ดูบันทึก VIP ของฉัน|Lihat catatan VIP saya|मेरे VIP रिकॉर्ड देखें
+模拟升级|模擬升級|Simulate upgrade|Simulasi naik taraf|Mô phỏng nâng cấp|จำลองการอัปเกรด|Simulasikan peningkatan|अपग्रेड सिमुलेट करें
+领取升级礼金|領取升級禮金|Claim upgrade bonus|Tuntut bonus naik taraf|Nhận thưởng nâng cấp|รับโบนัสอัปเกรด|Klaim bonus peningkatan|अपग्रेड बोनस प्राप्त करें
+该等级升级礼金已领取|該等級升級禮金已領取|Upgrade bonus already claimed|Bonus naik taraf telah dituntut|Thưởng nâng cấp đã nhận|รับโบนัสอัปเกรดแล้ว|Bonus peningkatan sudah diklaim|अपग्रेड बोनस पहले ही मिल चुका है
+请先模拟升级|請先模擬升級|Simulate an upgrade first|Simulasikan naik taraf dahulu|Hãy mô phỏng nâng cấp trước|จำลองการอัปเกรดก่อน|Simulasikan peningkatan dulu|पहले अपग्रेड सिमुलेट करें
+已达演示最高等级|已達演示最高等級|Highest demo level reached|Tahap demo tertinggi dicapai|Đã tới cấp demo cao nhất|ถึงระดับเดโมสูงสุดแล้ว|Tingkat demo tertinggi tercapai|उच्चतम डेमो स्तर पहुँच गया
+模拟升级至 VIP2|模擬升級至 VIP2|Simulate upgrade to VIP2|Simulasi naik taraf ke VIP2|Mô phỏng nâng lên VIP2|จำลองอัปเกรดเป็น VIP2|Simulasikan peningkatan ke VIP2|VIP2 पर अपग्रेड सिमुलेट करें
+模拟升级至 VIP3|模擬升級至 VIP3|Simulate upgrade to VIP3|Simulasi naik taraf ke VIP3|Mô phỏng nâng lên VIP3|จำลองอัปเกรดเป็น VIP3|Simulasikan peningkatan ke VIP3|VIP3 पर अपग्रेड सिमुलेट करें
+再次领取（将提示不可重复）|再次領取（將提示不可重複）|Claim again (will be blocked)|Tuntut lagi (akan disekat)|Nhận lại (sẽ bị chặn)|รับอีกครั้ง (จะถูกบล็อก)|Klaim lagi (akan diblokir)|फिर से प्राप्त करें (रोका जाएगा)
+模拟保级成功|模擬保級成功|Simulate successful retention|Simulasi berjaya kekal tahap|Mô phỏng giữ hạng thành công|จำลองการรักษาระดับสำเร็จ|Simulasikan retensi berhasil|रिटेंशन सफल सिमुलेट करें
+模拟未达保级|模擬未達保級|Simulate failed retention|Simulasi gagal kekal tahap|Mô phỏng không giữ được hạng|จำลองการรักษาระดับไม่สำเร็จ|Simulasikan retensi gagal|रिटेंशन असफल सिमुलेट करें
+领取保级礼金|領取保級禮金|Claim retention bonus|Tuntut bonus kekal tahap|Nhận thưởng giữ hạng|รับโบนัสรักษาระดับ|Klaim bonus retensi|रिटेंशन बोनस प्राप्त करें
+本周期保级礼金已领取|本週期保級禮金已領取|Retention bonus already claimed|Bonus kekal tahap telah dituntut|Thưởng giữ hạng đã nhận|รับโบนัสรักษาระดับแล้ว|Bonus retensi sudah diklaim|रिटेंशन बोनस पहले ही मिल चुका है
+本周期未达保级，无奖励|本週期未達保級，無獎勵|Retention failed, no reward|Gagal kekal tahap, tiada ganjaran|Không giữ hạng, không có thưởng|รักษาระดับไม่สำเร็จ ไม่มีรางวัล|Retensi gagal, tidak ada hadiah|रिटेंशन असफल, कोई पुरस्कार नहीं
+模拟下一周期|模擬下一週期|Simulate next cycle|Simulasi kitaran seterusnya|Mô phỏng chu kỳ tiếp theo|จำลองรอบถัดไป|Simulasikan siklus berikutnya|अगला चक्र सिमुलेट करें
+演示有效投注 RM100|演示有效投注 RM100|Demo qualifying bet RM100|Demo pertaruhan sah RM100|Demo cược hợp lệ RM100|เดโมเดิมพันที่มีผล RM100|Demo taruhan valid RM100|डेमो मान्य दांव RM100
+演示无效投注 RM100|演示無效投注 RM100|Demo non-qualifying bet RM100|Demo pertaruhan tidak sah RM100|Demo cược không hợp lệ RM100|เดโมเดิมพันที่ไม่มีผล RM100|Demo taruhan tidak valid RM100|डेमो अमान्य दांव RM100
+领取返水|領取返水|Claim rebate|Tuntut rebat|Nhận hoàn trả|รับรีเบต|Klaim rebate|रिबेट प्राप्त करें
+暂无可领返水|暫無可領返水|No rebate to claim|Tiada rebat untuk dituntut|Chưa có hoàn trả để nhận|ยังไม่มีรีเบตให้รับ|Belum ada rebate|कोई रिबेट उपलब्ध नहीं
+领取每周关怀礼金|領取每週關懷禮金|Claim weekly care bonus|Tuntut bonus jagaan mingguan|Nhận quà quan tâm hàng tuần|รับโบนัสดูแลรายสัปดาห์|Klaim bonus perhatian mingguan|साप्ताहिक केयर बोनस प्राप्त करें
+本周关怀礼金已领取|本週關懷禮金已領取|Weekly care already claimed|Bonus jagaan mingguan telah dituntut|Quà quan tâm tuần này đã nhận|รับโบนัสรายสัปดาห์แล้ว|Bonus mingguan sudah diklaim|साप्ताहिक बोनस पहले ही मिल चुका है
+模拟下周|模擬下週|Simulate next week|Simulasi minggu seterusnya|Mô phỏng tuần sau|จำลองสัปดาห์ถัดไป|Simulasikan minggu berikutnya|अगला सप्ताह सिमुलेट करें
+领取节日礼金|領取節日禮金|Claim festival bonus|Tuntut bonus perayaan|Nhận thưởng lễ hội|รับโบนัสเทศกาล|Klaim bonus festival|त्योहार बोनस प्राप्त करें
+本节日礼金已领取|本節日禮金已領取|Festival bonus already claimed|Bonus perayaan telah dituntut|Thưởng lễ hội đã nhận|รับโบนัสเทศกาลนี้แล้ว|Bonus festival sudah diklaim|त्योहार बोनस पहले ही मिल चुका है
+当前不在节日期间|當前不在節日期間|Festival period has ended|Bukan dalam tempoh perayaan|Không trong thời gian lễ hội|ไม่อยู่ในช่วงเทศกาล|Tidak dalam periode festival|त्योहार अवधि में नहीं
+模拟节日结束|模擬節日結束|Simulate festival end|Simulasi tamat perayaan|Mô phỏng kết thúc lễ hội|จำลองสิ้นสุดเทศกาล|Simulasikan akhir festival|त्योहार समाप्ति सिमुलेट करें
+模拟下一节日|模擬下一節日|Simulate next festival|Simulasi perayaan seterusnya|Mô phỏng lễ hội tiếp theo|จำลองเทศกาลถัดไป|Simulasikan festival berikutnya|अगला त्योहार सिमुलेट करें
+查看五大专属福利|查看五大專屬福利|View five VIP benefits|Lihat lima faedah VIP|Xem năm đặc quyền VIP|ดูสิทธิ์ VIP ทั้งห้า|Lihat lima manfaat VIP|पाँच VIP लाभ देखें
+进入演示|進入演示|Open demo|Buka demo|Vào bản demo|เข้าเดโม|Buka demo|डेमो खोलें
+示例等级表|示例等級表|Example level table|Jadual tahap contoh|Bảng cấp mẫu|ตารางระดับตัวอย่าง|Tabel tingkat contoh|उदाहरण स्तर तालिका
+可查询资料|可查詢資料|Queryable records|Rekod boleh ditanya|Hồ sơ có thể tra cứu|ข้อมูลที่ตรวจสอบได้|Catatan yang dapat dicek|जाँच योग्य रिकॉर्ड
+奖励记录|獎勵記錄|Reward history|Rekod ganjaran|Lịch sử thưởng|ประวัติรางวัล|Riwayat hadiah|पुरस्कार इतिहास
+五大专属福利|五大專屬福利|Five exclusive benefits|Lima faedah eksklusif|Năm đặc quyền độc quyền|สิทธิพิเศษห้าอย่าง|Lima manfaat eksklusif|पाँच विशेष लाभ
+VIP专属|VIP專屬|VIP exclusive|Eksklusif VIP|Đặc quyền VIP|สิทธิ์ VIP|Eksklusif VIP|VIP विशेष
+风控补充|風控補充|Risk-control notes|Nota kawalan risiko|Bổ sung kiểm soát rủi ro|หมายเหตุควบคุมความเสี่ยง|Catatan pengendalian risiko|जोखिम नियंत्रण नोट
+`;
 const UI_DICTIONARIES=Object.fromEntries(UI_LANGUAGES.map(([code])=>[code,{}]));
 for(const row of UI_TRANSLATION_ROWS.trim().split('\n')){const cells=row.split('|');if(cells.length!==8)throw new Error('Invalid locale row: '+cells[0]);UI_LANGUAGES.forEach(([code],i)=>UI_DICTIONARIES[code][cells[0]]=cells[i]);}
 const UI_NOTES={

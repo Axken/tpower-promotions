@@ -104,10 +104,11 @@
       anniversary: () => ({ labels: AN_JOURNEY, current: anIndex(demo.anniversary), finished: demo.anniversary.claimed }),
       maintenance: () => ({ labels: MT_JOURNEY, current: mtIndex(demo.maintenance), finished: demo.maintenance.completed }),
       'newcomer-free-challenge': () => ({ labels: NFC_JOURNEY, current: nfcIndex(demo.freeChallenge), finished: demo.freeChallenge.redeemed }),
-      'daily-wheel': () => ({ labels: DW_JOURNEY, current: dwIndex(demo.dailyWheel), finished: (demo.dailyWheel.converted || 0) > 0 && (demo.dailyWheel.bonusWallet || 0) <= 0 })
+      'daily-wheel': () => ({ labels: DW_JOURNEY, current: dwIndex(demo.dailyWheel), finished: (demo.dailyWheel.converted || 0) > 0 && (demo.dailyWheel.bonusWallet || 0) <= 0 }),
+      'vip-benefits': () => ({ labels: VB_JOURNEY, current: vbIndex(demo.vipBenefits), finished: (demo.vipBenefits.history || []).length > 0 && vbPendingCount(demo.vipBenefits) === 0 })
     };
     if (map[id]) return map[id]();
-    const byScreen = { nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel' };
+    const byScreen = { nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', vb: 'vip-benefits' };
     if (byScreen[prefix] && map[byScreen[prefix]]) return map[byScreen[prefix]]();
     return null;
   };
@@ -954,6 +955,503 @@
     document.title = '完成任务 · TPOWER';
   }
 
+  /* ------------ VIP会员专属福利 ------------ */
+  const VB_JOURNEY = ['当前等级', '领取福利', '查询记录'];
+  const VB_EXAMPLE = '示例 · 以统一等级表为准';
+
+  function vbOf() {
+    return demoOf().vipBenefits;
+  }
+  function vbRow(level) {
+    return VIP_SOURCE.exampleLevels.find(l => l.level === level) || VIP_SOURCE.exampleLevels[0];
+  }
+  function vbName(level) {
+    return vbRow(level).name;
+  }
+  function vbPct(rate) {
+    return (Math.round(rate * 10000) / 100).toFixed(2) + '%';
+  }
+  function vbNext(v) {
+    return VIP_SOURCE.exampleLevels.find(l => l.level === (v.pendingUpgrade || v.level) + 1) || null;
+  }
+  function vbCanClaimUpgrade(v) {
+    return v.pendingUpgrade > 0 && !(v.claimedUpgrades || []).includes(v.pendingUpgrade);
+  }
+  function vbCanClaimRetention(v) {
+    return v.retentionResult === 'retained' && v.claimedRetentionCycle !== v.cycle;
+  }
+  function vbOutstandingRebate(v) {
+    return r2((v.unsettledBets || 0) * vbRow(v.level).rebate);
+  }
+  function vbCanClaimWeekly(v) {
+    return v.claimedWeek !== v.week;
+  }
+  function vbCanClaimFestival(v) {
+    return !!v.festivalActive && !(v.claimedFestivals || []).includes(v.festival);
+  }
+  function vbPendingCount(v) {
+    return [vbCanClaimUpgrade(v), vbCanClaimRetention(v), vbOutstandingRebate(v) > 0, vbCanClaimWeekly(v), vbCanClaimFestival(v)].filter(Boolean).length;
+  }
+  function vbIndex(v) {
+    const history = v.history || [];
+    if (history.length && vbPendingCount(v) === 0) return 2;
+    if (history.length || v.pendingUpgrade || v.retentionResult || (v.qualifyingBets || 0) > 0 || v.week > 1 || !v.festivalActive) return 1;
+    return 0;
+  }
+  function vbCta(v) {
+    if (vbCanClaimUpgrade(v)) return ['领取升级礼金', 'vb-claim-upgrade', false];
+    if (vbCanClaimRetention(v)) return ['领取保级礼金', 'vb-claim-retention', false];
+    if (vbOutstandingRebate(v) > 0) return ['领取返水', 'vb-claim-rebate', false];
+    if (vbCanClaimWeekly(v)) return ['领取每周关怀礼金', 'vb-claim-weekly', false];
+    if (vbCanClaimFestival(v)) return ['领取节日礼金', 'vb-claim-festival', false];
+    return ['查看我的VIP记录', 'vb-go-records', false];
+  }
+  function vbStatus(v) {
+    const n = vbPendingCount(v);
+    if (n) return ['可领取 · ' + n + ' 项', ''];
+    if ((v.history || []).length) return ['本周期权益已领取', 'muted'];
+    return ['已认证 · ' + vbName(v.level), ''];
+  }
+  function vbExampleTag() {
+    return `<span class="example-tag">${VB_EXAMPLE}</span>`;
+  }
+  function vbAmt(n) {
+    return `RM ${money(n)}`;
+  }
+  function vbCredit(demo, v, title, amount, status, note) {
+    const row = { title, amount, status, time: new Date().toISOString(), note: note || VB_EXAMPLE };
+    v.history = v.history || [];
+    v.history.unshift(row);
+    if (amount > 0) demo.mainWallet = r2((demo.mainWallet || 0) + amount);
+    demo.records.unshift({ id: 'vip-' + Date.now(), title: 'VIP会员专属福利 · ' + title, amount, status, time: row.time });
+    store().save();
+  }
+  function vbRefresh() {
+    const screen = currentRoute().get('demo') || '';
+    if (screen.startsWith('vb-') && typeof window.PromoRenderDemo === 'function') {
+      window.PromoRenderDemo(screen);
+      return;
+    }
+    refreshPromo();
+  }
+  function vbExampleTable() {
+    return `<section class="section-panel vip-example-panel">
+      <div class="section-header"><h3>示例等级表</h3><span>演示用 · VIP1–VIP3</span></div>
+      <p class="fine-print trial-prose">${VIP_SOURCE.exampleNote}</p>
+      <div class="table-wrap"><table class="prize-table vip-example-table">
+        <thead><tr><th>等级</th><th>升级礼金</th><th>保级礼金</th><th>返水比例</th><th>每周关怀</th><th>节日礼金</th></tr></thead>
+        <tbody>${VIP_SOURCE.exampleLevels.map(l => `<tr${l.level === (vbOf().level) ? ' class="current-level"' : ''}><td>${l.name}</td><td>${vbAmt(l.upgrade)}</td><td>${vbAmt(l.retention)}</td><td>${vbPct(l.rebate)}</td><td>${vbAmt(l.weekly)}</td><td>${vbAmt(l.festival)}</td></tr>`).join('')}</tbody>
+      </table></div>
+      ${vbExampleTag()}
+    </section>`;
+  }
+  function vbBenefitState(v, id) {
+    if (id === 'upgrade') {
+      if (vbCanClaimUpgrade(v)) return ['可领取', ''];
+      if (v.pendingUpgrade) return ['该等级已领取', 'muted'];
+      if (!vbNext(v)) return ['已达演示最高等级', 'muted'];
+      return ['待升级后领取', ''];
+    }
+    if (id === 'retention') {
+      if (vbCanClaimRetention(v)) return ['可领取', ''];
+      if (v.retentionResult === 'failed') return ['未达保级 · 无奖励', 'muted'];
+      if (v.claimedRetentionCycle === v.cycle) return ['本周期已领取', 'muted'];
+      return ['待保级结果', ''];
+    }
+    if (id === 'rebate') {
+      const amt = vbOutstandingRebate(v);
+      if (amt > 0) return ['待领取 ' + vbAmt(amt), ''];
+      if ((v.rebateClaimed || 0) > 0) return ['已结算部分返水', 'muted'];
+      return ['待有效投注', ''];
+    }
+    if (id === 'weekly') {
+      if (vbCanClaimWeekly(v)) return ['本周可领取', ''];
+      return ['本周已领取', 'muted'];
+    }
+    if (id === 'festival') {
+      if (!v.festivalActive) return ['不在节日期间', 'muted'];
+      if (vbCanClaimFestival(v)) return ['节日期间可领取', ''];
+      return ['本节日已领取', 'muted'];
+    }
+    return ['', ''];
+  }
+  function vbBenefitCards(v) {
+    return `<div class="vip-benefit-grid">${VIP_SOURCE.benefits.map(b => {
+      const [st, cls] = vbBenefitState(v, b.id);
+      return `<button type="button" class="vip-benefit-card" data-demo-nav="demo=${b.screen}" aria-label="查看${b.title}">
+        <div class="panel-top"><span class="eyebrow">${b.title}</span><span class="status-badge ${cls}">${st}</span></div>
+        <p class="trial-prose">${b.text}</p>
+        <span class="card-link">进入演示 ${icon('arrow')}</span>
+      </button>`;
+    }).join('')}</div>`;
+  }
+  function vbMemberBar(v) {
+    const demo = demoOf();
+    return `<div class="wallet-pair vip-member-bar">
+      <div class="wallet-card"><span>当前等级</span><strong>${vbName(v.level)}</strong><small>演示等级 · 已登录已认证</small></div>
+      <div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>RM ${money(demo.mainWallet)}</strong><small>权益领取后进入此钱包</small></div>
+    </div>`;
+  }
+  function vbRecordsMarkup(v, compact) {
+    const rows = (v.history || []).length
+      ? `<ul class="record-list">${v.history.map(r => `<li><div><strong>${r.title}</strong><small>${store().formatRecordTime(r.time)}${r.note ? ' · ' + r.note : ''}</small></div><div class="record-right"><b>${vbAmt(r.amount)}</b><span class="status-badge">${r.status}</span></div></li>`).join('')}</ul>`
+      : `<div class="compact-empty">${icon('receipt')}<h4>暂无奖励记录</h4><p class="trial-prose">领取升级礼金、保级礼金、返水、每周关怀或节日礼金后，记录将显示在这里。</p></div>`;
+    return `${compact ? '' : vbMemberBar(v)}
+      <section class="section-panel">
+        <div class="section-header"><h3>可查询资料</h3><span>会员等级 · 有效投注 · 奖励记录</span></div>
+        <ul class="kyc-summary">
+          <li><span>会员等级</span><strong>${vbName(v.level)}（演示）</strong></li>
+          <li><span>有效投注</span><strong>RM ${money(v.qualifyingBets || 0)}</strong></li>
+          <li><span>不计入投注</span><strong>RM ${money(v.nonQualifyingBets || 0)}</strong></li>
+          <li><span>已领返水</span><strong>RM ${money(v.rebateClaimed || 0)}</strong></li>
+          <li><span>当前周期</span><strong>第 ${v.cycle} 个保级周期 · 第 ${v.week} 周</strong></li>
+          <li><span>当前节日</span><strong>${v.festival}（示例）${v.festivalActive ? ' · 节日期间' : ' · 已结束'}</strong></li>
+        </ul>
+        ${vbExampleTag()}
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>奖励记录</h3><span>${(v.history || []).length} 条</span></div>
+        ${rows}
+      </section>`;
+  }
+  window.renderVipBenefitsDemo = function () {
+    store().ensureBanner();
+    const v = store().load().vipBenefits;
+    const [status, statusCls] = vbStatus(v);
+    return `${store().journeyBar()}${vbMemberBar(v)}
+      <section class="reward-feature trial-hero vip-hero">
+        <div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div>
+        <p class="trial-prose">${VIP_SOURCE.reward}</p>
+        <p class="trial-prose">${VIP_SOURCE.summary}</p>
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>参与条件</h3><span>演示账户</span></div>
+        ${checks(['已登录（演示会员陈美玲）', '已完成实名认证', '当前演示等级 ' + vbName(v.level) + '，享有对应VIP权益'])}
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>五大专属福利</h3><span>点击卡片进入演示</span></div>
+        ${vbBenefitCards(v)}
+      </section>
+      ${vbExampleTable()}
+      <section class="section-panel">
+        <div class="section-header"><h3>风控补充</h3></div>
+        ${termsList(VIP_SOURCE.terms)}
+      </section>
+      <button type="button" class="outline-wide" data-tab="2">查看我的VIP记录 ${icon('arrow')}</button>
+      <button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>
+      <button type="button" class="text-button trial-reset" data-action="demo-reset">重置演示</button>`;
+  };
+  window.renderVipRecordsPanel = function () {
+    const v = store().load().vipBenefits;
+    return `${store().journeyBar()}${vbRecordsMarkup(v)}
+      <button type="button" class="outline-wide" data-tab="0">返回活动详情</button>
+      <button type="button" class="text-button trial-reset" data-action="demo-reset">重置演示</button>`;
+  };
+  function renderVbUpgrade() {
+    const v = vbOf();
+    const next = vbNext(v);
+    const canClaim = vbCanClaimUpgrade(v);
+    const target = canClaim ? vbRow(v.pendingUpgrade) : null;
+    const already = (v.claimedUpgrades || []).map(vbName).join('、');
+    $('#app').innerHTML = page('VIP升级礼金', `
+      ${vbMemberBar(v)}
+      <section class="section-panel">
+        <p class="trial-prose">${VIP_SOURCE.benefits[0].text}</p>
+        <p class="trial-prose">升级礼金每个等级仅能领取一次。</p>
+        ${vbExampleTag()}
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>演示进度</h3><span>${vbName(v.level)}</span></div>
+        <ul class="kyc-summary">
+          <li><span>当前等级</span><strong>${vbName(v.level)}（演示）</strong></li>
+          <li><span>待领取等级</span><strong>${canClaim ? vbName(v.pendingUpgrade) + ' · ' + vbAmt(target.upgrade) : '暂无'}</strong></li>
+          <li><span>已领取等级</span><strong>${already || '无'}</strong></li>
+        </ul>
+        ${canClaim ? `<p class="fine-print trial-prose">已升级至${vbName(v.pendingUpgrade)}，可领取对应升级奖励（示例 ${vbAmt(target.upgrade)}，以统一等级表为准）。</p>` : ''}
+        ${canClaim ? '<button type="button" class="primary" data-action="vb-claim-upgrade">领取升级礼金</button>' : ''}
+        ${!canClaim && (v.claimedUpgrades || []).includes(v.level) && !next ? '<button type="button" class="primary" disabled>该等级升级礼金已领取</button>' : ''}
+        ${!canClaim && next ? `<button type="button" class="${canClaim ? 'outline-wide' : 'primary'}" data-action="vb-simulate-upgrade">模拟升级至 ${next.name}</button>` : ''}
+        ${!canClaim && !next ? '<button type="button" class="outline-wide" disabled>已达演示最高等级</button>' : ''}
+        ${canClaim ? '<button type="button" class="outline-wide" data-action="vb-claim-upgrade-again">再次领取（将提示不可重复）</button>' : (v.claimedUpgrades || []).includes(v.level) ? '<button type="button" class="outline-wide" data-action="vb-claim-upgrade">再次领取（将提示不可重复）</button>' : ''}
+      </section>
+      ${vbExampleTable()}
+    `, 'activity=vip-benefits');
+    document.title = 'VIP升级礼金 · TPOWER';
+  }
+  function renderVbRetention() {
+    const v = vbOf();
+    const amt = vbRow(v.level).retention;
+    const canClaim = vbCanClaimRetention(v);
+    const failed = v.retentionResult === 'failed';
+    const claimed = v.claimedRetentionCycle === v.cycle;
+    const resultLabel = v.retentionResult === 'retained' ? '已达保级条件' : failed ? '未达保级条件' : '尚未产生结果';
+    $('#app').innerHTML = page('VIP保级礼金', `
+      ${vbMemberBar(v)}
+      <section class="section-panel">
+        <p class="trial-prose">${VIP_SOURCE.benefits[1].text}</p>
+        <p class="trial-prose">保级礼金依实际保级结果发放，每周期限领一次。</p>
+        ${vbExampleTag()}
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>本周期结果</h3><span>第 ${v.cycle} 个演示周期</span></div>
+        <ul class="kyc-summary">
+          <li><span>当前等级</span><strong>${vbName(v.level)}（演示）</strong></li>
+          <li><span>保级结果</span><strong>${resultLabel}</strong></li>
+          <li><span>示例保级礼金</span><strong>${vbAmt(amt)}</strong></li>
+        </ul>
+        ${canClaim ? `<p class="fine-print trial-prose">本周期已达到保级条件，可领取保级奖励（示例 ${vbAmt(amt)}，以统一等级表为准）。</p>` : ''}
+        ${failed ? '<p class="fine-print trial-prose">本周期未达到保级条件，无保级礼金。</p>' : ''}
+        ${canClaim ? '<button type="button" class="primary" data-action="vb-claim-retention">领取保级礼金</button>' : ''}
+        ${claimed ? '<button type="button" class="primary" disabled>本周期保级礼金已领取</button><button type="button" class="outline-wide" data-action="vb-claim-retention">再次领取（将提示不可重复）</button>' : ''}
+        ${failed && !claimed ? '<button type="button" class="primary" disabled>本周期未达保级，无奖励</button>' : ''}
+        ${!claimed ? '<button type="button" class="outline-wide" data-action="vb-simulate-retain">模拟保级成功</button><button type="button" class="outline-wide" data-action="vb-simulate-fail">模拟未达保级</button>' : ''}
+        <button type="button" class="text-button" data-action="vb-next-cycle">模拟下一周期</button>
+      </section>
+    `, 'activity=vip-benefits');
+    document.title = 'VIP保级礼金 · TPOWER';
+  }
+  function renderVbRebate() {
+    const v = vbOf();
+    const row = vbRow(v.level);
+    const outstanding = vbOutstandingRebate(v);
+    $('#app').innerHTML = page('VIP专属返水', `
+      ${vbMemberBar(v)}
+      <section class="section-panel">
+        <p class="trial-prose">${VIP_SOURCE.benefits[2].text}</p>
+        <p class="trial-prose">返水仅计算符合规则的有效投注。</p>
+        ${vbExampleTag()}
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>返水试算</h3><span>${vbName(v.level)} · 示例比例 ${vbPct(row.rebate)}</span></div>
+        <ul class="kyc-summary">
+          <li><span>有效投注</span><strong>RM ${money(v.qualifyingBets || 0)}</strong></li>
+          <li><span>不计入投注</span><strong>RM ${money(v.nonQualifyingBets || 0)}</strong></li>
+          <li><span>待结算有效投注</span><strong>RM ${money(v.unsettledBets || 0)}</strong></li>
+          <li><span>待领取返水</span><strong>${vbAmt(outstanding)}</strong></li>
+          <li><span>已领返水</span><strong>${vbAmt(v.rebateClaimed || 0)}</strong></li>
+        </ul>
+        <p class="fine-print trial-prose">演示按当前等级的示例返水比例计算：待结算有效投注 × ${vbPct(row.rebate)}。实际返水比例以统一等级表为准。</p>
+        <div class="vip-bet-actions">
+          <button type="button" class="outline-wide" data-action="vb-bet-valid">演示有效投注 RM100</button>
+          <button type="button" class="outline-wide" data-action="vb-bet-other">演示无效投注 RM100</button>
+        </div>
+        ${outstanding > 0 ? '<button type="button" class="primary" data-action="vb-claim-rebate">领取返水</button>' : '<button type="button" class="primary" disabled>暂无可领返水</button>'}
+      </section>
+    `, 'activity=vip-benefits');
+    document.title = 'VIP专属返水 · TPOWER';
+  }
+  function renderVbWeekly() {
+    const v = vbOf();
+    const amt = vbRow(v.level).weekly;
+    const can = vbCanClaimWeekly(v);
+    $('#app').innerHTML = page('VIP每周关怀礼金', `
+      ${vbMemberBar(v)}
+      <section class="section-panel">
+        <p class="trial-prose">${VIP_SOURCE.benefits[3].text}</p>
+        <p class="trial-prose">每周关怀礼金每人每周期限领一次。</p>
+        ${vbExampleTag()}
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>本周关怀</h3><span>第 ${v.week} 个演示周</span></div>
+        <ul class="kyc-summary">
+          <li><span>当前等级</span><strong>${vbName(v.level)}（演示）</strong></li>
+          <li><span>领取条件</span><strong>已符合指定等级（演示）</strong></li>
+          <li><span>示例关怀礼金</span><strong>${vbAmt(amt)}</strong></li>
+        </ul>
+        ${can ? `<button type="button" class="primary" data-action="vb-claim-weekly">领取每周关怀礼金</button>` : `<button type="button" class="primary" disabled>本周关怀礼金已领取</button><button type="button" class="outline-wide" data-action="vb-claim-weekly">再次领取（将提示不可重复）</button>`}
+        <button type="button" class="text-button" data-action="vb-next-week">模拟下周</button>
+      </section>
+    `, 'activity=vip-benefits');
+    document.title = 'VIP每周关怀礼金 · TPOWER';
+  }
+  function renderVbFestival() {
+    const v = vbOf();
+    const amt = vbRow(v.level).festival;
+    const can = vbCanClaimFestival(v);
+    const claimed = (v.claimedFestivals || []).includes(v.festival);
+    $('#app').innerHTML = page('VIP节日礼金', `
+      ${vbMemberBar(v)}
+      <section class="section-panel">
+        <p class="trial-prose">${VIP_SOURCE.benefits[4].text}</p>
+        <p class="trial-prose">节日礼金每名符合资格的会员每个节日限领一次。</p>
+        ${vbExampleTag()}
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>示例节日</h3><span>${v.festival}${v.festivalActive ? ' · 节日期间' : ' · 已结束'}</span></div>
+        <ul class="kyc-summary">
+          <li><span>当前等级</span><strong>${vbName(v.level)}（演示）</strong></li>
+          <li><span>节日名称</span><strong>${v.festival}（示例节日）</strong></li>
+          <li><span>节日期间</span><strong>${v.festivalActive ? '进行中' : '已结束'}</strong></li>
+          <li><span>示例节日礼金</span><strong>${vbAmt(amt)}</strong></li>
+        </ul>
+        ${can ? `<button type="button" class="primary" data-action="vb-claim-festival">领取节日礼金</button>` : ''}
+        ${!v.festivalActive ? '<button type="button" class="primary" disabled>当前不在节日期间</button>' : ''}
+        ${claimed && v.festivalActive ? '<button type="button" class="primary" disabled>本节日礼金已领取</button><button type="button" class="outline-wide" data-action="vb-claim-festival">再次领取（将提示不可重复）</button>' : ''}
+        ${v.festivalActive ? '<button type="button" class="outline-wide" data-action="vb-end-festival">模拟节日结束</button>' : ''}
+        <button type="button" class="text-button" data-action="vb-next-festival">模拟下一节日</button>
+      </section>
+    `, 'activity=vip-benefits');
+    document.title = 'VIP节日礼金 · TPOWER';
+  }
+  function renderVbRecords() {
+    const v = vbOf();
+    $('#app').innerHTML = page('我的VIP记录', `
+      ${vbRecordsMarkup(v, true)}
+      <button type="button" class="text-button trial-reset" data-action="demo-reset">重置演示</button>
+    `, 'activity=vip-benefits');
+    document.title = '我的VIP记录 · TPOWER';
+  }
+
+  function handleVipAction(name, demo) {
+    if (!name || !name.startsWith('vb-')) return false;
+    const v = demo.vipBenefits;
+    if (!v) return false;
+    if (name === 'vb-go-records') { navigate('activity=vip-benefits&tab=2'); return true; }
+    if (name === 'vb-go-upgrade') { navigate('demo=vb-upgrade'); return true; }
+    if (name === 'vb-go-retention') { navigate('demo=vb-retention'); return true; }
+    if (name === 'vb-go-rebate') { navigate('demo=vb-rebate'); return true; }
+    if (name === 'vb-go-weekly') { navigate('demo=vb-weekly'); return true; }
+    if (name === 'vb-go-festival') { navigate('demo=vb-festival'); return true; }
+
+    if (name === 'vb-simulate-upgrade') {
+      if (vbCanClaimUpgrade(v)) { toast('请先领取当前等级的升级礼金'); vbRefresh(); return true; }
+      const next = vbNext(v);
+      if (!next) { toast('已达演示最高等级（示例 VIP1–VIP3），以统一等级表为准'); vbRefresh(); return true; }
+      v.level = next.level;
+      v.pendingUpgrade = next.level;
+      store().save();
+      toast('已升级至 ' + next.name + '（演示），可领取对应升级奖励');
+      vbRefresh();
+      return true;
+    }
+    if (name === 'vb-claim-upgrade' || name === 'vb-claim-upgrade-again') {
+      if (!vbCanClaimUpgrade(v)) {
+        toast((v.claimedUpgrades || []).includes(v.level) || (v.claimedUpgrades || []).includes(v.pendingUpgrade)
+          ? '升级礼金每个等级仅能领取一次。'
+          : '请先模拟升级至更高VIP等级');
+        vbRefresh();
+        return true;
+      }
+      const row = vbRow(v.pendingUpgrade);
+      v.claimedUpgrades = v.claimedUpgrades || [];
+      v.claimedUpgrades.push(v.pendingUpgrade);
+      v.level = v.pendingUpgrade;
+      v.pendingUpgrade = 0;
+      vbCredit(demo, v, 'VIP升级礼金 · ' + row.name, row.upgrade, '已到账', VB_EXAMPLE);
+      toast('已领取 ' + row.name + ' 升级礼金（示例）' + vbAmt(row.upgrade) + '，以统一等级表为准');
+      vbRefresh();
+      return true;
+    }
+    if (name === 'vb-simulate-retain') {
+      if (v.claimedRetentionCycle === v.cycle) { toast('保级礼金依实际保级结果发放，每周期限领一次。'); vbRefresh(); return true; }
+      v.retentionResult = 'retained';
+      store().save();
+      toast('本周期已达到保级条件（演示）');
+      vbRefresh();
+      return true;
+    }
+    if (name === 'vb-simulate-fail') {
+      if (v.claimedRetentionCycle === v.cycle) { toast('保级礼金依实际保级结果发放，每周期限领一次。'); vbRefresh(); return true; }
+      v.retentionResult = 'failed';
+      store().save();
+      toast('本周期未达到保级条件，无保级礼金');
+      vbRefresh();
+      return true;
+    }
+    if (name === 'vb-claim-retention') {
+      if (v.claimedRetentionCycle === v.cycle) { toast('保级礼金依实际保级结果发放，每周期限领一次。'); vbRefresh(); return true; }
+      if (v.retentionResult === 'failed') { toast('本周期未达保级，无奖励'); vbRefresh(); return true; }
+      if (v.retentionResult !== 'retained') { toast('请先模拟本周期保级结果'); vbRefresh(); return true; }
+      const amt = vbRow(v.level).retention;
+      v.claimedRetentionCycle = v.cycle;
+      vbCredit(demo, v, 'VIP保级礼金 · 第' + v.cycle + '周期 · ' + vbName(v.level), amt, '已到账', VB_EXAMPLE);
+      toast('已领取保级礼金（示例）' + vbAmt(amt) + '，以统一等级表为准');
+      vbRefresh();
+      return true;
+    }
+    if (name === 'vb-next-cycle') {
+      v.cycle = (v.cycle || 1) + 1;
+      v.retentionResult = null;
+      store().save();
+      toast('已进入第 ' + v.cycle + ' 个演示周期');
+      vbRefresh();
+      return true;
+    }
+    if (name === 'vb-bet-valid') {
+      const add = VIP_SOURCE.exampleBet;
+      v.qualifyingBets = r2((v.qualifyingBets || 0) + add);
+      v.unsettledBets = r2((v.unsettledBets || 0) + add);
+      store().save();
+      toast('演示有效投注 ' + vbAmt(add) + '，计入返水计算');
+      vbRefresh();
+      return true;
+    }
+    if (name === 'vb-bet-other') {
+      const add = VIP_SOURCE.exampleBet;
+      v.nonQualifyingBets = r2((v.nonQualifyingBets || 0) + add);
+      store().save();
+      toast('返水仅计算符合规则的有效投注。该笔投注不计入。');
+      vbRefresh();
+      return true;
+    }
+    if (name === 'vb-claim-rebate') {
+      const amt = vbOutstandingRebate(v);
+      if (amt <= 0) { toast('暂无可领返水。返水仅计算符合规则的有效投注。'); vbRefresh(); return true; }
+      v.unsettledBets = 0;
+      v.rebateClaimed = r2((v.rebateClaimed || 0) + amt);
+      vbCredit(demo, v, 'VIP专属返水 · ' + vbName(v.level), amt, '已到账', '按示例返水比例计算，以统一等级表为准');
+      toast('已领取返水（示例）' + vbAmt(amt) + '，以统一等级表为准');
+      vbRefresh();
+      return true;
+    }
+    if (name === 'vb-claim-weekly') {
+      if (v.claimedWeek === v.week) { toast('每周关怀礼金每人每周期限领一次。'); vbRefresh(); return true; }
+      const amt = vbRow(v.level).weekly;
+      v.claimedWeek = v.week;
+      vbCredit(demo, v, 'VIP每周关怀礼金 · 第' + v.week + '周 · ' + vbName(v.level), amt, '已到账', VB_EXAMPLE);
+      toast('已领取每周关怀礼金（示例）' + vbAmt(amt) + '，以统一等级表为准');
+      vbRefresh();
+      return true;
+    }
+    if (name === 'vb-next-week') {
+      v.week = (v.week || 1) + 1;
+      store().save();
+      toast('已进入第 ' + v.week + ' 个演示周');
+      vbRefresh();
+      return true;
+    }
+    if (name === 'vb-claim-festival') {
+      if (!v.festivalActive) { toast('当前不在节日期间，无法领取节日礼金。'); vbRefresh(); return true; }
+      if ((v.claimedFestivals || []).includes(v.festival)) { toast('节日礼金每名符合资格的会员每个节日限领一次。'); vbRefresh(); return true; }
+      const amt = vbRow(v.level).festival;
+      v.claimedFestivals = v.claimedFestivals || [];
+      v.claimedFestivals.push(v.festival);
+      vbCredit(demo, v, 'VIP节日礼金 · ' + v.festival + '（示例节日）', amt, '已到账', VB_EXAMPLE);
+      toast('已领取 ' + v.festival + ' 节日礼金（示例）' + vbAmt(amt) + '，以统一等级表为准');
+      vbRefresh();
+      return true;
+    }
+    if (name === 'vb-end-festival') {
+      v.festivalActive = false;
+      store().save();
+      toast('演示：' + v.festival + ' 节日期间已结束');
+      vbRefresh();
+      return true;
+    }
+    if (name === 'vb-next-festival') {
+      const list = VIP_SOURCE.festivals;
+      const i = Math.max(0, list.indexOf(v.festival));
+      v.festival = list[(i + 1) % list.length];
+      v.festivalActive = true;
+      store().save();
+      toast('演示进入下一节日：' + v.festival + '（示例节日）');
+      vbRefresh();
+      return true;
+    }
+    return false;
+  }
+
+
   window.PromoRenderDemo = function (screen) {
     store().ensureBanner();
     store().load();
@@ -979,7 +1477,13 @@
       'nfc-redeem-success': renderNfcRedeemSuccess,
       'dw-spin': renderDwSpin,
       'dw-turnover': renderDwTurnover,
-      'dw-convert': renderDwConvert
+      'dw-convert': renderDwConvert,
+      'vb-upgrade': renderVbUpgrade,
+      'vb-retention': renderVbRetention,
+      'vb-rebate': renderVbRebate,
+      'vb-weekly': renderVbWeekly,
+      'vb-festival': renderVbFestival,
+      'vb-records': renderVbRecords
     };
     if (!pages[screen]) return false;
     const demo = demoOf();
@@ -1007,7 +1511,7 @@
     };
     if (gates[screen] && !gates[screen]()) {
       const back = {
-        nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel'
+        nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', vb: 'vip-benefits'
       }[screen.split('-')[0]];
       navigate('activity=' + back);
       return true;
@@ -1031,6 +1535,7 @@
 
   window.PromoHandleAction = function (name) {
     const demo = store().load();
+    if (handleVipAction(name, demo)) return true;
     const n = demo.newcomer;
     const r = demo.referral;
     const g = demo.growth;
@@ -1565,16 +2070,19 @@
       anniversary: window.renderAnniversaryDemo,
       maintenance: window.renderMaintenanceDemo,
       'newcomer-free-challenge': window.renderFreeChallengeDemo,
-      'daily-wheel': window.renderDailyWheelDemo
+      'daily-wheel': window.renderDailyWheelDemo,
+      'vip-benefits': window.renderVipBenefitsDemo
     };
     let body;
     if (selected === 1) body = rules(p);
     else if (selected === 2 && p.id === 'anniversary') body = window.renderAnniversaryTickets();
+    else if (selected === 2 && p.id === 'vip-benefits') body = window.renderVipRecordsPanel();
     else if (selected === 2) body = tickets();
     else body = (pages[p.id] || (() => ''))();
     const stickyFor = {
       'newcomer-free-challenge': () => sticky(nfcCta(demoOf().freeChallenge)),
       'daily-wheel': () => sticky(dwCta(demoOf().dailyWheel)),
+      'vip-benefits': () => sticky(vbCta(demoOf().vipBenefits)),
       newcomer: () => sticky(ncCta(demoOf().newcomer)),
       referral: () => sticky(rfCta(demoOf().referral)),
       growth: () => sticky(grCta(demoOf().growth)),
@@ -1583,7 +2091,7 @@
     };
     const stickyHtml = selected === 0 && stickyFor[p.id] ? stickyFor[p.id]() : (p.id === 'anniversary' && selected === 2 ? sticky(anCta(demoOf().anniversary)) : '');
     const hero = p.banner ? `<div class="detail-hero">${banner(p)}</div>` : '';
-    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
+    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
     $('#app').innerHTML = `<article class="detail ${detailClass}"><button class="back-link" data-back>${icon('arrow')} 返回活动列表</button>${hero}<div class="detail-heading"><span class="badge">${p.badge}</span><h2>${p.title}</h2><p class="trial-prose">${p.secondary}</p></div><div class="activity-tabs" aria-label="活动内容">${p.tabs.map((t, i) => `<button data-tab="${i}" class="${i === selected ? 'active' : ''}" aria-pressed="${i === selected}">${t}</button>`).join('')}</div><div id="detail-content">${body}</div>${stickyHtml}<button class="support-link" data-support>需要帮助？联系客服</button>${footer()}</article>`;
     if (p.id === 'referral' && selected === 0 && $('#friend-search')) $('#friend-search').addEventListener('input', updateSearch);
   };

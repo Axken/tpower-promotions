@@ -66,6 +66,26 @@
       history: []
     };
   }
+  function defaultVipBenefits() {
+    return {
+      level: 1,
+      pendingUpgrade: 0,
+      claimedUpgrades: [],
+      cycle: 1,
+      retentionResult: null,
+      claimedRetentionCycle: 0,
+      qualifyingBets: 0,
+      unsettledBets: 0,
+      nonQualifyingBets: 0,
+      rebateClaimed: 0,
+      week: 1,
+      claimedWeek: 0,
+      festival: '春节',
+      festivalActive: true,
+      claimedFestivals: [],
+      history: []
+    };
+  }
   function defaultDemo() {
     return {
       phone: '012-3456789',
@@ -91,7 +111,8 @@
       anniversary: defaultAnniversary(),
       maintenance: defaultMaintenance(),
       freeChallenge: defaultFreeChallenge(),
-      dailyWheel: defaultDailyWheel()
+      dailyWheel: defaultDailyWheel(),
+      vipBenefits: defaultVipBenefits()
     };
   }
   function loadDemo() {
@@ -122,6 +143,10 @@
       parsed.freeChallenge = Object.assign(base.freeChallenge, parsed.freeChallenge || {});
       parsed.dailyWheel = Object.assign(base.dailyWheel, parsed.dailyWheel || {});
       if (!Array.isArray(parsed.dailyWheel.history)) parsed.dailyWheel.history = [];
+      parsed.vipBenefits = Object.assign(base.vipBenefits, parsed.vipBenefits || {});
+      if (!Array.isArray(parsed.vipBenefits.claimedUpgrades)) parsed.vipBenefits.claimedUpgrades = [];
+      if (!Array.isArray(parsed.vipBenefits.claimedFestivals)) parsed.vipBenefits.claimedFestivals = [];
+      if (!Array.isArray(parsed.vipBenefits.history)) parsed.vipBenefits.history = [];
       if (!Array.isArray(parsed.records)) parsed.records = [];
       return Object.assign(base, parsed, { spinning: false });
     } catch {
@@ -447,6 +472,7 @@
           <li><span>成长彩金</span><strong>${!demo.growth.started ? '未参加' : (demo.growth.expired && demo.growth.expired[demo.growth.tier]) ? '档位已失效' : demo.growth.claimed.every((v, i) => v >= (GROWTH_SOURCE.caps[i] || 0)) ? '已完成' : '进行中'}</strong></li>
           <li><span>周年抽奖</span><strong>${demo.anniversary.claimed ? '已领取' : demo.anniversary.expired ? '已作废' : demo.anniversary.tickets.length ? '进行中' : '未参加'}</strong></li>
           <li><span>维护补偿</span><strong>${demo.maintenance.completed ? '已领取' : !demo.maintenance.eligible ? '不符资格' : demo.maintenance.joined ? '进行中' : '未参加'}</strong></li>
+          <li><span>VIP福利</span><strong>${(demo.vipBenefits.history || []).length || demo.vipBenefits.pendingUpgrade || demo.vipBenefits.qualifyingBets || demo.vipBenefits.week > 1 ? '进行中' : '未参加'}</strong></li>
         </ul>
       </section>
       <button type="button" class="outline-wide" data-action="demo-reset">重置演示</button>
@@ -570,7 +596,7 @@
     if ($('#modal') && $('#modal').open) closeModal();
     if (!silent) toast('演示已重置');
     const id = currentRoute().get('activity');
-    const known = ['newcomer-free-challenge', 'daily-wheel', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'];
+    const known = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'];
     navigate(id && known.includes(id) ? 'activity=' + id : 'category=all');
   }
 
@@ -727,7 +753,7 @@
 
   const _handleAction = handleAction;
   handleAction = function (name) {
-    if (name && /^(demo-|trial-|nc-|ref-|gr-|an-|mt-|nfc-|dw-)/.test(name)) return handleDemoAction(name);
+    if (name && /^(demo-|trial-|nc-|ref-|gr-|an-|mt-|nfc-|dw-|vb-)/.test(name)) return handleDemoAction(name);
     return _handleAction(name);
   };
 

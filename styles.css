@@ -307,3 +307,29 @@ html,body{height:100%;overflow:hidden}
   .wheel-stage{width:320px}
   .wheel-label b{font-size:15px}
 }
+
+.vip-card-hero{background:radial-gradient(ellipse at top right,#5a3d1a66,transparent 70%),linear-gradient(115deg,#2a1f14,#151215)}
+.vip-card-hero .trial-card-tag{border-color:#7a5a28;color:#e8c98a;background:#543e2057}
+.vip-benefit-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.vip-benefit-chips span{background:#2a2218;border:1px solid #5a4a2a;border-radius:5px;padding:4px 8px;font-size:11px;color:#f1d49a}
+.vip-hero{background:radial-gradient(ellipse at top right,#5a3d1a44,transparent 65%),linear-gradient(160deg,#221a14,#161416)}
+.vip-benefit-grid{display:grid;gap:10px}
+.vip-benefit-card{display:block;width:100%;text-align:left;padding:14px 16px;border-radius:14px;border:1px solid #3d3328;background:linear-gradient(160deg,#1c1814,#141312);color:inherit}
+.vip-benefit-card:hover{border-color:#7a5a28;background:linear-gradient(160deg,#241e18,#161412)}
+.vip-benefit-card .trial-prose{margin:8px 0 10px;color:#e8ddd0;font-size:13px;line-height:1.55}
+.vip-benefit-card .card-link{font-size:13px}
+.vip-member-bar .wallet-card strong{letter-spacing:.02em}
+.example-tag{display:inline-block;margin-top:8px;padding:3px 8px;border:1px solid #6b542c;border-radius:20px;background:#3a2e1657;color:#e8c98a;font-size:10px}
+.vip-example-panel .example-tag{margin-top:10px}
+.vip-example-table{font-size:12px}
+.vip-example-table th,.vip-example-table td{white-space:nowrap}
+.vip-example-table tr.current-level td{color:#f1d49a;font-weight:650}
+.vip-bet-actions{display:grid;gap:8px;margin:12px 0}
+@media(min-width:900px){
+  .vip-benefit-grid{grid-template-columns:1fr 1fr}
+  .vip-benefit-grid .vip-benefit-card:last-child:nth-child(odd){grid-column:1/-1}
+}
+@media(max-width:600px){
+  .vip-example-table{font-size:11px}
+  .vip-benefit-card{padding:12px 13px}
+}
