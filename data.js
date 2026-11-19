@@ -3,6 +3,7 @@
 const CATEGORIES=[['all','全部活动','gift'],['new','新人豪礼','adduser'],['growth','充值加码','cash'],['surprise','惊喜福利','gift'],['vip','VIP尊享','crown'],['invite','邀友赚礼','friends']];
 const PROMOS=[
 {id:'newcomer-free-challenge',title:'新人免费挑战赢取RM100',fullTitle:'新人免费挑战赢取RM100',category:'new',tag:'新人挑战',summary:'免费RM100试玩，达标兑换RM100现金',secondary:'试玩余额达到RM200，即可兑换RM100现金奖励。',badge:'新注册会员 · 终身限领一次',tabs:['活动详情','活动规则']},
+{id:'daily-wheel',title:'每日幸运大转盘RM888',fullTitle:'每日幸运大转盘RM888',category:'surprise',tag:'每日转盘',summary:'每日最多3次免费抽奖，最高赢取RM888',secondary:'单笔充值超过RM100获得1次抽奖，彩金需完成3倍流水后转现金。',badge:'每日最多3次 · 最高 RM888',tabs:['活动详情','活动规则']},
 {id:'newcomer-trial',title:'新人免费体验礼',category:'new',tag:'新人体验',summary:'免费RM100试玩，达标兑换RM100现金',secondary:'试玩余额达到RM200，即可兑换RM100现金奖励。',badge:'新注册会员 · 终身限领一次',tabs:['活动详情','活动规则']},
 {id:'newcomer',title:'新人专享挑战',fullTitle:'Tpower新人专享挑战活动',category:'new',tag:'新人专享',banner:'new',summary:'实名认证领取 RM88',secondary:'完成挑战，充值解锁最高 RM1,888',badge:'每位新会员限一次',tabs:['活动详情','活动规则']},
 {id:'referral',title:'邀请好友挑战，赚取高达RM1,000',fullTitle:'邀请好友挑战，赚取高达RM1,000',category:'invite',tag:'邀请好友',banner:'invite',summary:'每成功邀请一名好友，最高累计赚取RM1,000',secondary:'好友完成指定任务后，系统自动解锁对应邀请奖励。',badge:'每名好友最高 RM1,000',tabs:['我的邀请','活动规则']},
@@ -87,6 +88,42 @@ const CHALLENGE_RULES=[
   ['参与条件',CHALLENGE_SOURCE.eligibility],
   ['活动流程',CHALLENGE_SOURCE.steps.map(s=>s.text)],
   ['重要条款',CHALLENGE_SOURCE.terms]
+];
+
+const WHEEL_SOURCE={
+  reward:'每日最多3次免费抽奖，最高赢取RM888',
+  eligibility:[
+    '每成功充值一笔超过RM100，即可获得1次免费抽奖机会。',
+    '每名会员每日最多获得3次抽奖机会。',
+    '充值不可合并计算抽奖次数。'
+  ],
+  prizes:[888,588,188,58,18,8],
+  wagerMult:3,
+  providers:['FUMA','WUDI','BWG'],
+  steps:[
+    {title:'充值获次数',heading:'单笔充值超过RM100获得抽奖',text:'每成功充值一笔超过RM100，即可获得1次免费抽奖机会。充值不可合并计算抽奖次数。仅计算真实且成功入账的充值。取消、退款或异常充值不产生抽奖机会。每笔符合条件的充值最多产生1次抽奖。'},
+    {title:'每日上限',heading:'每日最多3次抽奖',text:'每名会员每日最多获得3次抽奖机会。抽奖次数不得转让或兑换现金。每日抽奖次数于00:00重置。'},
+    {title:'转动转盘',heading:'每次抽奖必定获得一档奖金',text:'每次抽奖必定获得以上其中一档奖金。抽中的奖金进入活动彩金钱包。'},
+    {title:'流水转现金',heading:'完成3倍有效流水后转换为现金',text:'彩金必须完成3倍有效流水后才可转换为现金。例如：抽中RM188，需要完成RM564有效流水。流水仅限指定游戏商：FUMA、WUDI、BWG。'}
+  ],
+  terms:[
+    '每次抽奖必定获得以上其中一档奖金。',
+    '抽中的奖金进入活动彩金钱包。',
+    '彩金必须完成3倍有效流水后才可转换为现金。例如：抽中RM188，需要完成RM564有效流水。',
+    '流水仅限指定游戏商：FUMA、WUDI、BWG。',
+    '仅计算真实且成功入账的充值。',
+    '取消、退款或异常充值不产生抽奖机会。',
+    '每笔符合条件的充值最多产生1次抽奖。',
+    '抽奖次数不得转让或兑换现金。',
+    '每日抽奖次数于00:00重置。'
+  ]
+};
+const WHEEL_RULES=[
+  ['活动奖励',[WHEEL_SOURCE.reward]],
+  ['参与条件',WHEEL_SOURCE.eligibility],
+  ['转盘奖金',WHEEL_SOURCE.prizes.map(n=>'RM'+n)],
+  ['活动流程',WHEEL_SOURCE.steps.map(s=>s.text)],
+  ['奖励规则',WHEEL_SOURCE.terms]
 ];
 
 // Structured official copy for activity pages and demos. Wording is taken from the

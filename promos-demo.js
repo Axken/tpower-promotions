@@ -103,10 +103,11 @@
       growth: () => ({ labels: GR_JOURNEY, current: grIndex(demo.growth), finished: GROWTH_SOURCE.caps.every((c, i) => (demo.growth.claimed[i] || 0) >= c) }),
       anniversary: () => ({ labels: AN_JOURNEY, current: anIndex(demo.anniversary), finished: demo.anniversary.claimed }),
       maintenance: () => ({ labels: MT_JOURNEY, current: mtIndex(demo.maintenance), finished: demo.maintenance.completed }),
-      'newcomer-free-challenge': () => ({ labels: NFC_JOURNEY, current: nfcIndex(demo.freeChallenge), finished: demo.freeChallenge.redeemed })
+      'newcomer-free-challenge': () => ({ labels: NFC_JOURNEY, current: nfcIndex(demo.freeChallenge), finished: demo.freeChallenge.redeemed }),
+      'daily-wheel': () => ({ labels: DW_JOURNEY, current: dwIndex(demo.dailyWheel), finished: (demo.dailyWheel.converted || 0) > 0 && (demo.dailyWheel.bonusWallet || 0) <= 0 })
     };
     if (map[id]) return map[id]();
-    const byScreen = { nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge' };
+    const byScreen = { nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel' };
     if (byScreen[prefix] && map[byScreen[prefix]]) return map[byScreen[prefix]]();
     return null;
   };
@@ -334,6 +335,141 @@
         toast('未达RM200目标，不可兑换部分奖励。');
       }
     }, 900);
+  }
+
+
+  /* ------------ 每日幸运大转盘RM888 ------------ */
+  const DW_JOURNEY = ['获得次数', '抽奖', '彩金钱包', '完成流水', '转现金'];
+  const DW_DEMO_PRIZES = [188, 58, 18];
+  const DW_SPIN_MS = 2600;
+  function dwOf() {
+    return demoOf().dailyWheel;
+  }
+  function dwSpinsLeft(w) {
+    return Math.max(0, (w.earnedToday || 0) - (w.usedToday || 0));
+  }
+  function dwIndex(w) {
+    if ((w.converted || 0) > 0 && (w.bonusWallet || 0) <= 0 && dwSpinsLeft(w) <= 0) return 4;
+    if ((w.bonusWallet || 0) > 0 && (w.turnover || 0) >= (w.turnoverNeed || 0) && w.turnoverNeed > 0) return 4;
+    if ((w.bonusWallet || 0) > 0 && (w.turnover || 0) > 0) return 3;
+    if ((w.bonusWallet || 0) > 0) return 2;
+    if ((w.usedToday || 0) > 0) return 1;
+    if ((w.earnedToday || 0) > 0) return 1;
+    return 0;
+  }
+  function dwCta(w) {
+    if (w.spinning) return ['转盘转动中', 'demo-done', true];
+    if ((w.bonusWallet || 0) > 0 && w.turnoverNeed > 0 && (w.turnover || 0) >= w.turnoverNeed) return ['转换为现金', 'dw-go-convert', false];
+    if ((w.bonusWallet || 0) > 0 && (w.turnover || 0) < w.turnoverNeed) return ['去完成有效流水', 'dw-go-turnover', false];
+    if (dwSpinsLeft(w) > 0) return ['去抽奖', 'dw-go-spin', false];
+    if ((w.earnedToday || 0) >= 3) return ['今日次数已达上限', 'demo-done', true];
+    return ['去充值获得抽奖次数', 'dw-focus-deposit', false];
+  }
+  function dwStatus(w) {
+    if ((w.bonusWallet || 0) > 0 && w.turnoverNeed > 0 && (w.turnover || 0) >= w.turnoverNeed) return ['可转换为现金', ''];
+    if ((w.bonusWallet || 0) > 0) return ['彩金待完成流水', ''];
+    if (dwSpinsLeft(w) > 0) return ['可抽奖 · 剩余 ' + dwSpinsLeft(w) + ' 次', ''];
+    if ((w.earnedToday || 0) >= 3) return ['今日次数已用完', 'muted'];
+    if ((w.converted || 0) > 0) return ['已有奖金到账', 'muted'];
+    return ['已认证 · 待充值', ''];
+  }
+  function dwPrizeTable() {
+    return `<div class="table-wrap"><table class="prize-table"><thead><tr><th>转盘奖金</th><th>3倍流水要求</th></tr></thead><tbody>${WHEEL_SOURCE.prizes.map(n => `<tr${n === 888 ? ' class="first-prize"' : ''}><td>RM ${money(n)}</td><td>RM ${money(n * WHEEL_SOURCE.wagerMult)}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+  function dwWheelMarkup(w, rotating) {
+    const prizes = WHEEL_SOURCE.prizes;
+    const angle = w.lastAngle || 0;
+    const labels = prizes.map((n, i) => `<div class="wheel-label" style="--i:${i};--spin:${angle}deg"><b>RM${n}</b></div>`).join('');
+    return `<div class="wheel-stage"><div class="wheel-pointer" aria-hidden="true"></div><div class="lucky-wheel${rotating ? ' is-spinning' : ''}" id="lucky-wheel" style="transform:rotate(${angle}deg)">${labels}</div></div>`;
+  }
+  window.renderDailyWheelDemo = function () {
+    store().ensureBanner();
+    const demo = store().load();
+    const w = demo.dailyWheel;
+    const [status, statusCls] = dwStatus(w);
+    const viewStep = inspect('daily-wheel', 3, Math.min(3, dwIndex(w)));
+    const s = WHEEL_SOURCE.steps[viewStep];
+    const left = dwSpinsLeft(w);
+    const pending = Math.max(0, (w.turnoverNeed || 0) - (w.turnover || 0));
+    return `${store().journeyBar()}<section class="reward-feature trial-hero wheel-hero"><div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div><div class="amount"><small>最高 RM</small>888</div><p class="trial-prose">${WHEEL_SOURCE.reward}</p>${statRow([['今日已获次数', String(w.earnedToday || 0) + ' / 3'], ['剩余抽奖', String(left)], ['活动彩金', money(w.bonusWallet || 0)]])}<span class="unit-note">金额单位：MYR</span></section>
+      <section class="section-panel"><div class="section-header"><h3>参与条件</h3></div>${checks(WHEEL_SOURCE.eligibility)}<p class="fine-print trial-prose">仅计算真实且成功入账的充值。取消、退款或异常充值不产生抽奖机会。每笔符合条件的充值最多产生1次抽奖。</p></section>
+      <section class="section-panel" id="dw-deposit"><div class="section-header"><h3>演示充值</h3><span>第 ${w.day || 1} 个演示日</span></div>
+        <p class="trial-prose">每成功充值一笔超过RM100，即可获得1次免费抽奖机会。充值不可合并计算抽奖次数。</p>
+        <div class="rate-actions">
+          <button type="button" class="outline-wide" data-action="dw-deposit-ok">演示充值 RM150（超过RM100，获得1次）</button>
+          <button type="button" class="outline-wide" data-action="dw-deposit-100">演示充值 RM100（未超过RM100，不获得次数）</button>
+          <button type="button" class="outline-wide" data-action="dw-deposit-50">演示充值 RM50（未超过RM100，不获得次数）</button>
+          <button type="button" class="outline-wide" data-action="dw-deposit-merge">演示两笔各 RM80（不可合并，不获得次数）</button>
+          <button type="button" class="outline-wide" data-action="dw-deposit-void">演示取消或退款充值 RM200（不产生抽奖机会）</button>
+        </div>
+        <p class="fine-print trial-prose">每日抽奖次数于00:00重置。</p>
+        <button type="button" class="text-button" data-action="dw-next-day">模拟次日（演示用）</button>
+      </section>
+      <section class="section-panel"><div class="section-header"><h3>转盘奖金</h3><span>共6档 · 每次必中一档</span></div>${dwPrizeTable()}<p class="fine-print trial-prose">每次抽奖必定获得以上其中一档奖金。抽中的奖金进入活动彩金钱包。</p></section>
+      ${(w.bonusWallet || 0) > 0 || (w.converted || 0) > 0 ? `<section class="section-panel"><div class="section-header"><h3>活动彩金钱包</h3></div>${statRow([['彩金余额', money(w.bonusWallet || 0)], ['已完成流水', money(w.turnover || 0)], ['仍需流水', money(pending)]])}<p class="fine-print trial-prose">彩金必须完成3倍有效流水后才可转换为现金。流水仅限指定游戏商：FUMA、WUDI、BWG。</p></section>` : ''}
+      <section class="section-panel flow-panel"><div class="section-header"><h3>活动流程</h3><span>点击步骤查看要求</span></div>${stepper(WHEEL_SOURCE.steps, viewStep, 'daily-wheel')}<div class="step-explanation trial-prose"><div class="step-heading"><span class="step-kicker">0${viewStep + 1} / 04</span><h4>${s.heading}</h4></div><p>${s.text}</p></div></section>
+      <section class="section-panel"><div class="section-header"><h3>奖励规则</h3></div>${termsList(WHEEL_SOURCE.terms)}</section>
+      <button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>`;
+  };
+  function dwTargetAngle(prizeIndex, fromAngle) {
+    const center = prizeIndex * 60 + 30;
+    const base = (360 - center) % 360;
+    const current = ((fromAngle || 0) % 360 + 360) % 360;
+    let extra = base - current;
+    if (extra <= 0) extra += 360;
+    return (fromAngle || 0) + 360 * 5 + extra;
+  }
+  function renderDwSpin() {
+    const w = dwOf();
+    const left = dwSpinsLeft(w);
+    const rotating = !!w.spinning;
+    $('#app').innerHTML = page('幸运大转盘', `
+      ${dwWheelMarkup(w, rotating)}
+      <div class="play-wallet">
+        <div><span>剩余抽奖</span><strong>${left} / 3</strong></div>
+        <div><span>活动彩金钱包</span><strong>RM ${money(w.bonusWallet || 0)}</strong></div>
+      </div>
+      ${w.lastPrize ? `<p class="fine-print center trial-prose">演示结果：RM ${money(w.lastPrize)}，非正式开奖，仅用于预览兑奖流程。</p>` : '<p class="fine-print center trial-prose">每次抽奖必定获得其中一档奖金。以下为演示结果，非正式开奖。</p>'}
+      <button type="button" class="primary" id="dw-spin-btn" data-action="dw-spin" ${rotating || left <= 0 ? 'disabled' : ''}>${rotating ? '转盘转动中…' : left > 0 ? '开始抽奖' : '暂无抽奖次数'}</button>
+      ${left <= 0 ? '<button type="button" class="outline-wide" data-demo-nav="activity=daily-wheel">返回活动充值</button>' : ''}
+      ${(w.bonusWallet || 0) > 0 && !rotating ? '<button type="button" class="outline-wide" data-action="dw-go-turnover">查看彩金流水</button>' : ''}
+    `, 'activity=daily-wheel');
+    document.title = '幸运大转盘 · TPOWER';
+  }
+  function renderDwTurnover() {
+    const w = dwOf();
+    const need = w.turnoverNeed || 0;
+    const done = w.turnover || 0;
+    const ready = need > 0 && done >= need && (w.bonusWallet || 0) > 0;
+    const pending = Math.max(0, need - done);
+    $('#app').innerHTML = page('完成有效流水', `
+      <div class="play-wallet">
+        <div><span>活动彩金钱包</span><strong>RM ${money(w.bonusWallet || 0)}</strong></div>
+        <div class="play-progress"><div class="bar-label"><span>3倍有效流水</span><span>RM ${money(done)} / ${money(need)}</span></div><progress max="${Math.max(need, 1)}" value="${Math.min(need, done)}" aria-label="流水进度"></progress></div>
+      </div>
+      <p class="trial-prose">彩金必须完成3倍有效流水后才可转换为现金。例如：抽中RM188，需要完成RM564有效流水。流水仅限指定游戏商：FUMA、WUDI、BWG。</p>
+      <div class="rate-actions">${WHEEL_SOURCE.providers.map(name => `<button type="button" class="outline-wide" data-action="dw-bet-valid" data-provider="${name}" ${ready || (w.bonusWallet || 0) <= 0 ? 'disabled' : ''}>演示${name}投注 RM 188.00（计入流水）</button>`).join('')}
+        <button type="button" class="outline-wide" data-action="dw-bet-other" ${ready || (w.bonusWallet || 0) <= 0 ? 'disabled' : ''}>演示其他游戏商投注 RM 188.00（不计入）</button>
+      </div>
+      <button type="button" class="primary" data-action="dw-accelerate" ${ready || (w.bonusWallet || 0) <= 0 || pending <= 0 ? 'disabled' : ''}>演示加速完成流水</button>
+      <p class="fine-print trial-prose">「演示加速完成流水」仅用于预览转换流程，不是官方投注要求。</p>
+      ${ready ? '<button type="button" class="primary" data-action="dw-go-convert">转换为现金</button>' : ''}
+      ${pending > 0 && (w.bonusWallet || 0) > 0 ? `<p class="fine-print trial-prose">还需完成 RM ${money(pending)} 有效流水。</p>` : ''}
+    `, 'activity=daily-wheel');
+    document.title = '完成有效流水 · TPOWER';
+  }
+  function renderDwConvert() {
+    const w = dwOf();
+    const amt = w.bonusWallet || 0;
+    $('#app').innerHTML = page('转换为现金', `
+      <section class="reward-feature trial-hero">
+        <div class="panel-top"><span class="eyebrow">活动彩金钱包</span><span class="status-badge">流水已完成</span></div>
+        <div class="amount"><small>RM</small>${money(amt).split('.')[0]}<span>.${money(amt).split('.')[1] || '00'}</span></div>
+        <p class="trial-prose">彩金已完成3倍有效流水，可转换为现金并转入现金钱包。</p>
+      </section>
+      <button type="button" class="primary" data-action="dw-convert-confirm" ${amt > 0 ? '' : 'disabled'}>确认转换为现金</button>
+    `, 'activity=daily-wheel');
+    document.title = '转换为现金 · TPOWER';
   }
 
   /* ------------ 新人专享挑战 ------------ */
@@ -840,7 +976,10 @@
       'nfc-play': renderNfcPlay,
       'nfc-redeem': renderNfcRedeem,
       'nfc-redeem-process': renderNfcRedeemProcess,
-      'nfc-redeem-success': renderNfcRedeemSuccess
+      'nfc-redeem-success': renderNfcRedeemSuccess,
+      'dw-spin': renderDwSpin,
+      'dw-turnover': renderDwTurnover,
+      'dw-convert': renderDwConvert
     };
     if (!pages[screen]) return false;
     const demo = demoOf();
@@ -861,11 +1000,14 @@
       'nfc-play': () => demo.freeChallenge.claimed && !demo.freeChallenge.redeemed,
       'nfc-redeem': () => demo.freeChallenge.reachedTarget && !demo.freeChallenge.redeemed,
       'nfc-redeem-process': () => demo.freeChallenge.reachedTarget && !demo.freeChallenge.redeemed,
-      'nfc-redeem-success': () => demo.freeChallenge.redeemed
+      'nfc-redeem-success': () => demo.freeChallenge.redeemed,
+      'dw-spin': () => true,
+      'dw-turnover': () => (demo.dailyWheel.bonusWallet || 0) > 0 || (demo.dailyWheel.converted || 0) > 0,
+      'dw-convert': () => (demo.dailyWheel.bonusWallet || 0) > 0 && (demo.dailyWheel.turnover || 0) >= (demo.dailyWheel.turnoverNeed || 0) && demo.dailyWheel.turnoverNeed > 0
     };
     if (gates[screen] && !gates[screen]()) {
       const back = {
-        nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge'
+        nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel'
       }[screen.split('-')[0]];
       navigate('activity=' + back);
       return true;
@@ -896,8 +1038,58 @@
     const m = demo.maintenance;
 
     const c = demo.freeChallenge;
+    const w = demo.dailyWheel;
 
     switch (name) {
+      case 'dw-focus-deposit':
+        navigate('activity=daily-wheel');
+        store().later(() => { const el = document.getElementById('dw-deposit'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+        return true;
+      case 'dw-deposit-ok':
+      case 'dw-deposit-100':
+      case 'dw-deposit-50':
+      case 'dw-deposit-merge':
+      case 'dw-deposit-void':
+        return true;
+      case 'dw-next-day':
+        w.day = (w.day || 1) + 1;
+        w.earnedToday = 0;
+        w.usedToday = 0;
+        store().save();
+        toast('已模拟次日 00:00，今日抽奖次数已重置');
+        navigate('activity=daily-wheel');
+        return true;
+      case 'dw-go-spin':
+        if (dwSpinsLeft(w) <= 0 && !(w.bonusWallet > 0)) { toast('请先完成单笔超过 RM100 的充值以获得抽奖次数'); navigate('activity=daily-wheel'); return true; }
+        navigate('demo=dw-spin'); return true;
+      case 'dw-spin':
+        return true;
+      case 'dw-go-turnover':
+        if ((w.bonusWallet || 0) <= 0 && (w.converted || 0) <= 0) return true;
+        navigate('demo=dw-turnover'); return true;
+      case 'dw-bet-valid':
+      case 'dw-bet-other':
+        return true;
+      case 'dw-accelerate': {
+        if ((w.bonusWallet || 0) <= 0) return true;
+        w.turnover = w.turnoverNeed;
+        store().save(); toast('已按演示进度完成所需流水（非正式投注要求）'); navigate('demo=dw-turnover'); return true;
+      }
+      case 'dw-go-convert':
+        if ((w.bonusWallet || 0) <= 0 || (w.turnover || 0) < (w.turnoverNeed || 0)) { toast('请先完成3倍有效流水'); return true; }
+        navigate('demo=dw-convert'); return true;
+      case 'dw-convert-confirm': {
+        if ((w.bonusWallet || 0) <= 0 || (w.turnover || 0) < (w.turnoverNeed || 0)) return true;
+        const amt = r2(w.bonusWallet);
+        w.converted = r2((w.converted || 0) + amt);
+        demo.mainWallet = r2((demo.mainWallet || 0) + amt);
+        w.bonusWallet = 0;
+        w.turnover = 0;
+        w.turnoverNeed = 0;
+        record('每日幸运大转盘RM888', amt, '已到账');
+        store().save(); toast('彩金已转换为现金并转入现金钱包'); navigate('demo=records'); return true;
+      }
+
       case 'nfc-go-claim':
         if (c.redeemed) return true;
         navigate('demo=nfc-claim'); return true;
@@ -1277,6 +1469,89 @@
     }
   }, true);
 
+
+  function applyWheelDeposit(kind) {
+    const demo = store().load();
+    const w = demo.dailyWheel;
+    if (kind === 'ok') {
+      if ((w.earnedToday || 0) >= 3) {
+        toast('每名会员每日最多获得3次抽奖机会。');
+        refreshPromo();
+        return;
+      }
+      w.earnedToday = (w.earnedToday || 0) + 1;
+      store().save();
+      toast('单笔充值 RM150 已成功入账，获得1次免费抽奖机会');
+      refreshPromo();
+      return;
+    }
+    if (kind === '100') { toast('充值须超过 RM100 才可获得抽奖机会，RM100 不计入。充值不可合并计算抽奖次数。'); return; }
+    if (kind === '50') { toast('充值须超过 RM100 才可获得抽奖机会。充值不可合并计算抽奖次数。'); return; }
+    if (kind === 'merge') { toast('两笔各 RM80 不可合并计算抽奖次数，未获得抽奖机会。'); return; }
+    if (kind === 'void') { toast('取消、退款或异常充值不产生抽奖机会。'); return; }
+  }
+  function runDwSpin() {
+    const demo = store().load();
+    const w = demo.dailyWheel;
+    if (w.spinning || dwSpinsLeft(w) <= 0) return;
+    const prize = DW_DEMO_PRIZES[Math.min(w.spinCount || 0, DW_DEMO_PRIZES.length - 1)] || WHEEL_SOURCE.prizes[WHEEL_SOURCE.prizes.length - 1];
+    const prizeIndex = WHEEL_SOURCE.prizes.indexOf(prize);
+    const from = w.lastAngle || 0;
+    const target = dwTargetAngle(prizeIndex < 0 ? 0 : prizeIndex, from);
+    w.spinning = true;
+    store().save();
+    renderDwSpin();
+    const wheel = document.getElementById('lucky-wheel');
+    if (wheel) {
+      wheel.style.transition = 'none';
+      wheel.style.transform = 'rotate(' + from + 'deg)';
+      void wheel.offsetWidth;
+      wheel.style.transition = 'transform ' + (DW_SPIN_MS / 1000) + 's cubic-bezier(0.12, 0.7, 0.1, 1)';
+      wheel.style.transform = 'rotate(' + target + 'deg)';
+    }
+    const btn = document.getElementById('dw-spin-btn');
+    if (btn) { btn.disabled = true; btn.textContent = '转盘转动中…'; }
+    store().later(() => {
+      const demo = store().load();
+      const w = demo.dailyWheel;
+      w.spinning = false;
+      w.lastAngle = target;
+      w.usedToday = (w.usedToday || 0) + 1;
+      w.spinCount = (w.spinCount || 0) + 1;
+      w.lastPrize = prize;
+      w.bonusWallet = r2((w.bonusWallet || 0) + prize);
+      w.turnoverNeed = r2((w.turnoverNeed || 0) + prize * WHEEL_SOURCE.wagerMult);
+      w.history = (w.history || []).concat([{ prize, need: prize * WHEEL_SOURCE.wagerMult, day: w.day || 1 }]);
+      store().save();
+      renderDwSpin();
+      toast('演示结果：获得 RM ' + money(prize) + '，已进入活动彩金钱包（需完成 RM ' + money(prize * WHEEL_SOURCE.wagerMult) + ' 有效流水）');
+    }, DW_SPIN_MS);
+  }
+
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn || btn.disabled) return;
+    const name = btn.getAttribute('data-action');
+    if (name === 'dw-deposit-ok') { applyWheelDeposit('ok'); return; }
+    if (name === 'dw-deposit-100') { applyWheelDeposit('100'); return; }
+    if (name === 'dw-deposit-50') { applyWheelDeposit('50'); return; }
+    if (name === 'dw-deposit-merge') { applyWheelDeposit('merge'); return; }
+    if (name === 'dw-deposit-void') { applyWheelDeposit('void'); return; }
+    if (name === 'dw-spin') { runDwSpin(); return; }
+    if (name === 'dw-bet-valid' || name === 'dw-bet-other') {
+      const demo = store().load();
+      const w = demo.dailyWheel;
+      if ((w.bonusWallet || 0) <= 0) return;
+      if (name === 'dw-bet-other') { toast('流水仅限指定游戏商：FUMA、WUDI、BWG。其他游戏商投注不计入。'); return; }
+      const provider = btn.getAttribute('data-provider') || '指定游戏商';
+      const add = r2(Math.min(188, Math.max(0, (w.turnoverNeed || 0) - (w.turnover || 0))));
+      w.turnover = r2((w.turnover || 0) + add);
+      store().save();
+      toast(add > 0 ? ('演示' + provider + '有效投注 RM 188.00，计入流水 RM ' + money(add)) : '所需流水已完成');
+      renderDwTurnover();
+    }
+  }, true);
+
   const _renderDetail = renderDetail;
   window.renderDetail = function (p, tabIndex = 0) {
     if (p.readOnly) { renderSourceDocument(p); return; }
@@ -1290,7 +1565,8 @@
       anniversary: window.renderAnniversaryDemo,
       maintenance: window.renderMaintenanceDemo,
       'newcomer-trial': trial,
-      'newcomer-free-challenge': window.renderFreeChallengeDemo
+      'newcomer-free-challenge': window.renderFreeChallengeDemo,
+      'daily-wheel': window.renderDailyWheelDemo
     };
     let body;
     if (selected === 1) body = rules(p);
@@ -1300,6 +1576,7 @@
     const stickyFor = {
       'newcomer-trial': trialSticky,
       'newcomer-free-challenge': () => sticky(nfcCta(demoOf().freeChallenge)),
+      'daily-wheel': () => sticky(dwCta(demoOf().dailyWheel)),
       newcomer: () => sticky(ncCta(demoOf().newcomer)),
       referral: () => sticky(rfCta(demoOf().referral)),
       growth: () => sticky(grCta(demoOf().growth)),
@@ -1308,7 +1585,7 @@
     };
     const stickyHtml = selected === 0 && stickyFor[p.id] ? stickyFor[p.id]() : (p.id === 'anniversary' && selected === 2 ? sticky(anCta(demoOf().anniversary)) : '');
     const hero = p.banner ? `<div class="detail-hero">${banner(p)}</div>` : '';
-    const detailClass = ['newcomer-trial', 'newcomer-free-challenge', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
+    const detailClass = ['newcomer-trial', 'newcomer-free-challenge', 'daily-wheel', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
     $('#app').innerHTML = `<article class="detail ${detailClass}"><button class="back-link" data-back>${icon('arrow')} 返回活动列表</button>${hero}<div class="detail-heading"><span class="badge">${p.badge}</span><h2>${p.title}</h2><p class="trial-prose">${p.secondary}</p></div><div class="activity-tabs" aria-label="活动内容">${p.tabs.map((t, i) => `<button data-tab="${i}" class="${i === selected ? 'active' : ''}" aria-pressed="${i === selected}">${t}</button>`).join('')}</div><div id="detail-content">${body}</div>${stickyHtml}<button class="support-link" data-support>需要帮助？联系客服</button>${footer()}</article>`;
     if (p.id === 'referral' && selected === 0 && $('#friend-search')) $('#friend-search').addEventListener('input', updateSearch);
   };
