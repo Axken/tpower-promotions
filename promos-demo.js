@@ -2213,7 +2213,8 @@
       demo.mainWallet = r2(before + total);
       record('新人首存彩金100%', bonus, '已到账');
       store().save();
-      toast('已转出 RM ' + money(total) + '：活动钱包 RM ' + money(total) + ' → RM 0.00，可提款余额 RM ' + money(before) + ' → RM ' + money(demo.mainWallet) + '。');
+      if (window.lxReward) lxReward({ kicker: '新人首存彩金 · 转换成功', title: '已转换至可提款余额', amount: total, dest: '可提款余额', rows: [['活动钱包', total, 0], ['可提款余额', before, demo.mainWallet]] });
+      else toast('已转出 RM ' + money(total) + '：活动钱包 RM ' + money(total) + ' → RM 0.00，可提款余额 RM ' + money(before) + ' → RM ' + money(demo.mainWallet) + '。');
       navigate('activity=first-deposit-bonus');
       return true;
     }
@@ -2603,7 +2604,8 @@
       r.turnover = 0;
       r.turnoverNeed = 0;
       store().save();
-      toast('已转出 RM ' + money(total) + '：活动钱包 RM ' + money(total) + ' → RM 0.00，可提款余额 RM ' + money(before) + ' → RM ' + money(demo.mainWallet) + '。');
+      if (window.lxReward) lxReward({ kicker: '每日再存 · 转换成功', title: '已转换至可提款余额', amount: total, dest: '可提款余额', rows: [['活动钱包', total, 0], ['可提款余额', before, demo.mainWallet]] });
+      else toast('已转出 RM ' + money(total) + '：活动钱包 RM ' + money(total) + ' → RM 0.00，可提款余额 RM ' + money(before) + ' → RM ' + money(demo.mainWallet) + '。');
       navigate('activity=daily-reload');
       return true;
     }
@@ -2775,7 +2777,10 @@
         w.turnover = 0;
         w.turnoverNeed = 0;
         record('每日幸运大转盘RM888', amt, '已到账');
-        store().save(); toast('已转出 RM ' + money(amt) + '：活动彩金钱包 RM ' + money(amt) + ' → RM 0.00，现金钱包 RM ' + money(cashBefore) + ' → RM ' + money(demo.mainWallet) + '。'); navigate('demo=records'); return true;
+        store().save();
+        if (window.lxReward) lxReward({ kicker: '每日幸运大转盘 · 转换成功', title: '彩金已转换为现金', amount: amt, dest: '现金钱包', rows: [['活动彩金钱包', amt, 0], ['现金钱包', cashBefore, demo.mainWallet]] });
+        else toast('已转出 RM ' + money(amt) + '：活动彩金钱包 RM ' + money(amt) + ' → RM 0.00，现金钱包 RM ' + money(cashBefore) + ' → RM ' + money(demo.mainWallet) + '。');
+        navigate('demo=records'); return true;
       }
 
       case 'nfc-go-claim':
@@ -2931,6 +2936,7 @@
         const amt = grClaimable(g, g.tier);
         if (amt <= 0) return true;
         g.claimed[g.tier] = r2((g.claimed[g.tier] || 0) + amt);
+        const grBefore = r2(demo.mainWallet || 0);
         demo.mainWallet = r2(demo.mainWallet + amt);
         record('成长彩金200%扶持计划 · ' + GROWTH_SOURCE.titles[g.tier], amt, '已到账');
         if (g.claimed[g.tier] >= GROWTH_SOURCE.caps[g.tier] && g.tier < GROWTH_SOURCE.caps.length - 1) {
@@ -2938,7 +2944,8 @@
           g.daysLeft[g.tier] = 10;
         }
         store().save();
-        toast('奖励已发放至现金钱包，无需额外流水');
+        if (window.lxReward) lxReward({ kicker: '成长彩金 · 领取成功', title: '奖励已发放', amount: amt, dest: '现金钱包', rows: [['现金钱包', grBefore, demo.mainWallet]], note: '无需额外流水。' });
+        else toast('奖励已发放至现金钱包，无需额外流水');
         navigate('activity=growth');
         return true;
       }
@@ -2977,9 +2984,13 @@
       case 'an-claim-confirm':
         if (!a.drawDone || a.claimed || a.expired || a.winAmount <= 0) return true;
         a.claimed = true;
+        const anBefore = r2(demo.mainWallet || 0);
         demo.mainWallet = r2(demo.mainWallet + a.winAmount);
         record('3周年幸运大抽奖 · ' + (a.prizeName || '奖金'), a.winAmount, '已到账');
-        store().save(); toast('奖金已到账'); navigate('demo=records'); return true;
+        store().save();
+        if (window.lxReward) lxReward({ kicker: '3周年幸运大抽奖 · ' + (a.prizeName || '奖金'), title: '奖金已到账', amount: a.winAmount, dest: '现金钱包', rows: [['现金钱包', anBefore, demo.mainWallet]] });
+        else toast('奖金已到账');
+        navigate('demo=records'); return true;
       case 'an-expire':
         if (a.claimed || !a.drawDone) return true;
         a.expired = true; store().save(); toast('超过指定时间，奖金已自动作废'); navigate('activity=anniversary&tab=2'); return true;
@@ -3221,7 +3232,8 @@
       w.history = (w.history || []).concat([{ prize, need: prize * WHEEL_SOURCE.wagerMult, day: w.day || 1 }]);
       store().save();
       renderDwSpin();
-      toast('演示结果：获得 RM ' + money(prize) + '，已进入活动彩金钱包（需完成 RM ' + money(prize * WHEEL_SOURCE.wagerMult) + ' 有效流水）');
+      if (window.lxReward) lxReward({ kicker: '演示结果 · 非正式开奖', title: '恭喜抽中', amount: prize, destPrefix: '已存入', dest: '活动彩金钱包', rows: [['活动彩金钱包', r2(w.bonusWallet - prize), w.bonusWallet], ['所需有效流水', 'RM ' + money(prize * WHEEL_SOURCE.wagerMult)]], note: '彩金完成3倍有效流水后可转换为现金。' });
+      else toast('演示结果：获得 RM ' + money(prize) + '，已进入活动彩金钱包（需完成 RM ' + money(prize * WHEEL_SOURCE.wagerMult) + ' 有效流水）');
     }, DW_SPIN_MS);
   }
 
