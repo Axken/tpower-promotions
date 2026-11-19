@@ -102,13 +102,239 @@
       referral: () => ({ labels: RF_JOURNEY, current: rfIndex(demo.referral), finished: rfUnlockedTotal(demo.referral) > 0 }),
       growth: () => ({ labels: GR_JOURNEY, current: grIndex(demo.growth), finished: GROWTH_SOURCE.caps.every((c, i) => (demo.growth.claimed[i] || 0) >= c) }),
       anniversary: () => ({ labels: AN_JOURNEY, current: anIndex(demo.anniversary), finished: demo.anniversary.claimed }),
-      maintenance: () => ({ labels: MT_JOURNEY, current: mtIndex(demo.maintenance), finished: demo.maintenance.completed })
+      maintenance: () => ({ labels: MT_JOURNEY, current: mtIndex(demo.maintenance), finished: demo.maintenance.completed }),
+      'newcomer-free-challenge': () => ({ labels: NFC_JOURNEY, current: nfcIndex(demo.freeChallenge), finished: demo.freeChallenge.redeemed })
     };
     if (map[id]) return map[id]();
-    const byScreen = { nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance' };
+    const byScreen = { nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge' };
     if (byScreen[prefix] && map[byScreen[prefix]]) return map[byScreen[prefix]]();
     return null;
   };
+
+
+  /* ------------ 新人免费挑战赢取RM100 ------------ */
+  const NFC_JOURNEY = ['领取', '试玩', '达标', '兑换', '到账'];
+  const NFC_WIN = [
+    { delta: 20, symbols: ['7', '7', '7'] },
+    { delta: -10, symbols: ['星', 'BAR', '7'] },
+    { delta: 30, symbols: ['星', '星', '星'] },
+    { delta: 20, symbols: ['铃', '铃', '铃'] },
+    { delta: 20, symbols: ['7', '7', 'BAR'] },
+    { delta: 20, symbols: ['7', '7', '7'] }
+  ];
+  const NFC_LOSE = [
+    { delta: -40, symbols: ['BAR', '星', '7'] },
+    { delta: -40, symbols: ['铃', 'BAR', '星'] },
+    { delta: -20, symbols: ['7', '星', 'BAR'] }
+  ];
+  const NFC_GAMES = [
+    { id: 'lucky-star', name: '幸运星老虎机', tag: '指定试玩', icon: 'slot' },
+    { id: 'golden-spin', name: '黄金旋转', tag: '指定试玩', icon: 'crown' },
+    { id: 'classic-fruit', name: '经典水果机', tag: '指定试玩', icon: 'gift' }
+  ];
+  function nfcOf() {
+    return demoOf().freeChallenge;
+  }
+  function nfcIndex(c) {
+    if (!c.claimed) return 0;
+    if (c.redeemed) return 4;
+    if (c.reachedTarget) {
+      const screen = currentRoute().get('demo');
+      if (screen === 'nfc-redeem-success') return 4;
+      if (screen === 'nfc-redeem' || screen === 'nfc-redeem-process') return 3;
+      return 2;
+    }
+    return 1;
+  }
+  function nfcCta(c) {
+    if (c.redeemed) return ['已领取', 'demo-done', true];
+    if (!c.claimed) return ['领取RM100试玩额度', 'nfc-go-claim', false];
+    if (c.trialEnded) return ['未达RM200，不可兑换', 'demo-done', true];
+    if (c.reachedTarget) return ['兑换RM100现金', 'nfc-go-redeem', false];
+    return ['去试玩', 'nfc-go-play', false];
+  }
+  function nfcStatus(c) {
+    if (c.redeemed) return ['已领取 · 终身限领一次', 'muted'];
+    if (c.trialEnded) return ['未达标 · 不可兑换', 'muted'];
+    if (c.reachedTarget) return ['已达标 · 可兑换', ''];
+    if (c.claimed) return ['已领取 · 试玩中', ''];
+    return ['已认证 · 待领取', ''];
+  }
+  function nfcBalancePanel(c) {
+    if (!c.claimed) return '';
+    return `<div class="wallet-pair" id="nfc-balance">
+      <div class="wallet-card trial"><span>试玩钱包</span><strong>RM ${money(c.trialBalance)}</strong><small>${c.redeemed ? '已清零' : c.trialEnded ? '试玩已结束' : '不可充值、转账或提款'}</small></div>
+      <div class="wallet-card main ${demoOf().mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>RM ${money(demoOf().mainWallet)}</strong><small>${c.redeemed ? 'RM100 现金已到账' : '兑换现金将进入此钱包'}</small></div>
+    </div>
+    <div class="trial-balance">${c.claimed && !c.redeemed && !c.trialEnded ? `<div class="bar-label"><span>试玩余额</span><span>RM ${money(c.trialBalance)} / RM 200.00</span></div><progress max="200" value="${Math.min(200, c.trialBalance)}" aria-label="试玩余额进度"></progress>` : ''}
+    <p class="fine-print trial-prose">${c.redeemed ? '达标兑换后，试玩额度及剩余试玩余额自动清零。' : c.trialEnded ? '未达RM200目标，不可兑换部分奖励。' : '试玩余额达到RM200，即可兑换RM100现金奖励。未达RM200目标，不可兑换部分奖励。'}</p></div>`;
+  }
+  window.renderFreeChallengeDemo = function () {
+    store().ensureBanner();
+    const c = store().load().freeChallenge;
+    const [status, statusCls] = nfcStatus(c);
+    const viewMap = { 0: 1, 1: 2, 2: 3, 3: 3, 4: 3 };
+    const auto = viewMap[nfcIndex(c)] ?? 1;
+    const viewStep = inspect('newcomer-free-challenge', 3, auto);
+    const s = CHALLENGE_SOURCE.steps[viewStep];
+    const path = pathRow([['RM100', '免费试玩'], ['RM200', '达标余额'], ['RM100', '兑换现金']]);
+    return `${store().journeyBar()}${nfcBalancePanel(c)}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div><div class="amount"><small>RM</small>100<span>.00</span></div><p class="trial-prose">${CHALLENGE_SOURCE.reward}</p>${path}</section><section class="section-panel"><div class="section-header"><h3>参与条件</h3></div>${checks(CHALLENGE_SOURCE.eligibility)}</section><section class="section-panel flow-panel"><div class="section-header"><h3>活动流程</h3><span>点击步骤查看要求</span></div>${stepper(CHALLENGE_SOURCE.steps, viewStep, 'newcomer-free-challenge')}<div class="step-explanation trial-prose"><div class="step-heading"><span class="step-kicker">0${viewStep + 1} / 04</span><h4>${s.heading}</h4></div><p>${s.text}</p></div></section><section class="section-panel"><div class="section-header"><h3>重要条款</h3></div>${termsList(CHALLENGE_SOURCE.terms)}</section><button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>`;
+  };
+  function renderNfcClaim() {
+    $('#app').innerHTML = page('领取试玩额度', `
+      <section class="reward-feature trial-hero">
+        <div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge">待领取</span></div>
+        <div class="amount"><small>RM</small>100<span>.00</span></div>
+        <p class="trial-prose">免费领取RM100试玩额度。</p>
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>领取前请确认</h3></div>
+        ${termsList([
+          '试玩额度不可直接充值、转账或提款。',
+          '每位符合资格的会员终身限领一次。',
+          '试玩余额达到RM200，即可兑换RM100现金奖励。'
+        ])}
+      </section>
+      <button type="button" class="primary" data-action="nfc-claim-confirm">确认领取</button>
+    `, 'activity=newcomer-free-challenge');
+    document.title = '领取试玩额度 · TPOWER';
+  }
+  function renderNfcGames() {
+    const c = nfcOf();
+    $('#app').innerHTML = page('指定游戏', `
+      <div class="wallet-pair compact">
+        <div class="wallet-card trial"><span>试玩钱包</span><strong>RM ${money(c.trialBalance)}</strong></div>
+        <div class="wallet-card"><span>达标目标</span><strong>RM 200.00</strong></div>
+      </div>
+      <p class="demo-lead trial-prose">在指定游戏中进行试玩。试玩额度不可直接充值、转账或提款。</p>
+      <div class="game-grid">${NFC_GAMES.map(g => `<button type="button" class="game-tile" data-action="nfc-open-game" data-nfc-game="${g.id}"><span class="game-icon">${icon(g.icon)}</span><strong>${g.name}</strong><small>${g.tag}</small></button>`).join('')}</div>
+    `, 'activity=newcomer-free-challenge');
+    document.title = '指定游戏 · TPOWER';
+  }
+  function renderNfcPlay() {
+    const c = nfcOf();
+    const game = NFC_GAMES.find(g => g.id === c.currentGame) || NFC_GAMES[0];
+    const over = c.trialEnded;
+    const ready = c.reachedTarget && !c.redeemed;
+    const canSpin = c.claimed && !over && !ready && !c.redeemed;
+    const symbols = (c.lastSymbols || ['7', '星', '铃']).map(s => `<span>${s}</span>`).join('');
+    $('#app').innerHTML = page(game.name, `
+      <div class="play-wallet">
+        <div><span>试玩钱包</span><strong id="nfc-play-balance">RM ${money(c.trialBalance)}</strong></div>
+        <div class="play-progress"><div class="bar-label"><span>达标进度</span><span>RM ${money(c.trialBalance)} / RM 200.00</span></div><progress max="200" value="${Math.min(200, c.trialBalance)}" aria-label="试玩余额进度"></progress></div>
+      </div>
+      <section class="slot-machine" aria-label="演示老虎机">
+        <div class="slot-window" id="nfc-slot-window">${symbols}</div>
+        <p class="slot-result" id="nfc-slot-result" aria-live="polite">${over ? '试玩已结束' : ready ? '已达到 RM200' : '按下开始，演示一局试玩'}</p>
+        <button type="button" class="primary" id="nfc-spin-btn" data-action="nfc-spin" ${canSpin ? '' : 'disabled'}>${canSpin ? '开始旋转' : '暂停试玩'}</button>
+      </section>
+      ${ready ? '<button type="button" class="primary" data-action="nfc-go-redeem">兑换RM100现金</button>' : ''}
+      ${over ? `<section class="section-panel"><h3>试玩已结束</h3><p class="trial-prose">未达RM200目标，不可兑换部分奖励。</p><p class="fine-print">试玩额度已用尽。每位符合资格的会员终身限领一次，演示中可重置后重新体验。</p><button type="button" class="outline-wide" data-action="demo-reset">重置演示</button></section>` : ''}
+      ${canSpin ? '<button type="button" class="text-button trial-reset" data-action="nfc-fail-path">演示未达标（余额归零）</button>' : ''}
+    `, 'demo=nfc-games');
+    document.title = game.name + ' · TPOWER';
+  }
+  function renderNfcRedeem() {
+    const c = nfcOf();
+    const demo = demoOf();
+    $('#app').innerHTML = page('兑换现金', `
+      <section class="reward-feature trial-hero">
+        <div class="panel-top"><span class="eyebrow">可兑换现金</span><span class="status-badge">已达标</span></div>
+        <div class="amount"><small>RM</small>100<span>.00</span></div>
+        <p class="trial-prose">试玩余额达到RM200，即可兑换RM100现金奖励。</p>
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>兑换说明</h3></div>
+        ${termsList([
+          '达标兑换后，试玩额度及剩余试玩余额自动清零。',
+          '兑换的 RM100 现金将转入主钱包。',
+          '每位符合资格的会员终身限领一次。'
+        ])}
+        <div class="wallet-pair">
+          <div class="wallet-card trial"><span>试玩钱包（兑换后清零）</span><strong>RM ${money(c.trialBalance)}</strong></div>
+          <div class="wallet-card main"><span>主钱包（到账后）</span><strong>RM ${money(demo.mainWallet + 100)}</strong></div>
+        </div>
+      </section>
+      <button type="button" class="primary" data-action="nfc-redeem-confirm">确认兑换</button>
+    `, 'activity=newcomer-free-challenge');
+    document.title = '兑换现金 · TPOWER';
+  }
+  function renderNfcRedeemProcess() {
+    $('#app').innerHTML = page('兑换中', `
+      <section class="demo-status-card">
+        <div class="demo-spinner" aria-hidden="true"></div>
+        <h3>正在兑换</h3>
+        <p>正在将 RM100 现金转入主钱包。</p>
+      </section>
+    `, 'activity=newcomer-free-challenge');
+    document.title = '兑换中 · TPOWER';
+    store().later(() => {
+      const demo = store().load();
+      const c = demo.freeChallenge;
+      if (!c.reachedTarget || c.redeemed) return;
+      c.redeemed = true;
+      c.trialBalance = 0;
+      demo.mainWallet = r2((demo.mainWallet || 0) + 100);
+      record('新人免费挑战赢取RM100', 100, '已到账');
+      store().save();
+      navigate('demo=nfc-redeem-success');
+    }, 1400);
+  }
+  function renderNfcRedeemSuccess() {
+    const demo = demoOf();
+    $('#app').innerHTML = page('兑换成功', `
+      <section class="demo-status-card success">
+        <div class="demo-success-mark" aria-hidden="true">${icon('cash')}</div>
+        <h3>兑换成功</h3>
+        <p class="trial-prose">达标兑换后，试玩额度及剩余试玩余额自动清零。</p>
+        <div class="wallet-pair">
+          <div class="wallet-card main highlight"><span>主钱包</span><strong>RM ${money(demo.mainWallet)}</strong><small>RM100 现金已到账</small></div>
+          <div class="wallet-card trial"><span>试玩钱包</span><strong>RM 0.00</strong><small>已清零</small></div>
+        </div>
+        <button type="button" class="primary" data-demo-nav="demo=records">查看领奖记录</button>
+        <button type="button" class="outline-wide" data-demo-nav="activity=newcomer-free-challenge">返回活动</button>
+      </section>
+    `, 'activity=newcomer-free-challenge');
+    document.title = '兑换成功 · TPOWER';
+  }
+  function runNfcSpin(forceLose) {
+    const demo = store().load();
+    const c = demo.freeChallenge;
+    if (c.spinning || !c.claimed || c.trialEnded || c.reachedTarget || c.redeemed) return;
+    const path = forceLose || c.playMode === 'lose' ? NFC_LOSE : NFC_WIN;
+    if (forceLose) { c.playMode = 'lose'; c.spinIndex = 0; }
+    const step = path[Math.min(c.spinIndex, path.length - 1)];
+    c.spinning = true;
+    const btn = document.getElementById('nfc-spin-btn');
+    const windowEl = document.getElementById('nfc-slot-window');
+    const resultEl = document.getElementById('nfc-slot-result');
+    if (btn) { btn.disabled = true; btn.textContent = '旋转中…'; }
+    if (windowEl) windowEl.classList.add('is-spinning');
+    if (resultEl) resultEl.textContent = '旋转中…';
+    store().later(() => {
+      const demo = store().load();
+      const c = demo.freeChallenge;
+      c.spinIndex += 1;
+      c.lastSymbols = step.symbols;
+      c.spinning = false;
+      if (forceLose) {
+        c.trialBalance = 0;
+        c.trialEnded = true;
+      } else {
+        c.trialBalance = Math.max(0, Math.min(200, c.trialBalance + step.delta));
+        if (c.trialBalance >= 200) { c.trialBalance = 200; c.reachedTarget = true; }
+        if (c.trialBalance <= 0) { c.trialBalance = 0; c.trialEnded = true; }
+      }
+      store().save();
+      renderNfcPlay();
+      if (c.reachedTarget) {
+        toast('试玩余额已达到 RM200');
+        store().later(() => openModal(`<div class="goal-celebration"><div class="goal-burst" aria-hidden="true"></div><h2>恭喜达标</h2><p class="trial-prose">试玩余额达到RM200，即可兑换RM100现金奖励。</p><button type="button" class="primary" data-action="nfc-go-redeem">兑换RM100现金</button></div>`), 400);
+      } else if (c.trialEnded) {
+        toast('未达RM200目标，不可兑换部分奖励。');
+      }
+    }, 900);
+  }
 
   /* ------------ 新人专享挑战 ------------ */
   function ncCta(n) {
@@ -608,7 +834,13 @@
       'an-draw': renderAnDraw,
       'an-claim': renderAnClaim,
       'mt-play': renderMtPlay,
-      'mt-finish': renderMtFinish
+      'mt-finish': renderMtFinish,
+      'nfc-claim': renderNfcClaim,
+      'nfc-games': renderNfcGames,
+      'nfc-play': renderNfcPlay,
+      'nfc-redeem': renderNfcRedeem,
+      'nfc-redeem-process': renderNfcRedeemProcess,
+      'nfc-redeem-success': renderNfcRedeemSuccess
     };
     if (!pages[screen]) return false;
     const demo = demoOf();
@@ -623,11 +855,17 @@
       'an-draw': () => demo.anniversary.tickets.length > 0,
       'an-claim': () => demo.anniversary.drawDone && demo.anniversary.winAmount > 0 && !demo.anniversary.claimed && !demo.anniversary.expired,
       'mt-play': () => demo.maintenance.joined && demo.maintenance.eligible,
-      'mt-finish': () => demo.maintenance.reached && !demo.maintenance.completed
+      'mt-finish': () => demo.maintenance.reached && !demo.maintenance.completed,
+      'nfc-claim': () => !demo.freeChallenge.claimed && !demo.freeChallenge.redeemed,
+      'nfc-games': () => demo.freeChallenge.claimed && !demo.freeChallenge.redeemed,
+      'nfc-play': () => demo.freeChallenge.claimed && !demo.freeChallenge.redeemed,
+      'nfc-redeem': () => demo.freeChallenge.reachedTarget && !demo.freeChallenge.redeemed,
+      'nfc-redeem-process': () => demo.freeChallenge.reachedTarget && !demo.freeChallenge.redeemed,
+      'nfc-redeem-success': () => demo.freeChallenge.redeemed
     };
     if (gates[screen] && !gates[screen]()) {
       const back = {
-        nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance'
+        nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge'
       }[screen.split('-')[0]];
       navigate('activity=' + back);
       return true;
@@ -657,7 +895,34 @@
     const a = demo.anniversary;
     const m = demo.maintenance;
 
+    const c = demo.freeChallenge;
+
     switch (name) {
+      case 'nfc-go-claim':
+        if (c.redeemed) return true;
+        navigate('demo=nfc-claim'); return true;
+      case 'nfc-claim-confirm':
+        if (c.claimed || c.redeemed) return true;
+        c.claimed = true; c.trialBalance = 100; c.spinIndex = 0; c.playMode = 'win';
+        c.trialEnded = false; c.reachedTarget = false;
+        store().save(); toast('已领取 RM100 试玩额度'); navigate('activity=newcomer-free-challenge'); return true;
+      case 'nfc-go-play':
+        if (!c.claimed || c.redeemed) return true;
+        navigate('demo=nfc-games'); return true;
+      case 'nfc-open-game':
+        return true;
+      case 'nfc-spin':
+        runNfcSpin(false); return true;
+      case 'nfc-fail-path':
+        runNfcSpin(true); return true;
+      case 'nfc-go-redeem':
+        if (!c.reachedTarget || c.redeemed) return true;
+        if ($('#modal') && $('#modal').open) closeModal();
+        navigate('demo=nfc-redeem'); return true;
+      case 'nfc-redeem-confirm':
+        if (!c.reachedTarget || c.redeemed) return true;
+        navigate('demo=nfc-redeem-process'); return true;
+
       case 'nc-go-claim':
         if (n.claimed || n.abandoned) return true;
         navigate('demo=nc-claim'); return true;
@@ -1001,6 +1266,17 @@
     }
   }, true);
 
+
+  document.addEventListener('click', e => {
+    const game = e.target.closest('[data-action="nfc-open-game"]');
+    if (game && !game.disabled) {
+      const demo = store().load();
+      demo.freeChallenge.currentGame = game.getAttribute('data-nfc-game') || 'lucky-star';
+      store().save();
+      navigate('demo=nfc-play');
+    }
+  }, true);
+
   const _renderDetail = renderDetail;
   window.renderDetail = function (p, tabIndex = 0) {
     if (p.readOnly) { renderSourceDocument(p); return; }
@@ -1013,7 +1289,8 @@
       growth: window.renderGrowthDemo,
       anniversary: window.renderAnniversaryDemo,
       maintenance: window.renderMaintenanceDemo,
-      'newcomer-trial': trial
+      'newcomer-trial': trial,
+      'newcomer-free-challenge': window.renderFreeChallengeDemo
     };
     let body;
     if (selected === 1) body = rules(p);
@@ -1022,6 +1299,7 @@
     else body = (pages[p.id] || (() => ''))();
     const stickyFor = {
       'newcomer-trial': trialSticky,
+      'newcomer-free-challenge': () => sticky(nfcCta(demoOf().freeChallenge)),
       newcomer: () => sticky(ncCta(demoOf().newcomer)),
       referral: () => sticky(rfCta(demoOf().referral)),
       growth: () => sticky(grCta(demoOf().growth)),
@@ -1030,7 +1308,7 @@
     };
     const stickyHtml = selected === 0 && stickyFor[p.id] ? stickyFor[p.id]() : (p.id === 'anniversary' && selected === 2 ? sticky(anCta(demoOf().anniversary)) : '');
     const hero = p.banner ? `<div class="detail-hero">${banner(p)}</div>` : '';
-    const detailClass = ['newcomer-trial', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
+    const detailClass = ['newcomer-trial', 'newcomer-free-challenge', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
     $('#app').innerHTML = `<article class="detail ${detailClass}"><button class="back-link" data-back>${icon('arrow')} 返回活动列表</button>${hero}<div class="detail-heading"><span class="badge">${p.badge}</span><h2>${p.title}</h2><p class="trial-prose">${p.secondary}</p></div><div class="activity-tabs" aria-label="活动内容">${p.tabs.map((t, i) => `<button data-tab="${i}" class="${i === selected ? 'active' : ''}" aria-pressed="${i === selected}">${t}</button>`).join('')}</div><div id="detail-content">${body}</div>${stickyHtml}<button class="support-link" data-support>需要帮助？联系客服</button>${footer()}</article>`;
     if (p.id === 'referral' && selected === 0 && $('#friend-search')) $('#friend-search').addEventListener('input', updateSearch);
   };

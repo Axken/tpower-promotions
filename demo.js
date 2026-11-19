@@ -1,6 +1,6 @@
 (() => {
-  const DEMO_KEY = 'tpower-promo-demo-v5';
-  const LEGACY_DEMO_KEYS = ['tpower-promo-demo-v4', 'tpower-promo-demo-v3', 'tpower-trial-demo-v2', 'tpower-trial-demo-v1'];
+  const DEMO_KEY = 'tpower-promo-demo-v6';
+  const LEGACY_DEMO_KEYS = ['tpower-promo-demo-v5', 'tpower-promo-demo-v4', 'tpower-promo-demo-v3', 'tpower-trial-demo-v2', 'tpower-trial-demo-v1'];
   const JOURNEY = ['领取', '试玩', '达标', '兑换', '到账'];
   const WIN_SPINS = [
     { delta: 20, symbols: ['7', '7', '7'] },
@@ -52,6 +52,12 @@
       playMode: 'win', spinIndex: 0, lastSymbols: ['7', '星', '铃'], spinning: false, currentGame: 'lucky-star'
     };
   }
+  function defaultFreeChallenge() {
+    return {
+      claimed: false, trialBalance: 0, trialEnded: false, reachedTarget: false, redeemed: false,
+      playMode: 'win', spinIndex: 0, lastSymbols: ['7', '星', '铃'], spinning: false, currentGame: 'lucky-star'
+    };
+  }
   function defaultDemo() {
     return {
       phone: '012-3456789',
@@ -75,7 +81,8 @@
       referral: defaultReferral(),
       growth: defaultGrowth(),
       anniversary: defaultAnniversary(),
-      maintenance: defaultMaintenance()
+      maintenance: defaultMaintenance(),
+      freeChallenge: defaultFreeChallenge()
     };
   }
   function loadDemo() {
@@ -103,6 +110,7 @@
         // do not carry v4 auto-pay state into the restored 48-hour claim flow
       }
       parsed.maintenance = Object.assign(base.maintenance, parsed.maintenance || {});
+      parsed.freeChallenge = Object.assign(base.freeChallenge, parsed.freeChallenge || {});
       if (!Array.isArray(parsed.records)) parsed.records = [];
       return Object.assign(base, parsed, { spinning: false });
     } catch {
@@ -411,6 +419,7 @@
         <div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>RM ${money(demo.mainWallet)}</strong></div>
         <div class="wallet-card trial"><span>试玩钱包</span><strong>RM ${money(demo.trialBalance)}</strong></div>
       </div>
+      ${demo.freeChallenge.claimed ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>免费挑战试玩钱包</span><strong>RM ${money(demo.freeChallenge.trialBalance)}</strong></div></div>` : ''}
       ${demo.newcomer.claimed && !demo.newcomer.completed ? `<div class="wallet-pair compact"><div class="wallet-card"><span>挑战活动余额</span><strong>RM ${money(demo.newcomer.deposited ? demo.newcomer.walletTotal : demo.newcomer.bonus)}</strong></div></div>` : ''}
       ${demo.maintenance.joined && !demo.maintenance.completed ? `<div class="wallet-pair compact"><div class="wallet-card"><span>维护活动分</span><strong>${money(demo.maintenance.points)}</strong></div></div>` : ''}
       <section class="section-panel">
@@ -419,6 +428,7 @@
           <li><span>登录</span><strong>已登录</strong></li>
           <li><span>实名认证</span><strong>${kycLabel}</strong></li>
           <li><span>体验礼</span><strong>${demo.redeemed ? '已领取' : demo.claimed ? '进行中' : '未参加'}</strong></li>
+          <li><span>免费挑战</span><strong>${demo.freeChallenge.redeemed ? '已领取' : demo.freeChallenge.claimed ? '进行中' : '未参加'}</strong></li>
           <li><span>新人挑战</span><strong>${demo.newcomer.completed ? '已完成' : demo.newcomer.abandoned ? '已放弃' : demo.newcomer.expired ? '资格已失效' : demo.newcomer.claimed ? '进行中' : '未参加'}</strong></li>
           <li><span>邀请挑战</span><strong>${demo.referral.unlocked > 0 ? '已解锁' : demo.referral.friends.length ? '进行中' : '未参加'}</strong></li>
           <li><span>成长彩金</span><strong>${!demo.growth.started ? '未参加' : (demo.growth.expired && demo.growth.expired[demo.growth.tier]) ? '档位已失效' : demo.growth.claimed.every((v, i) => v >= (GROWTH_SOURCE.caps[i] || 0)) ? '已完成' : '进行中'}</strong></li>
@@ -494,7 +504,7 @@
     return `<div class="trial-cta-slot">${action(label, name, disabled)}</div>`;
   };
   window.trialCard = function (p) {
-    return `<button class="promo-card trial-list-card" data-promo="${p.id}" aria-label="查看${p.title}详情"><div class="trial-card-hero"><span class="trial-card-tag">新人体验</span><p class="trial-card-summary trial-prose">${p.summary}</p><div class="trial-path" aria-hidden="true"><div><strong>RM100</strong><span>免费试玩</span></div><span class="trial-path-arrow"></span><div><strong>RM200</strong><span>达标余额</span></div><span class="trial-path-arrow"></span><div><strong>RM100</strong><span>兑换现金</span></div></div></div><div class="card-footer"><div><div class="card-title">${p.title}</div><div class="card-type">${p.summary}</div></div><span class="card-link">查看详情 ${icon('arrow')}</span></div></button>`;
+    return `<button class="promo-card trial-list-card" data-promo="${p.id}" aria-label="查看${p.title}详情"><div class="trial-card-hero"><span class="trial-card-tag">${p.tag || '新人体验'}</span><p class="trial-card-summary trial-prose">${p.summary}</p><div class="trial-path" aria-hidden="true"><div><strong>RM100</strong><span>免费试玩</span></div><span class="trial-path-arrow"></span><div><strong>RM200</strong><span>达标余额</span></div><span class="trial-path-arrow"></span><div><strong>RM100</strong><span>兑换现金</span></div></div></div><div class="card-footer"><div><div class="card-title">${p.title}</div><div class="card-type">${p.summary}</div></div><span class="card-link">查看详情 ${icon('arrow')}</span></div></button>`;
   };
   window.trialBalancePanel = function () {
     if (!demo.claimed) return '';
@@ -547,7 +557,7 @@
     if ($('#modal') && $('#modal').open) closeModal();
     if (!silent) toast('演示已重置');
     const id = currentRoute().get('activity');
-    const known = ['newcomer-trial', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'];
+    const known = ['newcomer-free-challenge', 'newcomer-trial', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'];
     navigate(id && known.includes(id) ? 'activity=' + id : 'category=all');
   }
 
@@ -704,7 +714,7 @@
 
   const _handleAction = handleAction;
   handleAction = function (name) {
-    if (name && /^(demo-|trial-|nc-|ref-|gr-|an-|mt-)/.test(name)) return handleDemoAction(name);
+    if (name && /^(demo-|trial-|nc-|ref-|gr-|an-|mt-|nfc-)/.test(name)) return handleDemoAction(name);
     return _handleAction(name);
   };
 

@@ -2,6 +2,7 @@
 // These are presentation snapshots, never a live member account or live draw result.
 const CATEGORIES=[['all','全部活动','gift'],['new','新人豪礼','adduser'],['growth','充值加码','cash'],['surprise','惊喜福利','gift'],['vip','VIP尊享','crown'],['invite','邀友赚礼','friends']];
 const PROMOS=[
+{id:'newcomer-free-challenge',title:'新人免费挑战赢取RM100',fullTitle:'新人免费挑战赢取RM100',category:'new',tag:'新人挑战',summary:'免费RM100试玩，达标兑换RM100现金',secondary:'试玩余额达到RM200，即可兑换RM100现金奖励。',badge:'新注册会员 · 终身限领一次',tabs:['活动详情','活动规则']},
 {id:'newcomer-trial',title:'新人免费体验礼',category:'new',tag:'新人体验',summary:'免费RM100试玩，达标兑换RM100现金',secondary:'试玩余额达到RM200，即可兑换RM100现金奖励。',badge:'新注册会员 · 终身限领一次',tabs:['活动详情','活动规则']},
 {id:'newcomer',title:'新人专享挑战',fullTitle:'Tpower新人专享挑战活动',category:'new',tag:'新人专享',banner:'new',summary:'实名认证领取 RM88',secondary:'完成挑战，充值解锁最高 RM1,888',badge:'每位新会员限一次',tabs:['活动详情','活动规则']},
 {id:'referral',title:'邀请好友挑战，赚取高达RM1,000',fullTitle:'邀请好友挑战，赚取高达RM1,000',category:'invite',tag:'邀请好友',banner:'invite',summary:'每成功邀请一名好友，最高累计赚取RM1,000',secondary:'好友完成指定任务后，系统自动解锁对应邀请奖励。',badge:'每名好友最高 RM1,000',tabs:['我的邀请','活动规则']},
@@ -63,6 +64,29 @@ const TRIAL_RULES=[
  ['参与条件',TRIAL_SOURCE.eligibility],
  ['活动流程',TRIAL_SOURCE.steps.map(s=>s.text)],
  ['重要条款',TRIAL_SOURCE.terms]
+];
+
+const CHALLENGE_SOURCE={
+  reward:'免费RM100试玩，达标兑换RM100现金',
+  eligibility:['仅限新注册会员。','必须完成实名认证（KYC）。','同一手机号、真实姓名或设备仅限领取一次。'],
+  steps:[
+    {title:'实名认证',heading:'完成注册及实名认证',cta:'去实名认证',text:'完成注册及实名认证。'},
+    {title:'领取额度',heading:'免费领取RM100试玩额度',cta:'领取RM100试玩额度',text:'免费领取RM100试玩额度。'},
+    {title:'去试玩',heading:'在指定游戏中进行试玩',cta:'去试玩',text:'在指定游戏中进行试玩。'},
+    {title:'兑换现金',heading:'试玩余额达到RM200，即可兑换RM100现金奖励',cta:'兑换RM100现金',text:'试玩余额达到RM200，即可兑换RM100现金奖励。'}
+  ],
+  terms:[
+    '达标兑换后，试玩额度及剩余试玩余额自动清零。',
+    '试玩额度不可直接充值、转账或提款。',
+    '每位符合资格的会员终身限领一次。',
+    '未达RM200目标，不可兑换部分奖励。'
+  ]
+};
+const CHALLENGE_RULES=[
+  ['活动奖励',[CHALLENGE_SOURCE.reward]],
+  ['参与条件',CHALLENGE_SOURCE.eligibility],
+  ['活动流程',CHALLENGE_SOURCE.steps.map(s=>s.text)],
+  ['重要条款',CHALLENGE_SOURCE.terms]
 ];
 
 // Structured official copy for activity pages and demos. Wording is taken from the
