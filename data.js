@@ -11,7 +11,8 @@ const PROMOS=[
 {id:'anniversary',title:'3周年幸运大抽奖',fullTitle:'3周年幸运大抽奖',category:'surprise',tag:'周年抽奖',banner:'anniversary',summary:'头奖 RM100,000',secondary:'有效流水每满 RM200 获得一张抽奖券',badge:'第3期 · 截图展示期',tabs:['活动详情','活动规则','我的抽奖券']},
 {id:'maintenance',title:'维护补偿 · 100分挑战',fullTitle:'维护补偿 · 100分挑战领RM100',category:'surprise',tag:'维护补偿',banner:'maintenance',summary:'挑战完成领取 RM100 现金',secondary:'100活动分达到200分后，手动领取',badge:'每人限参加一次',tabs:['活动详情','活动规则']},
 {id:'returning-member',title:'老会员回归，免费赢取RM188',fullTitle:'老会员回归，免费赢取RM188',category:'surprise',tag:'老会员回归',summary:'免费RM100试玩，达标兑换RM188现金',secondary:'试玩余额达到RM200，即可兑换RM188现金奖励。',badge:'老会员 · 仅限领取一次',tabs:['活动详情','活动规则']},
-{id:'first-deposit-bonus',title:'新人首存彩金100%',fullTitle:'新人首存彩金100%',category:'new',tag:'首存彩金',summary:'首次充值最高领取RM300彩金',secondary:'首次充值最高领取RM300彩金。玩家根据指定游戏类别选择其中一个首存优惠，完成对应有效流水后，方可转换至可提款余额。',badge:'首次充值 · 最高 RM300',tabs:['活动详情','活动规则']}
+{id:'first-deposit-bonus',title:'新人首存彩金100%',fullTitle:'新人首存彩金100%',category:'new',tag:'首存彩金',summary:'首次充值最高领取RM300彩金',secondary:'首次充值最高领取RM300彩金。玩家根据指定游戏类别选择其中一个首存优惠，完成对应有效流水后，方可转换至可提款余额。',badge:'首次充值 · 最高 RM300',tabs:['活动详情','活动规则']},
+{id:'daily-reload',title:'每日再存10%彩金',fullTitle:'每日再存10%彩金',category:'growth',tag:'每日再存',summary:'每日再存额外领取10%，最高RM300',secondary:'每日再存额外领取10%，最高RM300。适用于已完成首次充值的会员，完成指定倍数的有效流水后，才可转换为可提款余额。',badge:'每日再存 · 最高 RM300',tabs:['活动详情','活动规则']}
 ];
 const NEW_STEPS=[
 {title:'领取',heading:'实名认证后领取 RM88',short:'完成 KYC',text:'完成 KYC 实名认证后，可领取 RM88 活动金；活动金只能用于指定游戏。'},
@@ -222,6 +223,32 @@ const FIRST_DEPOSIT_RULES=[
   ['活动奖励',[FIRST_DEPOSIT_SOURCE.reward]],
   ['首存优惠',FIRST_DEPOSIT_SOURCE.options.map(o=>o.title+'：彩金比例'+o.rateLabel+'，最高彩金RM'+o.cap+'，流水倍数 '+o.wagerText)],
   ['活动规则',FIRST_DEPOSIT_SOURCE.rules]
+];
+
+
+const DAILY_RELOAD_SOURCE={
+  reward:'每日再存额外领取10%，最高RM300',
+  options:[
+    {id:'live',title:'真人',rate:0.1,rateLabel:'10%',cap:100,wagerMult:12,wagerText:'本金+彩金x12'},
+    {id:'slots',title:'老虎机、捕鱼',rate:0.1,rateLabel:'10%',cap:300,wagerMult:8,wagerText:'本金+彩金x8'}
+  ],
+  amounts:[500,1000,3000],
+  rules:[
+    '适用于已完成首次充值的会员。',
+    '每日进行符合资格的再存，即可领取10%彩金。',
+    '彩金按照实际充值金额计算，不超过对应类别上限。',
+    '完成指定倍数的有效流水后，才可转换为可提款余额。',
+    '仅计算所选择游戏类别的有效投注。',
+    '同一笔充值只能选择一种再存优惠。',
+    '不得将多笔充值合并领取同一笔彩金。',
+    '取消、退款或异常充值不计入。',
+    '此活动不能与其他充值活动重叠。'
+  ]
+};
+const DAILY_RELOAD_RULES=[
+  ['活动奖励',[DAILY_RELOAD_SOURCE.reward]],
+  ['再存优惠',DAILY_RELOAD_SOURCE.options.map(o=>o.title+'：彩金比例'+o.rateLabel+'，最高彩金RM'+o.cap+'，流水倍数 '+o.wagerText)],
+  ['活动规则',DAILY_RELOAD_SOURCE.rules]
 ];
 
 const NEWCOMER_SOURCE={

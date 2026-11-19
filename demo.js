@@ -105,6 +105,21 @@
       overlap: false
     };
   }
+  function defaultDailyReload() {
+    return {
+      hasFirstDeposit: true,
+      overlap: false,
+      day: 1,
+      option: null,
+      deposited: false,
+      depositAmount: 0,
+      bonus: 0,
+      turnover: 0,
+      turnoverNeed: 0,
+      claimedTotal: 0,
+      historyCount: 0
+    };
+  }
   function defaultDemo() {
     return {
       phone: '012-3456789',
@@ -133,7 +148,8 @@
       dailyWheel: defaultDailyWheel(),
       vipBenefits: defaultVipBenefits(),
       returningMember: defaultReturningMember(),
-      firstDepositBonus: defaultFirstDepositBonus()
+      firstDepositBonus: defaultFirstDepositBonus(),
+      dailyReload: defaultDailyReload()
     };
   }
   function loadDemo() {
@@ -170,6 +186,7 @@
       if (!Array.isArray(parsed.vipBenefits.history)) parsed.vipBenefits.history = [];
       parsed.returningMember = Object.assign(base.returningMember, parsed.returningMember || {});
       parsed.firstDepositBonus = Object.assign(base.firstDepositBonus, parsed.firstDepositBonus || {});
+      parsed.dailyReload = Object.assign(base.dailyReload, parsed.dailyReload || {});
       if (!Array.isArray(parsed.records)) parsed.records = [];
       return Object.assign(base, parsed, { spinning: false });
     } catch {
@@ -482,6 +499,7 @@
       ${demo.freeChallenge.claimed ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>免费挑战试玩钱包</span><strong>RM ${money(demo.freeChallenge.trialBalance)}</strong></div></div>` : ''}
       ${demo.returningMember.claimed ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>老会员回归试玩钱包</span><strong>RM ${money(demo.returningMember.trialBalance)}</strong></div></div>` : ''}
       ${demo.firstDepositBonus.deposited && !demo.firstDepositBonus.converted ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>首存活动钱包</span><strong>RM ${money((demo.firstDepositBonus.depositAmount||0)+(demo.firstDepositBonus.bonus||0))}</strong></div></div>` : ''}
+      ${demo.dailyReload.deposited ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>再存活动钱包</span><strong>RM ${money((demo.dailyReload.depositAmount||0)+(demo.dailyReload.bonus||0))}</strong></div></div>` : ''}
       ${demo.dailyWheel.bonusWallet > 0 || demo.dailyWheel.converted > 0 ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>活动彩金钱包</span><strong>RM ${money(demo.dailyWheel.bonusWallet)}</strong></div></div>` : ''}
       ${demo.newcomer.claimed && !demo.newcomer.completed ? `<div class="wallet-pair compact"><div class="wallet-card"><span>挑战活动余额</span><strong>RM ${money(demo.newcomer.deposited ? demo.newcomer.walletTotal : demo.newcomer.bonus)}</strong></div></div>` : ''}
       ${demo.maintenance.joined && !demo.maintenance.completed ? `<div class="wallet-pair compact"><div class="wallet-card"><span>维护活动分</span><strong>${money(demo.maintenance.points)}</strong></div></div>` : ''}
@@ -500,6 +518,7 @@
           <li><span>VIP福利</span><strong>${(demo.vipBenefits.history || []).length || demo.vipBenefits.pendingUpgrade || demo.vipBenefits.qualifyingBets || demo.vipBenefits.week > 1 ? '进行中' : '未参加'}</strong></li>
           <li><span>老会员回归</span><strong>${demo.returningMember.redeemed ? '已领取' : demo.returningMember.claimed ? '进行中' : '未参加'}</strong></li>
           <li><span>首存彩金</span><strong>${demo.firstDepositBonus.converted ? '已领取' : demo.firstDepositBonus.deposited || demo.firstDepositBonus.option ? '进行中' : '未参加'}</strong></li>
+          <li><span>每日再存</span><strong>${demo.dailyReload.historyCount ? '已领取' : demo.dailyReload.deposited || demo.dailyReload.option ? '进行中' : '未参加'}</strong></li>
         </ul>
       </section>
       <button type="button" class="outline-wide" data-action="demo-reset">重置演示</button>
@@ -623,7 +642,7 @@
     if ($('#modal') && $('#modal').open) closeModal();
     if (!silent) toast('演示已重置');
     const id = currentRoute().get('activity');
-    const known = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance', 'returning-member', 'first-deposit-bonus'];
+    const known = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance', 'returning-member', 'first-deposit-bonus', 'daily-reload'];
     navigate(id && known.includes(id) ? 'activity=' + id : 'category=all');
   }
 
@@ -780,7 +799,7 @@
 
   const _handleAction = handleAction;
   handleAction = function (name) {
-    if (name && /^(demo-|trial-|nc-|ref-|gr-|an-|mt-|nfc-|dw-|vb-|ret-|fd-)/.test(name)) return handleDemoAction(name);
+    if (name && /^(demo-|trial-|nc-|ref-|gr-|an-|mt-|nfc-|dw-|vb-|ret-|fd-|dr-)/.test(name)) return handleDemoAction(name);
     return _handleAction(name);
   };
 

@@ -286,6 +286,56 @@ VIP专属|VIP專屬|VIP exclusive|Eksklusif VIP|Đặc quyền VIP|สิทธ�
 演示其他充值活动进行中（重叠）|演示其他儲值活動進行中（重疊）|Demo: another deposit promo is active (overlap)|Demo: promo deposit lain sedang aktif (bertindih)|Demo: ưu đãi nạp khác đang diễn ra (trùng)|เดโม: โปรฝากอื่นกำลังใช้ (ทับซ้อน)|Demo: promo deposit lain sedang aktif (tumpang tindih)|डेमो: अन्य जमा प्रोमो सक्रिय (ओवरलैप)
 取消重叠演示|取消重疊演示|Undo overlap demo|Batalkan demo bertindih|Hủy demo trùng ưu đãi|ยกเลิกเดโมทับซ้อน|Batalkan demo tumpang tindih|ओवरलैप डेमो हटाएँ
 不可领取（与其他充值活动重叠）|不可領取（與其他儲值活動重疊）|Cannot claim (overlaps another deposit promo)|Tidak boleh dituntut (bertindih dengan promo deposit lain)|Không thể nhận (trùng ưu đãi nạp khác)|รับไม่ได้ (ทับกับโปรฝากอื่น)|Tidak dapat diklaim (tumpang tindih promo deposit lain)|प्राप्त नहीं कर सकते (अन्य जमा प्रोमो से ओवरलैप)
+每日再存10%彩金|每日再存10%彩金|Daily reload 10% bonus|Bonus reload harian 10%|Thưởng nạp lại hàng ngày 10%|โบนัสฝากซ้ำรายวัน 10%|Bonus reload harian 10%|दैनिक रीलोड 10% बोनस
+每日再存额外领取10%，最高RM300|每日再存額外領取10%，最高RM300|Daily reload bonus 10%, up to RM300|Bonus reload harian 10%, maksima RM300|Thưởng nạp lại hàng ngày 10%, tối đa RM300|โบนัสฝากซ้ำรายวัน 10% สูงสุด RM300|Bonus reload harian 10%, maks. RM300|दैनिक रीलोड बोनस 10%, अधिकतम RM300
+每日再存 · 最高 RM300|每日再存 · 最高 RM300|Daily reload · up to RM300|Reload harian · maks. RM300|Nạp lại hằng ngày · tối đa RM300|ฝากซ้ำรายวัน · สูงสุด RM300|Reload harian · maks. RM300|दैनिक रीलोड · अधिकतम RM300
+每日再存|每日再存|Daily reload|Reload harian|Nạp lại hằng ngày|ฝากซ้ำรายวัน|Reload harian|दैनिक रीलोड
+真人|真人|Live casino|Kasino langsung|Casino live|คาสิโนสด|Kasino live|लाइव कैसीनो
+老虎机、捕鱼|老虎機、捕魚|Slots and fishing|Slot dan meriam ikan|Slots và bắn cá|สล็อตและยิงปลา|Slot dan tembak ikan|स्लॉट और फिशिंग
+再存优惠|再存優惠|Reload offers|Tawaran reload|Ưu đãi nạp lại|ข้อเสนอฝากซ้ำ|Penawaran reload|रीलोड ऑफ़र
+同一笔充值只能选一种|同一筆儲值只能選一種|Only one offer per deposit|Hanya satu tawaran setiap deposit|Mỗi lần nạp chỉ chọn một ưu đãi|ฝากแต่ละครั้งเลือกได้เพียงข้อเดียว|Setiap deposit hanya satu penawaran|प्रति जमा केवल एक ऑफ़र
+为本次再存选择一种优惠|為本次再存選擇一種優惠|Choose one offer for this reload|Pilih satu tawaran untuk reload ini|Chọn một ưu đãi cho lần nạp lại này|เลือกข้อเสนอหนึ่งรายการสำหรับการฝากซ้ำนี้|Pilih satu penawaran untuk reload ini|इस रीलोड के लिए एक ऑफ़र चुनें
+已锁定该笔充值的优惠，另一选项不可再选。|已鎖定該筆儲值的優惠，另一選項不可再選。|This deposit's offer is locked; the other option cannot be chosen.|Tawaran deposit ini dikunci; pilihan lain tidak boleh dipilih.|Ưu đãi lần nạp này đã khóa, không thể chọn mục kia.|ข้อเสนอของรายการฝากนี้ถูกล็อก เลือกอีกตัวเลือกไม่ได้|Penawaran deposit ini terkunci; opsi lain tidak bisa dipilih.|इस जमा का ऑफ़र लॉक है; दूसरा विकल्प नहीं चुन सकते।
+演示再存充值|演示再存儲值|Demo reload deposit|Demo deposit reload|Demo nạp lại|เดโมฝากซ้ำ|Demo deposit reload|डेमो रीलोड जमा
+演示再存 RM500|演示再存 RM500|Demo reload RM500|Demo reload RM500|Demo nạp lại RM500|เดโมฝากซ้ำ RM500|Demo reload RM500|डेमो रीलोड RM500
+演示再存 RM1000|演示再存 RM1000|Demo reload RM1000|Demo reload RM1000|Demo nạp lại RM1000|เดโมฝากซ้ำ RM1000|Demo reload RM1000|डेमो रीलोड RM1000
+演示再存 RM3000|演示再存 RM3000|Demo reload RM3000|Demo reload RM3000|Demo nạp lại RM3000|เดโมฝากซ้ำ RM3000|Demo reload RM3000|डेमो रीलोड RM3000
+演示再存 RM500（不可合并）|演示再存 RM500（不可合併）|Demo reload RM500 (cannot combine)|Demo reload RM500 (tidak boleh digabung)|Demo nạp lại RM500 (không gộp)|เดโมฝากซ้ำ RM500 (รวมไม่ได้)|Demo reload RM500 (tidak bisa digabung)|डेमो रीलोड RM500 (जोड़ नहीं सकते)
+演示再存 RM1000（不可合并）|演示再存 RM1000（不可合併）|Demo reload RM1000 (cannot combine)|Demo reload RM1000 (tidak boleh digabung)|Demo nạp lại RM1000 (không gộp)|เดโมฝากซ้ำ RM1000 (รวมไม่ได้)|Demo reload RM1000 (tidak bisa digabung)|डेमो रीलोड RM1000 (जोड़ नहीं सकते)
+演示再存 RM3000（不可合并）|演示再存 RM3000（不可合併）|Demo reload RM3000 (cannot combine)|Demo reload RM3000 (tidak boleh digabung)|Demo nạp lại RM3000 (không gộp)|เดโมฝากซ้ำ RM3000 (รวมไม่ได้)|Demo reload RM3000 (tidak bisa digabung)|डेमो रीलोड RM3000 (जोड़ नहीं सकते)
+演示两笔各 RM500 合并领取（不可）|演示兩筆各 RM500 合併領取（不可）|Demo combining two RM500 deposits (not allowed)|Demo gabung dua deposit RM500 (tidak dibenarkan)|Demo gộp hai lần nạp RM500 (không được)|เดโมรวมสองรายการฝาก RM500 (ไม่ได้)|Demo gabung dua deposit RM500 (tidak boleh)|दो RM500 जमा जोड़कर दावा (अनुमत नहीं)
+演示取消或退款充值 RM1,000（不计入）|演示取消或退款儲值 RM1,000（不計入）|Demo cancelled or refunded deposit RM1,000 (does not count)|Demo deposit RM1,000 dibatalkan atau dipulangkan (tidak dikira)|Demo nạp RM1,000 bị hủy hoặc hoàn (không tính)|เดโมฝาก RM1,000 ที่ยกเลิกหรือคืนเงิน (ไม่นับ)|Demo deposit RM1,000 dibatalkan atau refund (tidak dihitung)|डेमो रद्द/रिफंड जमा RM1,000 (गिनती नहीं)
+去再存充值|去再存儲值|Go to reload deposit|Pergi ke deposit reload|Đến nạp lại|ไปฝากซ้ำ|Ke deposit reload|रीलोड जमा पर जाएँ
+请先选择一种再存优惠|請先選擇一種再存優惠|Choose one reload offer first|Sila pilih satu tawaran reload|Hãy chọn một ưu đãi nạp lại|เลือกข้อเสนอฝากซ้ำก่อน|Pilih satu penawaran reload dulu|पहले एक रीलोड ऑफ़र चुनें
+演示尚未完成首次充值（不符资格）|演示尚未完成首次儲值（不符資格）|Demo: first deposit not completed (ineligible)|Demo: belum selesai deposit pertama (tidak layak)|Demo: chưa hoàn tất nạp lần đầu (không đủ điều kiện)|เดโม: ยังไม่ฝากครั้งแรก (ไม่มีสิทธิ์)|Demo: belum selesai deposit pertama (tidak layak)|डेमो: पहली जमा अधूरी (अयोग्य)
+恢复为已完成首次充值|恢復為已完成首次儲值|Restore first deposit completed|Pulihkan status deposit pertama selesai|Khôi phục đã hoàn tất nạp lần đầu|คืนเป็นสถานะฝากครั้งแรกแล้ว|Pulihkan deposit pertama selesai|पहली जमा पूर्ण स्थिति पुनर्स्थापित करें
+模拟次日|模擬次日|Simulate next day|Simulasi hari seterusnya|Mô phỏng ngày hôm sau|จำลองวันถัดไป|Simulasikan hari berikutnya|अगला दिन सिमुलेट करें
+已认证 · 已完成首次充值|已認證 · 已完成首次儲值|Verified · first deposit completed|Disahkan · deposit pertama selesai|Đã xác minh · đã nạp lần đầu|ยืนยันแล้ว · ฝากครั้งแรกแล้ว|Terverifikasi · deposit pertama selesai|सत्यापित · पहली जमा पूर्ण
+尚未完成首次充值（不符资格）|尚未完成首次儲值（不符資格）|First deposit not completed (ineligible)|Belum selesai deposit pertama (tidak layak)|Chưa hoàn tất nạp lần đầu (không đủ điều kiện)|ยังไม่ฝากครั้งแรก (ไม่มีสิทธิ์)|Belum selesai deposit pertama (tidak layak)|पहली जमा अधूरी (अयोग्य)
+当前与其他充值活动重叠（演示）|當前與其他儲值活動重疊（演示）|Currently overlaps another deposit promo (demo)|Sedang bertindih dengan promo deposit lain (demo)|Đang trùng ưu đãi nạp khác (demo)|กำลังทับซ้อนโปรฝากอื่น (เดโม)|Sedang tumpang tindih promo deposit lain (demo)|अन्य जमा प्रमो से ओवरलैप (डेमो)
+未与其他充值活动重叠|未與其他儲值活動重疊|Not overlapping another deposit promo|Tidak bertindih dengan promo deposit lain|Không trùng ưu đãi nạp khác|ไม่ทับซ้อนโปรฝากอื่น|Tidak tumpang tindih promo deposit lain|अन्य जमा प्रमो से ओवरलैप नहीं
+流水已完成 · 可转换|流水已完成 · 可轉換|Turnover complete · ready to convert|Pusing ganti selesai · sedia ditukar|Doanh thu đã đủ · có thể chuyển|เทิร์นครบ · พร้อมแปลง|Turnover selesai · siap dikonversi|टर्नओवर पूरा · रूपांतरण योग्य
+待完成有效流水|待完成有效流水|Valid turnover pending|Pusing ganti sah belum selesai|Chưa hoàn thành doanh thu hợp lệ|รอทำเทิร์นที่มีผล|Turnover valid belum selesai|मान्य टर्नओवर बाकी
+可继续再存|可繼續再存|Reload available again|Boleh reload semula|Có thể nạp lại tiếp|ฝากซ้ำได้อีก|Bisa reload lagi|फिर रीलोड किया जा सकता है
+活动钱包（本金+彩金）|活動錢包（本金+彩金）|Promo wallet (stake + bonus)|Dompet aktiviti (pokok + bonus)|Ví sự kiện (gốc + thưởng)|กระเป๋ากิจกรรม (เงินต้น+โบนัส)|Dompet promo (pokok + bonus)|प्रोमो वॉलेट (मूलधन + बोनस)
+完成流水后才可转换|完成流水後才可轉換|Convertible only after turnover|Boleh ditukar selepas pusing ganti|Chỉ chuyển sau khi đủ doanh thu|แปลงได้เมื่อทำเทิร์นครบ|Bisa dikonversi setelah turnover|टर्नओवर के बाद ही रूपांतरण
+符合资格的再存入账后显示|符合資格的再存入帳後顯示|Shown after a qualifying reload posts|Dipaparkan selepas reload layak masuk|Hiện sau khi nạp lại đủ điều kiện vào tài khoản|แสดงเมื่อฝากซ้ำที่มีสิทธิ์เข้าบัญชี|Tampil setelah reload memenuhi syarat masuk|योग्य रीलोड जमा होने पर दिखेगा
+累计已领再存彩金|累計已領再存彩金|Reload bonus claimed in total|Jumlah bonus reload dituntut|Tổng thưởng nạp lại đã nhận|โบนัสฝากซ้ำที่รับแล้วรวม|Total bonus reload diklaim|कुल दावा किया रीलोड बोनस
+完成流水后转换入此余额|完成流水後轉換入此餘額|Converted here after turnover|Ditukar ke sini selepas pusing ganti|Chuyển vào số dư này sau doanh thu|แปลงเข้ายอดนี้เมื่อทำเทิร์นครบ|Dikonversi ke sini setelah turnover|टर्नओवर बाद यहाँ रूपांतरित
+再存金额|再存金額|Reload amount|Jumlah reload|Số tiền nạp lại|ยอดฝากซ้ำ|Jumlah reload|रीलोड राशि
+可得彩金|可得彩金|Bonus amount|Jumlah bonus|Số thưởng nhận được|โบนัสที่ได้รับ|Jumlah bonus|बोनस राशि
+所需有效流水|所需有效流水|Required valid turnover|Pusing ganti sah diperlukan|Doanh thu hợp lệ cần đạt|เทิร์นที่มีผลที่ต้องทำ|Turnover valid yang dibutuhkan|आवश्यक मान्य टर्नओवर
+演示捕鱼投注 RM200|演示捕魚投注 RM200|Demo fishing bet RM200|Demo pertaruhan meriam ikan RM200|Demo cược bắn cá RM200|เดโมเดิมพันยิงปลา RM200|Demo taruhan tembak ikan RM200|डेमो फिशिंग दांव RM200
+可转换金额|可轉換金額|Amount convertible|Jumlah boleh ditukar|Số tiền có thể chuyển|ยอดที่แปลงได้|Jumlah yang bisa dikonversi|रूपांतरण योग्य राशि
+流水已完成|流水已完成|Turnover complete|Pusing ganti selesai|Doanh thu đã đủ|เทิร์นครบแล้ว|Turnover selesai|टर्नओवर पूरा
+活动钱包（转换后清零）|活動錢包（轉換後清零）|Promo wallet (cleared after conversion)|Dompet aktiviti (dikosongkan selepas tukar)|Ví sự kiện (xóa sau khi chuyển)|กระเป๋ากิจกรรม (เคลียร์หลังแปลง)|Dompet promo (dikosongkan setelah konversi)|प्रोमो वॉलेट (रूपांतरण बाद खाली)
+可提款余额（到账后）|可提款餘額（到賬後）|Withdrawable balance (after credit)|Baki boleh dikeluarkan (selepas masuk)|Số dư có thể rút (sau khi vào)|ยอดถอนได้ (หลังเข้าบัญชี)|Saldo yang bisa ditarik (setelah masuk)|निकासी योग्य शेष (जमा के बाद)
+活动重叠与演示日|活動重疊與演示日|Overlap and demo day|Bertindih dan hari demo|Trùng ưu đãi và ngày demo|ทับซ้อนและวันเดโม|Tumpang tindih dan hari demo|ओवरलैप और डेमो दिन
+演示账户|演示賬戶|Demo account|Akaun demo|Tài khoản demo|บัญชีเดโม|Akun demo|डेमो खाता
+有效流水（仅计真人）|有效流水（僅計真人）|Valid turnover (live only)|Pusing ganti sah (live sahaja)|Doanh thu hợp lệ (chỉ live)|เทิร์นที่มีผล (นับเฉพาะไลฟ์)|Turnover valid (hanya live)|मान्य टर्नओवर (केवल लाइव)
+有效流水（仅计老虎机、捕鱼）|有效流水（僅計老虎機、捕魚）|Valid turnover (slots and fishing only)|Pusing ganti sah (slot dan meriam ikan sahaja)|Doanh thu hợp lệ (chỉ slots và bắn cá)|เทิร์นที่มีผล (นับเฉพาะสล็อตและยิงปลา)|Turnover valid (hanya slot dan tembak ikan)|मान्य टर्नओवर (केवल स्लॉट और फिशिंग)
+本笔再存|本筆再存|This reload|Reload ini|Lần nạp lại này|การฝากซ้ำนี้|Reload ini|यह रीलोड
+再存活动钱包|再存活動錢包|Reload promo wallet|Dompet aktiviti reload|Ví sự kiện nạp lại|กระเป๋ากิจกรรมฝากซ้ำ|Dompet promo reload|रीलोड प्रोमो वॉलेट
 `;
 const UI_DICTIONARIES=Object.fromEntries(UI_LANGUAGES.map(([code])=>[code,{}]));
 for(const row of UI_TRANSLATION_ROWS.trim().split('\n')){const cells=row.split('|');if(cells.length!==8)throw new Error('Invalid locale row: '+cells[0]);UI_LANGUAGES.forEach(([code],i)=>UI_DICTIONARIES[code][cells[0]]=cells[i]);}

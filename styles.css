@@ -357,3 +357,11 @@ html,body{height:100%;overflow:hidden}
   .fd-option-rate{font-size:26px}
   .fd-option-card{padding:12px 13px}
 }
+
+.dr-card-hero{background:radial-gradient(ellipse at top right,#1e4a5a55,transparent 70%),linear-gradient(115deg,#152024,#121415)}
+.dr-card-hero .trial-card-tag{border-color:#28687a;color:#b3e0f0;background:#20385457}
+.dr-option-chips span{background:#18242a;border-color:#2a4a5a;color:#c2e1f1}
+.dr-hero{background:radial-gradient(ellipse at top right,#1e4a5a44,transparent 65%),linear-gradient(160deg,#151c22,#141516)}
+.dr-option-card:hover{border-color:#36707a}
+.dr-option-card.is-selected{border-color:#2d9de1;box-shadow:0 0 0 1px #2d9de155;background:linear-gradient(160deg,#15202a,#121416)}
+.dr-option-card .fd-option-rate{color:#d0e8f3}
