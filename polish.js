@@ -41,13 +41,14 @@
   window.lxReward = function (o) {
     const amt = Number(o.amount || 0);
     const parts = fmt(amt).split('.');
-    const rows = (o.rows || []).map(r => `<li><span>${esc(r[0])}</span><span class="lx-ba">${r.length > 2 ? `<s>RM ${fmt(r[1])}</s><i aria-hidden="true">→</i><b>RM ${fmt(r[2])}</b>` : `<b>${esc(r[1])}</b>`}</span></li>`).join('');
+    const cur = esc(o.currency || 'RM');
+    const rows = (o.rows || []).map(r => `<li><span>${esc(r[0])}</span><span class="lx-ba">${r.length > 2 ? `<s>${cur} ${fmt(r[1])}</s><i aria-hidden="true">→</i><b>${cur} ${fmt(r[2])}</b>` : `<b>${esc(r[1])}</b>`}</span></li>`).join('');
     const sparks = Array.from({ length: 14 }, (_, i) => `<i style="--a:${i * (360 / 14)}deg;--d:${(i % 3) * 40}ms"></i>`).join('');
     const html = `<div class="lx-reward">
       <div class="lx-reward-mark" aria-hidden="true"><div class="lx-burst">${sparks}</div><svg viewBox="0 0 56 56"><circle class="lx-ring" cx="28" cy="28" r="26"/><path class="lx-tick" d="M17 29.5l7.5 7.5L40 21"/></svg></div>
       <p class="lx-kicker">${esc(o.kicker || '领取成功')}</p>
       <h2>${esc(o.title || '奖励已到账')}</h2>
-      <div class="lx-amount" aria-label="RM ${fmt(amt)}"><small>RM</small><span class="lx-int" data-to="${amt}">${reduce() ? parts[0] : '0'}</span><em>.${parts[1]}</em></div>
+      <div class="lx-amount" aria-label="${cur} ${fmt(amt)}"><small>${cur}</small><span class="lx-int" data-to="${amt}">${reduce() ? parts[0] : '0'}</span><em>.${parts[1]}</em></div>
       ${o.dest ? `<p class="lx-dest">${svg.wallet}<span>${esc(o.destPrefix || '已到账至')} ${esc(o.dest)}</span></p>` : ''}
       ${rows ? `<ul class="lx-rows">${rows}</ul>` : ''}
       ${o.note ? `<p class="lx-note">${esc(o.note)}</p>` : ''}

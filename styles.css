@@ -623,3 +623,7 @@ body{background:var(--lx-bg)}
  :is(.promo-detail,.demo-screen) table.lx-stack td:first-child{color:var(--lx-text);font-weight:600}
 }
 @media(prefers-reduced-motion:reduce){#modal[open],#modal.is-closing,#modal[open]::backdrop{animation:none!important}.lx-burst{display:none}}
+
+/* fix5 — QA detail fixes */
+@media (max-width:700px){.vip-benefit-card .card-link{width:auto;height:auto;justify-content:flex-start;font-size:13px}}
+.eligibility-list+.eligibility-list{margin-top:10px}

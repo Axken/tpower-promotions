@@ -825,10 +825,11 @@
     const amt = grClaimable(g, g.tier);
     $('#app').innerHTML = page('立即领取', `
       <section class="reward-feature trial-hero">
-        <div class="panel-top"><span class="eyebrow">${GROWTH_SOURCE.titles[g.tier]} 可领取</span><span class="status-badge">已解锁</span></div>
+        <div class="panel-top"><span class="eyebrow">${GROWTH_SOURCE.titles[g.tier]} 可领取</span><span class="status-badge ${amt > 0 ? '' : 'muted'}">${amt > 0 ? '已解锁' : '暂无可领取'}</span></div>
         <div class="amount"><small>MYR</small>${money(amt).split('.')[0]}<span>.${money(amt).split('.')[1] || '00'}</span></div>
         <p class="trial-prose">玩家点击「立即领取」。奖励直接发放至现金钱包。已领取的成长彩金无需额外流水要求。</p>
       </section>
+      ${amt > 0 ? '' : '<p class="trial-prose">当前档位尚未解锁新的彩金，暂无可领取金额。请先完成有效投注解锁彩金。</p>'}
       <button type="button" class="primary" data-action="gr-claim-confirm" ${amt > 0 ? '' : 'disabled'}>立即领取</button>
     `, 'activity=growth');
     document.title = '立即领取 · TPOWER';
@@ -1053,6 +1054,10 @@
     if (amount > 0) demo.mainWallet = r2((demo.mainWallet || 0) + amount);
     demo.records.unshift({ id: 'vip-' + Date.now(), title: 'VIP会员专属福利 · ' + title, amount, status, time: row.time });
     store().save();
+  }
+  function vbReward(kicker, amt, before, demo, fallback) {
+    if (window.lxReward && amt > 0) lxReward({ kicker: 'VIP会员专属福利 · ' + kicker, title: '奖励已发放', amount: amt, dest: '主钱包', rows: [['主钱包', before, demo.mainWallet]], note: '金额为示例，以统一等级表为准。' });
+    else toast(fallback);
   }
   function vbRefresh() {
     const screen = currentRoute().get('demo') || '';
@@ -1365,8 +1370,9 @@
       v.claimedUpgrades.push(v.pendingUpgrade);
       v.level = v.pendingUpgrade;
       v.pendingUpgrade = 0;
+      const before = r2(demo.mainWallet || 0);
       vbCredit(demo, v, 'VIP升级礼金 · ' + row.name, row.upgrade, '已到账', VB_EXAMPLE);
-      toast('已领取 ' + row.name + ' 升级礼金（示例）' + vbAmt(row.upgrade) + '，以统一等级表为准');
+      vbReward(row.name + ' 升级礼金', row.upgrade, before, demo, '已领取 ' + row.name + ' 升级礼金（示例）' + vbAmt(row.upgrade) + '，以统一等级表为准');
       vbRefresh();
       return true;
     }
@@ -1392,8 +1398,9 @@
       if (v.retentionResult !== 'retained') { toast('请先模拟本周期保级结果'); vbRefresh(); return true; }
       const amt = vbRow(v.level).retention;
       v.claimedRetentionCycle = v.cycle;
+      const before = r2(demo.mainWallet || 0);
       vbCredit(demo, v, 'VIP保级礼金 · 第' + v.cycle + '周期 · ' + vbName(v.level), amt, '已到账', VB_EXAMPLE);
-      toast('已领取保级礼金（示例）' + vbAmt(amt) + '，以统一等级表为准');
+      vbReward('保级礼金', amt, before, demo, '已领取保级礼金（示例）' + vbAmt(amt) + '，以统一等级表为准');
       vbRefresh();
       return true;
     }
@@ -1427,8 +1434,9 @@
       if (amt <= 0) { toast('暂无可领返水。返水仅计算符合规则的有效投注。'); vbRefresh(); return true; }
       v.unsettledBets = 0;
       v.rebateClaimed = r2((v.rebateClaimed || 0) + amt);
+      const before = r2(demo.mainWallet || 0);
       vbCredit(demo, v, 'VIP专属返水 · ' + vbName(v.level), amt, '已到账', '按示例返水比例计算，以统一等级表为准');
-      toast('已领取返水（示例）' + vbAmt(amt) + '，以统一等级表为准');
+      vbReward('专属返水', amt, before, demo, '已领取返水（示例）' + vbAmt(amt) + '，以统一等级表为准');
       vbRefresh();
       return true;
     }
@@ -1436,8 +1444,9 @@
       if (v.claimedWeek === v.week) { toast('每周关怀礼金每人每周期限领一次。'); vbRefresh(); return true; }
       const amt = vbRow(v.level).weekly;
       v.claimedWeek = v.week;
+      const before = r2(demo.mainWallet || 0);
       vbCredit(demo, v, 'VIP每周关怀礼金 · 第' + v.week + '周 · ' + vbName(v.level), amt, '已到账', VB_EXAMPLE);
-      toast('已领取每周关怀礼金（示例）' + vbAmt(amt) + '，以统一等级表为准');
+      vbReward('每周关怀礼金', amt, before, demo, '已领取每周关怀礼金（示例）' + vbAmt(amt) + '，以统一等级表为准');
       vbRefresh();
       return true;
     }
@@ -1454,8 +1463,9 @@
       const amt = vbRow(v.level).festival;
       v.claimedFestivals = v.claimedFestivals || [];
       v.claimedFestivals.push(v.festival);
+      const before = r2(demo.mainWallet || 0);
       vbCredit(demo, v, 'VIP节日礼金 · ' + v.festival + '（示例节日）', amt, '已到账', VB_EXAMPLE);
-      toast('已领取 ' + v.festival + ' 节日礼金（示例）' + vbAmt(amt) + '，以统一等级表为准');
+      vbReward(v.festival + ' 节日礼金', amt, before, demo, '已领取 ' + v.festival + ' 节日礼金（示例）' + vbAmt(amt) + '，以统一等级表为准');
       vbRefresh();
       return true;
     }
@@ -2344,7 +2354,7 @@
       </section>
       <section class="section-panel">
         <div class="section-header"><h3>参与条件</h3><span>演示账户</span></div>
-        ${checks(['已登录（演示会员陈美玲）', '已完成实名认证', r.hasFirstDeposit ? '已完成首次充值' : '尚未完成首次充值（不符资格）', r.overlap ? '当前与其他充值活动重叠（演示）' : '未与其他充值活动重叠'])}
+        ${checks(['已登录（演示会员陈美玲）', '已完成实名认证', r.hasFirstDeposit ? ((demoOf().firstDepositBonus || {}).deposited ? '已完成首次充值' : '已完成首次充值（演示设定）') : '尚未完成首次充值（不符资格）', r.overlap ? '当前与其他充值活动重叠（演示）' : '未与其他充值活动重叠'])}
         ${!r.hasFirstDeposit ? '<p class="trial-prose">适用于已完成首次充值的会员。</p><button type="button" class="outline-wide" data-action="dr-toggle-first">恢复为已完成首次充值</button>' : '<button type="button" class="outline-wide" data-action="dr-toggle-first">演示尚未完成首次充值（不符资格）</button>'}
       </section>
       <section class="section-panel">
@@ -2445,6 +2455,7 @@
     }
     if (name === 'dr-toggle-first') {
       if (r.deposited) { toast('本笔再存进行中，请先重置演示再切换资格'); return true; }
+      if (r.hasFirstDeposit && demo.firstDepositBonus && demo.firstDepositBonus.deposited) { toast('「新人首存彩金100%」演示中已完成首次充值，不能切换为尚未完成首次充值'); return true; }
       r.hasFirstDeposit = !r.hasFirstDeposit;
       if (!r.hasFirstDeposit) r.option = null;
       store().save();
@@ -2944,7 +2955,7 @@
           g.daysLeft[g.tier] = 10;
         }
         store().save();
-        if (window.lxReward) lxReward({ kicker: '成长彩金 · 领取成功', title: '奖励已发放', amount: amt, dest: '现金钱包', rows: [['现金钱包', grBefore, demo.mainWallet]], note: '无需额外流水。' });
+        if (window.lxReward) lxReward({ kicker: '成长彩金 · 领取成功', title: '奖励已发放', amount: amt, currency: 'MYR', dest: '现金钱包', rows: [['现金钱包', grBefore, demo.mainWallet]], note: '无需额外流水。' });
         else toast('奖励已发放至现金钱包，无需额外流水');
         navigate('activity=growth');
         return true;
