@@ -257,6 +257,18 @@ TPOWER · 活动页面交互预览|TPOWER · 活動頁面互動預覽|TPOWER · 
 五大专属福利|五大專屬福利|Five exclusive benefits|Lima faedah eksklusif|Năm đặc quyền độc quyền|สิทธิพิเศษห้าอย่าง|Lima manfaat eksklusif|पाँच विशेष लाभ
 VIP专属|VIP專屬|VIP exclusive|Eksklusif VIP|Đặc quyền VIP|สิทธิ์ VIP|Eksklusif VIP|VIP विशेष
 风控补充|風控補充|Risk-control notes|Nota kawalan risiko|Bổ sung kiểm soát rủi ro|หมายเหตุควบคุมความเสี่ยง|Catatan pengendalian risiko|जोखिम नियंत्रण नोट
+老会员回归|老會員回歸|Returning members|Ahli kembali|Thành viên cũ trở lại|สมาชิกเก่ากลับมา|Anggota lama kembali|वापस आए सदस्य
+兑换RM188现金|兌換RM188現金|Redeem RM188 cash|Tebus tunai RM188|Đổi RM188 tiền mặt|แลกเงินสด RM188|Tukar tunai RM188|RM188 नकद रिडीम करें
+演示未充值会员（不符资格）|演示未儲值會員（不符資格）|Demo: never deposited (ineligible)|Demo: belum deposit (tidak layak)|Demo: chưa từng nạp (không đủ điều kiện)|เดโม: ไม่เคยฝาก (ไม่มีคุณสมบัติ)|Demo: belum pernah deposit (tidak memenuhi syarat)|डेमो: कभी जमा नहीं (अयोग्य)
+恢复为已充值老会员|恢復為已儲值老會員|Restore deposited returning member|Pulihkan ahli kembali yang pernah deposit|Khôi phục thành viên cũ đã nạp|คืนเป็นสมาชิกเก่าที่เคยฝาก|Pulihkan anggota lama yang pernah deposit|जमा किए हुए वापस आए सदस्य को पुनर्स्थापित करें
+演示已领取「新人免费挑战赢取RM100」（互斥）|演示已領取「新人免費挑戰贏取RM100」（互斥）|Demo: claimed newcomer free challenge (exclusive)|Demo: telah tuntut cabaran baharu (saling eksklusif)|Demo: đã nhận thử thách tân thủ (loại trừ lẫn nhau)|เดโม: รับความท้าทายสมาชิกใหม่แล้ว (ใช้ร่วมกันไม่ได้)|Demo: sudah klaim tantangan anggota baru (saling eksklusif)|डेमो: न्यूकमर चुनौती प्राप्त (परस्पर अनन्य)
+取消互斥演示（清除新人挑战领取状态）|取消互斥演示（清除新人挑戰領取狀態）|Undo exclusion (clear newcomer claim)|Batalkan eksklusif (kosongkan tuntutan baharu)|Hủy loại trừ (xóa trạng thái nhận tân thủ)|ยกเลิกการกันสิทธิ์ (ล้างสถานะสมาชิกใหม่)|Batalkan eksklusif (hapus klaim anggota baru)|अनन्यता हटाएँ (न्यूकमर दावा साफ़ करें)
+演示已领取「老会员回归，免费赢取RM188」（互斥）|演示已領取「老會員回歸，免費贏取RM188」（互斥）|Demo: claimed returning-member offer (exclusive)|Demo: telah tuntut tawaran ahli kembali (saling eksklusif)|Demo: đã nhận ưu đãi thành viên cũ (loại trừ lẫn nhau)|เดโม: รับข้อเสนอสมาชิกเก่าแล้ว (ใช้ร่วมกันไม่ได้)|Demo: sudah klaim penawaran anggota lama (saling eksklusif)|डेमो: रिटर्निंग ऑफ़र प्राप्त (परस्पर अनन्य)
+取消互斥演示（清除老会员回归领取状态）|取消互斥演示（清除老會員回歸領取狀態）|Undo exclusion (clear returning-member claim)|Batalkan eksklusif (kosongkan tuntutan ahli kembali)|Hủy loại trừ (xóa trạng thái thành viên cũ)|ยกเลิกการกันสิทธิ์ (ล้างสถานะสมาชิกเก่า)|Batalkan eksklusif (hapus klaim anggota lama)|अनन्यता हटाएँ (वापसी दावा साफ़ करें)
+不可领取（互斥）|不可領取（互斥）|Cannot claim (exclusive)|Tidak boleh dituntut (saling eksklusif)|Không thể nhận (loại trừ lẫn nhau)|รับไม่ได้ (ใช้ร่วมกันไม่ได้)|Tidak dapat diklaim (saling eksklusif)|प्राप्त नहीं कर सकते (परस्पर अनन्य)
+未达到RM200，不可兑换|未達到RM200，不可兌換|Below RM200, cannot redeem|Belum RM200, tidak boleh ditebus|Chưa đạt RM200, không đổi được|ยังไม่ถึง RM200 แลกไม่ได้|Belum RM200, tidak dapat ditukar|RM200 से कम, रिडीम नहीं
+查看新人免费挑战赢取RM100|查看新人免費挑戰贏取RM100|View newcomer free challenge|Lihat cabaran percuma ahli baharu|Xem thử thách miễn phí tân thủ|ดูความท้าทายฟรีสมาชิกใหม่|Lihat tantangan gratis anggota baru|न्यूकमर फ्री चैलेंज देखें
+查看老会员回归活动|查看老會員回歸活動|View returning-member event|Lihat aktiviti ahli kembali|Xem sự kiện thành viên cũ trở lại|ดูกิจกรรมสมาชิกเก่ากลับมา|Lihat acara anggota lama kembali|वापस आए सदस्य कार्यक्रम देखें
 `;
 const UI_DICTIONARIES=Object.fromEntries(UI_LANGUAGES.map(([code])=>[code,{}]));
 for(const row of UI_TRANSLATION_ROWS.trim().split('\n')){const cells=row.split('|');if(cells.length!==8)throw new Error('Invalid locale row: '+cells[0]);UI_LANGUAGES.forEach(([code],i)=>UI_DICTIONARIES[code][cells[0]]=cells[i]);}

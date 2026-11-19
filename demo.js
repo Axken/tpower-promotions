@@ -86,6 +86,13 @@
       history: []
     };
   }
+  function defaultReturningMember() {
+    return {
+      deposited: true,
+      claimed: false, trialBalance: 0, trialEnded: false, reachedTarget: false, redeemed: false,
+      playMode: 'win', spinIndex: 0, lastSymbols: ['7', '星', '铃'], spinning: false, currentGame: 'lucky-star'
+    };
+  }
   function defaultDemo() {
     return {
       phone: '012-3456789',
@@ -112,7 +119,8 @@
       maintenance: defaultMaintenance(),
       freeChallenge: defaultFreeChallenge(),
       dailyWheel: defaultDailyWheel(),
-      vipBenefits: defaultVipBenefits()
+      vipBenefits: defaultVipBenefits(),
+      returningMember: defaultReturningMember()
     };
   }
   function loadDemo() {
@@ -147,6 +155,7 @@
       if (!Array.isArray(parsed.vipBenefits.claimedUpgrades)) parsed.vipBenefits.claimedUpgrades = [];
       if (!Array.isArray(parsed.vipBenefits.claimedFestivals)) parsed.vipBenefits.claimedFestivals = [];
       if (!Array.isArray(parsed.vipBenefits.history)) parsed.vipBenefits.history = [];
+      parsed.returningMember = Object.assign(base.returningMember, parsed.returningMember || {});
       if (!Array.isArray(parsed.records)) parsed.records = [];
       return Object.assign(base, parsed, { spinning: false });
     } catch {
@@ -457,6 +466,7 @@
         <div class="wallet-card trial"><span>试玩钱包</span><strong>RM ${money(demo.trialBalance)}</strong></div>
       </div>
       ${demo.freeChallenge.claimed ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>免费挑战试玩钱包</span><strong>RM ${money(demo.freeChallenge.trialBalance)}</strong></div></div>` : ''}
+      ${demo.returningMember.claimed ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>老会员回归试玩钱包</span><strong>RM ${money(demo.returningMember.trialBalance)}</strong></div></div>` : ''}
       ${demo.dailyWheel.bonusWallet > 0 || demo.dailyWheel.converted > 0 ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>活动彩金钱包</span><strong>RM ${money(demo.dailyWheel.bonusWallet)}</strong></div></div>` : ''}
       ${demo.newcomer.claimed && !demo.newcomer.completed ? `<div class="wallet-pair compact"><div class="wallet-card"><span>挑战活动余额</span><strong>RM ${money(demo.newcomer.deposited ? demo.newcomer.walletTotal : demo.newcomer.bonus)}</strong></div></div>` : ''}
       ${demo.maintenance.joined && !demo.maintenance.completed ? `<div class="wallet-pair compact"><div class="wallet-card"><span>维护活动分</span><strong>${money(demo.maintenance.points)}</strong></div></div>` : ''}
@@ -473,6 +483,7 @@
           <li><span>周年抽奖</span><strong>${demo.anniversary.claimed ? '已领取' : demo.anniversary.expired ? '已作废' : demo.anniversary.tickets.length ? '进行中' : '未参加'}</strong></li>
           <li><span>维护补偿</span><strong>${demo.maintenance.completed ? '已领取' : !demo.maintenance.eligible ? '不符资格' : demo.maintenance.joined ? '进行中' : '未参加'}</strong></li>
           <li><span>VIP福利</span><strong>${(demo.vipBenefits.history || []).length || demo.vipBenefits.pendingUpgrade || demo.vipBenefits.qualifyingBets || demo.vipBenefits.week > 1 ? '进行中' : '未参加'}</strong></li>
+          <li><span>老会员回归</span><strong>${demo.returningMember.redeemed ? '已领取' : demo.returningMember.claimed ? '进行中' : '未参加'}</strong></li>
         </ul>
       </section>
       <button type="button" class="outline-wide" data-action="demo-reset">重置演示</button>
@@ -596,7 +607,7 @@
     if ($('#modal') && $('#modal').open) closeModal();
     if (!silent) toast('演示已重置');
     const id = currentRoute().get('activity');
-    const known = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'];
+    const known = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance', 'returning-member'];
     navigate(id && known.includes(id) ? 'activity=' + id : 'category=all');
   }
 
@@ -753,7 +764,7 @@
 
   const _handleAction = handleAction;
   handleAction = function (name) {
-    if (name && /^(demo-|trial-|nc-|ref-|gr-|an-|mt-|nfc-|dw-|vb-)/.test(name)) return handleDemoAction(name);
+    if (name && /^(demo-|trial-|nc-|ref-|gr-|an-|mt-|nfc-|dw-|vb-|ret-)/.test(name)) return handleDemoAction(name);
     return _handleAction(name);
   };
 

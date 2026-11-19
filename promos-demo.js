@@ -105,10 +105,11 @@
       maintenance: () => ({ labels: MT_JOURNEY, current: mtIndex(demo.maintenance), finished: demo.maintenance.completed }),
       'newcomer-free-challenge': () => ({ labels: NFC_JOURNEY, current: nfcIndex(demo.freeChallenge), finished: demo.freeChallenge.redeemed }),
       'daily-wheel': () => ({ labels: DW_JOURNEY, current: dwIndex(demo.dailyWheel), finished: (demo.dailyWheel.converted || 0) > 0 && (demo.dailyWheel.bonusWallet || 0) <= 0 }),
-      'vip-benefits': () => ({ labels: VB_JOURNEY, current: vbIndex(demo.vipBenefits), finished: (demo.vipBenefits.history || []).length > 0 && vbPendingCount(demo.vipBenefits) === 0 })
+      'vip-benefits': () => ({ labels: VB_JOURNEY, current: vbIndex(demo.vipBenefits), finished: (demo.vipBenefits.history || []).length > 0 && vbPendingCount(demo.vipBenefits) === 0 }),
+      'returning-member': () => ({ labels: RET_JOURNEY, current: retIndex(demo.returningMember), finished: demo.returningMember.redeemed })
     };
     if (map[id]) return map[id]();
-    const byScreen = { nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', vb: 'vip-benefits' };
+    const byScreen = { nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', vb: 'vip-benefits', ret: 'returning-member' };
     if (byScreen[prefix] && map[byScreen[prefix]]) return map[byScreen[prefix]]();
     return null;
   };
@@ -150,6 +151,7 @@
   }
   function nfcCta(c) {
     if (c.redeemed) return ['已领取', 'demo-done', true];
+    if (!c.claimed && retTrialTaken()) return ['不可领取（互斥）', 'nfc-blocked', false];
     if (!c.claimed) return ['领取RM100试玩额度', 'nfc-go-claim', false];
     if (c.trialEnded) return ['未达RM200，不可兑换', 'demo-done', true];
     if (c.reachedTarget) return ['兑换RM100现金', 'nfc-go-redeem', false];
@@ -157,6 +159,7 @@
   }
   function nfcStatus(c) {
     if (c.redeemed) return ['已领取 · 终身限领一次', 'muted'];
+    if (!c.claimed && retTrialTaken()) return ['与老会员回归互斥', 'muted'];
     if (c.trialEnded) return ['未达标 · 不可兑换', 'muted'];
     if (c.reachedTarget) return ['已达标 · 可兑换', ''];
     if (c.claimed) return ['已领取 · 试玩中', ''];
@@ -180,7 +183,7 @@
     const viewStep = inspect('newcomer-free-challenge', 3, auto);
     const s = CHALLENGE_SOURCE.steps[viewStep];
     const path = pathRow([['RM100', '免费试玩'], ['RM200', '达标余额'], ['RM100', '兑换现金']]);
-    return `${store().journeyBar()}${nfcBalancePanel(c)}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div><div class="amount"><small>RM</small>100<span>.00</span></div><p class="trial-prose">${CHALLENGE_SOURCE.reward}</p>${path}</section><section class="section-panel"><div class="section-header"><h3>参与条件</h3></div>${checks(CHALLENGE_SOURCE.eligibility)}</section><section class="section-panel flow-panel"><div class="section-header"><h3>活动流程</h3><span>点击步骤查看要求</span></div>${stepper(CHALLENGE_SOURCE.steps, viewStep, 'newcomer-free-challenge')}<div class="step-explanation trial-prose"><div class="step-heading"><span class="step-kicker">0${viewStep + 1} / 04</span><h4>${s.heading}</h4></div><p>${s.text}</p></div></section><section class="section-panel"><div class="section-header"><h3>重要条款</h3></div>${termsList(CHALLENGE_SOURCE.terms)}</section><button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>`;
+    return `${store().journeyBar()}${nfcBalancePanel(c)}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div><div class="amount"><small>RM</small>100<span>.00</span></div><p class="trial-prose">${CHALLENGE_SOURCE.reward}</p>${path}</section><section class="section-panel"><div class="section-header"><h3>参与条件</h3></div>${checks(CHALLENGE_SOURCE.eligibility)}</section><section class="section-panel flow-panel"><div class="section-header"><h3>活动流程</h3><span>点击步骤查看要求</span></div>${stepper(CHALLENGE_SOURCE.steps, viewStep, 'newcomer-free-challenge')}<div class="step-explanation trial-prose"><div class="step-heading"><span class="step-kicker">0${viewStep + 1} / 04</span><h4>${s.heading}</h4></div><p>${s.text}</p></div></section><section class="section-panel"><div class="section-header"><h3>重要条款</h3></div>${termsList(CHALLENGE_SOURCE.terms)}</section>${nfcExclusionPanel(c)}${retTrialTaken() && !c.claimed ? '' : `<button type="button" class="outline-wide" data-action="nfc-toggle-ret">演示已领取「老会员回归，免费赢取RM188」（互斥）</button>`}<button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>`;
   };
   function renderNfcClaim() {
     $('#app').innerHTML = page('领取试玩额度', `
@@ -1452,6 +1455,390 @@
   }
 
 
+  /* ------------ 老会员回归，免费赢取RM188 ------------ */
+  const RET_JOURNEY = ['领取', '试玩', '达标', '兑换', '到账'];
+  const RET_WIN = [
+    { delta: 20, symbols: ['7', '7', '7'] },
+    { delta: -10, symbols: ['星', 'BAR', '7'] },
+    { delta: 30, symbols: ['星', '星', '星'] },
+    { delta: 20, symbols: ['铃', '铃', '铃'] },
+    { delta: 20, symbols: ['7', '7', 'BAR'] },
+    { delta: 20, symbols: ['7', '7', '7'] }
+  ];
+  const RET_LOSE = [
+    { delta: -40, symbols: ['BAR', '星', '7'] },
+    { delta: -40, symbols: ['铃', 'BAR', '星'] },
+    { delta: -20, symbols: ['7', '星', 'BAR'] }
+  ];
+  const RET_GAMES = [
+    { id: 'lucky-star', name: '幸运星老虎机', tag: '指定试玩', icon: 'slot' },
+    { id: 'golden-spin', name: '黄金旋转', tag: '指定试玩', icon: 'crown' },
+    { id: 'classic-fruit', name: '经典水果机', tag: '指定试玩', icon: 'gift' }
+  ];
+  function retOf() {
+    return demoOf().returningMember;
+  }
+  function nfcTrialTaken(demo) {
+    const c = (demo || demoOf()).freeChallenge || {};
+    return !!(c.claimed || c.redeemed);
+  }
+  function retTrialTaken(demo) {
+    const r = (demo || demoOf()).returningMember || {};
+    return !!(r.claimed || r.redeemed);
+  }
+  function retEligible(r, demo) {
+    demo = demo || demoOf();
+    const kycOk = demo.kyc && demo.kyc.status === 'approved';
+    return !!(r.deposited && kycOk);
+  }
+  function retIndex(r) {
+    if (!r.claimed) return 0;
+    if (r.redeemed) return 4;
+    if (r.reachedTarget) {
+      const screen = currentRoute().get('demo');
+      if (screen === 'ret-redeem-success') return 4;
+      if (screen === 'ret-redeem' || screen === 'ret-redeem-process') return 3;
+      return 2;
+    }
+    return 1;
+  }
+  function retCta(r) {
+    if (r.redeemed) return ['已领取', 'demo-done', true];
+    if (nfcTrialTaken()) return ['不可领取（互斥）', 'ret-blocked', false];
+    if (!retEligible(r)) return ['不符资格', 'ret-ineligible', false];
+    if (!r.claimed) return ['领取RM100试玩额度', 'ret-go-claim', false];
+    if (r.trialEnded) return ['未达到RM200，不可兑换', 'demo-done', true];
+    if (r.reachedTarget) return ['兑换RM188现金', 'ret-go-redeem', false];
+    return ['去试玩', 'ret-go-play', false];
+  }
+  function retStatus(r) {
+    if (r.redeemed) return ['已领取 · 仅限领取一次', 'muted'];
+    if (nfcTrialTaken() && !r.claimed) return ['与新人免费挑战互斥', 'muted'];
+    if (!retEligible(r) && !r.claimed) return ['不符资格', 'muted'];
+    if (r.trialEnded) return ['未达标 · 不可兑换', 'muted'];
+    if (r.reachedTarget) return ['已达标 · 可兑换', ''];
+    if (r.claimed) return ['已领取 · 试玩中', ''];
+    return ['已认证 · 已充值 · 待领取', ''];
+  }
+  function retBalancePanel(r) {
+    if (!r.claimed) return '';
+    return `<div class="wallet-pair" id="ret-balance">
+      <div class="wallet-card trial"><span>试玩钱包</span><strong>RM ${money(r.trialBalance)}</strong><small>${r.redeemed ? '已清零' : r.trialEnded ? '试玩已结束' : '不得直接提款、转让或充值'}</small></div>
+      <div class="wallet-card main ${demoOf().mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>RM ${money(demoOf().mainWallet)}</strong><small>${r.redeemed ? 'RM188 现金已到账' : '兑换现金将进入此钱包'}</small></div>
+    </div>
+    <div class="trial-balance">${r.claimed && !r.redeemed && !r.trialEnded ? `<div class="bar-label"><span>试玩余额</span><span>RM ${money(r.trialBalance)} / RM 200.00</span></div><progress max="200" value="${Math.min(200, r.trialBalance)}" aria-label="试玩余额进度"></progress>` : ''}
+    <p class="fine-print trial-prose">${r.redeemed ? '兑换后试玩额度自动清零。' : r.trialEnded ? '未达到RM200不可兑换奖励。' : '试玩余额达到RM200，即可兑换RM188现金奖励。未达到RM200不可兑换奖励。'}</p></div>`;
+  }
+  function retExclusionPanel(r) {
+    const blocked = nfcTrialTaken() && !r.claimed;
+    const ineligible = !retEligible(r) && !r.claimed;
+    if (!blocked && !ineligible) {
+      return `<section class="section-panel">
+        <div class="section-header"><h3>演示资格切换</h3><span>不影响其他活动原文</span></div>
+        <p class="fine-print trial-prose">当前演示为已登录、已完成实名认证、历史上有成功充值的老会员。</p>
+        <button type="button" class="outline-wide" data-action="ret-toggle-deposit">演示未充值会员（不符资格）</button>
+        <button type="button" class="outline-wide" data-action="ret-toggle-nfc">演示已领取「新人免费挑战赢取RM100」（互斥）</button>
+      </section>`;
+    }
+    if (ineligible) {
+      return `<section class="section-panel">
+        <div class="section-header"><h3>不符资格</h3></div>
+        <p class="trial-prose">历史曾经成功充值的会员均符合基本参与资格。必须完成实名认证。每位合格会员仅可领取一次。</p>
+        <p class="fine-print trial-prose">当前演示账户尚未有成功充值记录，因此不符合基本参与资格。</p>
+        <button type="button" class="outline-wide" data-action="ret-toggle-deposit">恢复为已充值老会员</button>
+      </section>`;
+    }
+    return `<section class="section-panel">
+      <div class="section-header"><h3>不可领取</h3><span>互斥规则</span></div>
+      <p class="trial-prose">${RETURNING_SOURCE.exclusion}</p>
+      <p class="fine-print trial-prose">${RETURNING_SOURCE.exclusionNote}</p>
+      <button type="button" class="outline-wide" data-demo-nav="activity=newcomer-free-challenge">查看新人免费挑战赢取RM100</button>
+      <button type="button" class="outline-wide" data-action="ret-toggle-nfc">取消互斥演示（清除新人挑战领取状态）</button>
+    </section>`;
+  }
+  function nfcExclusionPanel(c) {
+    if (!(retTrialTaken() && !c.claimed)) return '';
+    return `<section class="section-panel">
+      <div class="section-header"><h3>不可领取</h3><span>互斥规则</span></div>
+      <p class="trial-prose">${RETURNING_SOURCE.exclusion}</p>
+      <p class="fine-print trial-prose">${RETURNING_SOURCE.exclusionNote}</p>
+      <button type="button" class="outline-wide" data-demo-nav="activity=returning-member">查看老会员回归活动</button>
+      <button type="button" class="outline-wide" data-action="nfc-toggle-ret">取消互斥演示（清除老会员回归领取状态）</button>
+    </section>`;
+  }
+  window.renderReturningMemberDemo = function () {
+    store().ensureBanner();
+    const r = store().load().returningMember;
+    const [status, statusCls] = retStatus(r);
+    const viewMap = { 0: 1, 1: 2, 2: 3, 3: 4, 4: 4 };
+    const auto = viewMap[retIndex(r)] ?? 1;
+    const viewStep = inspect('returning-member', 4, auto);
+    const s = RETURNING_SOURCE.steps[viewStep];
+    const path = pathRow([['RM100', '免费试玩'], ['RM200', '达标余额'], ['RM188', '兑换现金']]);
+    const checksList = [
+      '已登录（演示会员陈美玲）',
+      '已完成实名认证',
+      r.deposited ? '历史上有成功充值记录' : '尚未有成功充值记录（不符资格）',
+      nfcTrialTaken() && !r.claimed ? '已领取其他免费试玩奖励（互斥）' : '未领取其他免费试玩奖励'
+    ];
+    return `${store().journeyBar()}${retBalancePanel(r)}<section class="reward-feature trial-hero return-hero"><div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div><div class="amount"><small>RM</small>188<span>.00</span></div><p class="trial-prose">${RETURNING_SOURCE.reward}</p>${path}</section><section class="section-panel"><div class="section-header"><h3>参与条件</h3></div>${checks(RETURNING_SOURCE.eligibility)}${checks(checksList)}</section>${retExclusionPanel(r)}<section class="section-panel flow-panel"><div class="section-header"><h3>活动流程</h3><span>点击步骤查看要求</span></div>${stepper(RETURNING_SOURCE.steps, viewStep, 'returning-member')}<div class="step-explanation trial-prose"><div class="step-heading"><span class="step-kicker">0${viewStep + 1} / 0${RETURNING_SOURCE.steps.length}</span><h4>${s.heading}</h4></div><p>${s.text}</p></div></section><section class="section-panel"><div class="section-header"><h3>重要条款</h3></div>${termsList(RETURNING_SOURCE.terms)}</section><button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button><button type="button" class="text-button trial-reset" data-action="demo-reset">重置演示</button>`;
+  };
+  function renderRetClaim() {
+    $('#app').innerHTML = page('领取试玩额度', `
+      <section class="reward-feature trial-hero return-hero">
+        <div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge">待领取</span></div>
+        <div class="amount"><small>RM</small>100<span>.00</span></div>
+        <p class="trial-prose">免费领取RM100试玩额度。</p>
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>领取前请确认</h3></div>
+        ${termsList([
+          '试玩额度不得直接提款、转让或充值。',
+          '每位会员仅限领取一次。',
+          '试玩余额达到RM200，即可兑换RM188现金奖励。',
+          RETURNING_SOURCE.exclusion
+        ])}
+      </section>
+      <button type="button" class="primary" data-action="ret-claim-confirm">确认领取</button>
+    `, 'activity=returning-member');
+    document.title = '领取试玩额度 · TPOWER';
+  }
+  function renderRetGames() {
+    const r = retOf();
+    $('#app').innerHTML = page('指定游戏', `
+      <div class="wallet-pair compact">
+        <div class="wallet-card trial"><span>试玩钱包</span><strong>RM ${money(r.trialBalance)}</strong></div>
+        <div class="wallet-card"><span>达标目标</span><strong>RM 200.00</strong></div>
+      </div>
+      <p class="demo-lead trial-prose">在指定游戏内进行试玩。试玩额度不得直接提款、转让或充值。</p>
+      <div class="game-grid">${RET_GAMES.map(g => `<button type="button" class="game-tile" data-action="ret-open-game" data-ret-game="${g.id}"><span class="game-icon">${icon(g.icon)}</span><strong>${g.name}</strong><small>${g.tag}</small></button>`).join('')}</div>
+    `, 'activity=returning-member');
+    document.title = '指定游戏 · TPOWER';
+  }
+  function renderRetPlay() {
+    const r = retOf();
+    const game = RET_GAMES.find(g => g.id === r.currentGame) || RET_GAMES[0];
+    const over = r.trialEnded;
+    const ready = r.reachedTarget && !r.redeemed;
+    const canSpin = r.claimed && !over && !ready && !r.redeemed;
+    const symbols = (r.lastSymbols || ['7', '星', '铃']).map(s => `<span>${s}</span>`).join('');
+    $('#app').innerHTML = page(game.name, `
+      <div class="play-wallet">
+        <div><span>试玩钱包</span><strong id="ret-play-balance">RM ${money(r.trialBalance)}</strong></div>
+        <div class="play-progress"><div class="bar-label"><span>达标进度</span><span>RM ${money(r.trialBalance)} / RM 200.00</span></div><progress max="200" value="${Math.min(200, r.trialBalance)}" aria-label="试玩余额进度"></progress></div>
+      </div>
+      <section class="slot-machine" aria-label="演示老虎机">
+        <div class="slot-window" id="ret-slot-window">${symbols}</div>
+        <p class="slot-result" id="ret-slot-result" aria-live="polite">${over ? '试玩已结束' : ready ? '已达到 RM200' : '按下开始，演示一局试玩'}</p>
+        <button type="button" class="primary" id="ret-spin-btn" data-action="ret-spin" ${canSpin ? '' : 'disabled'}>${canSpin ? '开始旋转' : '暂停试玩'}</button>
+      </section>
+      ${ready ? '<button type="button" class="primary" data-action="ret-go-redeem">兑换RM188现金</button>' : ''}
+      ${over ? `<section class="section-panel"><h3>试玩已结束</h3><p class="trial-prose">未达到RM200不可兑换奖励。</p><p class="fine-print">试玩额度已用尽。每位会员仅限领取一次，演示中可重置后重新体验。</p><button type="button" class="outline-wide" data-action="demo-reset">重置演示</button></section>` : ''}
+      ${canSpin ? '<button type="button" class="text-button trial-reset" data-action="ret-fail-path">演示未达标（余额归零）</button>' : ''}
+    `, 'demo=ret-games');
+    document.title = game.name + ' · TPOWER';
+  }
+  function renderRetRedeem() {
+    const r = retOf();
+    const demo = demoOf();
+    $('#app').innerHTML = page('兑换现金', `
+      <section class="reward-feature trial-hero return-hero">
+        <div class="panel-top"><span class="eyebrow">可兑换现金</span><span class="status-badge">已达标</span></div>
+        <div class="amount"><small>RM</small>188<span>.00</span></div>
+        <p class="trial-prose">成功达标后，兑换RM188现金奖励。</p>
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>兑换说明</h3></div>
+        ${termsList([
+          '兑换后试玩额度自动清零。',
+          '兑换的 RM188 现金将转入主钱包。',
+          '每位会员仅限领取一次。'
+        ])}
+        <div class="wallet-pair">
+          <div class="wallet-card trial"><span>试玩钱包（兑换后清零）</span><strong>RM ${money(r.trialBalance)}</strong></div>
+          <div class="wallet-card main"><span>主钱包（到账后）</span><strong>RM ${money((demo.mainWallet || 0) + 188)}</strong></div>
+        </div>
+      </section>
+      <button type="button" class="primary" data-action="ret-redeem-confirm">确认兑换</button>
+    `, 'activity=returning-member');
+    document.title = '兑换现金 · TPOWER';
+  }
+  function renderRetRedeemProcess() {
+    $('#app').innerHTML = page('兑换中', `
+      <section class="demo-status-card">
+        <div class="demo-spinner" aria-hidden="true"></div>
+        <h3>正在兑换</h3>
+        <p>正在将 RM188 现金转入主钱包。</p>
+      </section>
+    `, 'activity=returning-member');
+    document.title = '兑换中 · TPOWER';
+    store().later(() => {
+      const demo = store().load();
+      const r = demo.returningMember;
+      if (!r.reachedTarget || r.redeemed) return;
+      r.redeemed = true;
+      r.trialBalance = 0;
+      demo.mainWallet = r2((demo.mainWallet || 0) + 188);
+      record('老会员回归，免费赢取RM188', 188, '已到账');
+      store().save();
+      navigate('demo=ret-redeem-success');
+    }, 1400);
+  }
+  function renderRetRedeemSuccess() {
+    const demo = demoOf();
+    $('#app').innerHTML = page('兑换成功', `
+      <section class="demo-status-card success">
+        <div class="demo-success-mark" aria-hidden="true">${icon('cash')}</div>
+        <h3>兑换成功</h3>
+        <p class="trial-prose">兑换后试玩额度自动清零。</p>
+        <div class="wallet-pair">
+          <div class="wallet-card main highlight"><span>主钱包</span><strong>RM ${money(demo.mainWallet)}</strong><small>RM188 现金已到账</small></div>
+          <div class="wallet-card trial"><span>试玩钱包</span><strong>RM 0.00</strong><small>已清零</small></div>
+        </div>
+        <button type="button" class="primary" data-demo-nav="demo=records">查看领奖记录</button>
+        <button type="button" class="outline-wide" data-demo-nav="activity=returning-member">返回活动</button>
+      </section>
+    `, 'activity=returning-member');
+    document.title = '兑换成功 · TPOWER';
+  }
+  function runRetSpin(forceLose) {
+    const demo = store().load();
+    const r = demo.returningMember;
+    if (r.spinning || !r.claimed || r.trialEnded || r.reachedTarget || r.redeemed) return;
+    const path = forceLose || r.playMode === 'lose' ? RET_LOSE : RET_WIN;
+    if (forceLose) { r.playMode = 'lose'; r.spinIndex = 0; }
+    const step = path[Math.min(r.spinIndex, path.length - 1)];
+    r.spinning = true;
+    store().save();
+    const btn = document.getElementById('ret-spin-btn');
+    const windowEl = document.getElementById('ret-slot-window');
+    const resultEl = document.getElementById('ret-slot-result');
+    if (btn) { btn.disabled = true; btn.textContent = '旋转中…'; }
+    if (windowEl) windowEl.classList.add('is-spinning');
+    if (resultEl) resultEl.textContent = '旋转中…';
+    store().later(() => {
+      const demo = store().load();
+      const r = demo.returningMember;
+      r.spinIndex += 1;
+      r.lastSymbols = step.symbols;
+      r.spinning = false;
+      if (forceLose) {
+        r.trialBalance = 0;
+        r.trialEnded = true;
+      } else {
+        r.trialBalance = Math.max(0, Math.min(200, r.trialBalance + step.delta));
+        if (r.trialBalance >= 200) { r.trialBalance = 200; r.reachedTarget = true; }
+        if (r.trialBalance <= 0) { r.trialBalance = 0; r.trialEnded = true; }
+      }
+      store().save();
+      renderRetPlay();
+      if (r.reachedTarget) {
+        toast('试玩余额已达到 RM200');
+        store().later(() => openModal(`<div class="goal-celebration"><div class="goal-burst" aria-hidden="true"></div><h2>恭喜达标</h2><p class="trial-prose">试玩余额达到RM200，即可兑换RM188现金奖励。</p><button type="button" class="primary" data-action="ret-go-redeem">兑换RM188现金</button></div>`), 400);
+      } else if (r.trialEnded) {
+        toast('未达到RM200不可兑换奖励。');
+      }
+    }, 900);
+  }
+  function defaultNfcState() {
+    return { claimed: false, trialBalance: 0, trialEnded: false, reachedTarget: false, redeemed: false, playMode: 'win', spinIndex: 0, lastSymbols: ['7', '星', '铃'], spinning: false, currentGame: 'lucky-star' };
+  }
+  function defaultRetState() {
+    return { deposited: true, claimed: false, trialBalance: 0, trialEnded: false, reachedTarget: false, redeemed: false, playMode: 'win', spinIndex: 0, lastSymbols: ['7', '星', '铃'], spinning: false, currentGame: 'lucky-star' };
+  }
+  function handleRetAction(name, demo) {
+    if (!name || !(name.startsWith('ret-') || name === 'nfc-toggle-ret' || name === 'nfc-blocked')) return false;
+    const r = demo.returningMember;
+    const c = demo.freeChallenge;
+    if (name === 'ret-blocked' || name === 'nfc-blocked') {
+      toast(RETURNING_SOURCE.exclusion);
+      return true;
+    }
+    if (name === 'ret-ineligible') {
+      toast('历史曾经成功充值的会员均符合基本参与资格。必须完成实名认证。');
+      return true;
+    }
+    if (name === 'ret-toggle-deposit') {
+      if (r.claimed) { toast('已领取后不再改变充值资格演示'); return true; }
+      r.deposited = !r.deposited;
+      store().save();
+      toast(r.deposited ? '已恢复为历史上有成功充值的老会员' : '已切换为未充值会员，不符合基本参与资格');
+      refreshPromo();
+      return true;
+    }
+    if (name === 'ret-toggle-nfc') {
+      if (r.claimed) { toast('请先重置本活动后再切换互斥演示'); return true; }
+      if (nfcTrialTaken(demo)) {
+        demo.freeChallenge = defaultNfcState();
+        store().save();
+        toast('已清除新人免费挑战的领取状态，互斥已解除');
+      } else {
+        c.claimed = true;
+        c.redeemed = true;
+        c.trialBalance = 0;
+        c.reachedTarget = true;
+        c.trialEnded = false;
+        store().save();
+        toast('已演示领取「新人免费挑战赢取RM100」，本活动不可领取');
+      }
+      refreshPromo();
+      return true;
+    }
+    if (name === 'nfc-toggle-ret') {
+      if (c.claimed) { toast('请先重置本活动后再切换互斥演示'); return true; }
+      if (retTrialTaken(demo)) {
+        const deposited = r.deposited;
+        demo.returningMember = defaultRetState();
+        demo.returningMember.deposited = deposited;
+        store().save();
+        toast('已清除老会员回归的领取状态，互斥已解除');
+      } else {
+        r.claimed = true;
+        r.redeemed = true;
+        r.trialBalance = 0;
+        r.reachedTarget = true;
+        r.trialEnded = false;
+        store().save();
+        toast('已演示领取「老会员回归，免费赢取RM188」，本活动不可领取');
+      }
+      refreshPromo();
+      return true;
+    }
+    if (name === 'ret-go-claim') {
+      if (r.redeemed || r.claimed) return true;
+      if (nfcTrialTaken(demo)) { toast(RETURNING_SOURCE.exclusion); refreshPromo(); return true; }
+      if (!retEligible(r, demo)) { toast('历史曾经成功充值的会员均符合基本参与资格。必须完成实名认证。'); refreshPromo(); return true; }
+      navigate('demo=ret-claim');
+      return true;
+    }
+    if (name === 'ret-claim-confirm') {
+      if (r.claimed || r.redeemed) return true;
+      if (nfcTrialTaken(demo)) { toast(RETURNING_SOURCE.exclusion); navigate('activity=returning-member'); return true; }
+      if (!retEligible(r, demo)) { toast('历史曾经成功充值的会员均符合基本参与资格。必须完成实名认证。'); navigate('activity=returning-member'); return true; }
+      r.claimed = true; r.trialBalance = 100; r.spinIndex = 0; r.playMode = 'win';
+      r.trialEnded = false; r.reachedTarget = false;
+      store().save(); toast('已领取 RM100 试玩额度'); navigate('activity=returning-member'); return true;
+    }
+    if (name === 'ret-go-play') {
+      if (!r.claimed || r.redeemed) return true;
+      navigate('demo=ret-games'); return true;
+    }
+    if (name === 'ret-open-game') return true;
+    if (name === 'ret-spin') { runRetSpin(false); return true; }
+    if (name === 'ret-fail-path') { runRetSpin(true); return true; }
+    if (name === 'ret-go-redeem') {
+      if (!r.reachedTarget || r.redeemed) return true;
+      if ($('#modal') && $('#modal').open) closeModal();
+      navigate('demo=ret-redeem'); return true;
+    }
+    if (name === 'ret-redeem-confirm') {
+      if (!r.reachedTarget || r.redeemed) return true;
+      navigate('demo=ret-redeem-process'); return true;
+    }
+    return false;
+  }
+
+
   window.PromoRenderDemo = function (screen) {
     store().ensureBanner();
     store().load();
@@ -1483,7 +1870,13 @@
       'vb-rebate': renderVbRebate,
       'vb-weekly': renderVbWeekly,
       'vb-festival': renderVbFestival,
-      'vb-records': renderVbRecords
+      'vb-records': renderVbRecords,
+      'ret-claim': renderRetClaim,
+      'ret-games': renderRetGames,
+      'ret-play': renderRetPlay,
+      'ret-redeem': renderRetRedeem,
+      'ret-redeem-process': renderRetRedeemProcess,
+      'ret-redeem-success': renderRetRedeemSuccess
     };
     if (!pages[screen]) return false;
     const demo = demoOf();
@@ -1499,19 +1892,25 @@
       'an-claim': () => demo.anniversary.drawDone && demo.anniversary.winAmount > 0 && !demo.anniversary.claimed && !demo.anniversary.expired,
       'mt-play': () => demo.maintenance.joined && demo.maintenance.eligible,
       'mt-finish': () => demo.maintenance.reached && !demo.maintenance.completed,
-      'nfc-claim': () => !demo.freeChallenge.claimed && !demo.freeChallenge.redeemed,
+      'nfc-claim': () => !demo.freeChallenge.claimed && !demo.freeChallenge.redeemed && !retTrialTaken(demo),
       'nfc-games': () => demo.freeChallenge.claimed && !demo.freeChallenge.redeemed,
       'nfc-play': () => demo.freeChallenge.claimed && !demo.freeChallenge.redeemed,
       'nfc-redeem': () => demo.freeChallenge.reachedTarget && !demo.freeChallenge.redeemed,
       'nfc-redeem-process': () => demo.freeChallenge.reachedTarget && !demo.freeChallenge.redeemed,
       'nfc-redeem-success': () => demo.freeChallenge.redeemed,
+      'ret-claim': () => !demo.returningMember.claimed && !demo.returningMember.redeemed && retEligible(demo.returningMember, demo) && !nfcTrialTaken(demo),
+      'ret-games': () => demo.returningMember.claimed && !demo.returningMember.redeemed,
+      'ret-play': () => demo.returningMember.claimed && !demo.returningMember.redeemed,
+      'ret-redeem': () => demo.returningMember.reachedTarget && !demo.returningMember.redeemed,
+      'ret-redeem-process': () => demo.returningMember.reachedTarget && !demo.returningMember.redeemed,
+      'ret-redeem-success': () => demo.returningMember.redeemed,
       'dw-spin': () => true,
       'dw-turnover': () => (demo.dailyWheel.bonusWallet || 0) > 0 || (demo.dailyWheel.converted || 0) > 0,
       'dw-convert': () => (demo.dailyWheel.bonusWallet || 0) > 0 && (demo.dailyWheel.turnover || 0) >= (demo.dailyWheel.turnoverNeed || 0) && demo.dailyWheel.turnoverNeed > 0
     };
     if (gates[screen] && !gates[screen]()) {
       const back = {
-        nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', vb: 'vip-benefits'
+        nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', vb: 'vip-benefits', ret: 'returning-member'
       }[screen.split('-')[0]];
       navigate('activity=' + back);
       return true;
@@ -1536,6 +1935,7 @@
   window.PromoHandleAction = function (name) {
     const demo = store().load();
     if (handleVipAction(name, demo)) return true;
+    if (handleRetAction(name, demo)) return true;
     const n = demo.newcomer;
     const r = demo.referral;
     const g = demo.growth;
@@ -1597,9 +1997,11 @@
 
       case 'nfc-go-claim':
         if (c.redeemed) return true;
+        if (retTrialTaken(demo)) { toast(RETURNING_SOURCE.exclusion); navigate('activity=newcomer-free-challenge'); return true; }
         navigate('demo=nfc-claim'); return true;
       case 'nfc-claim-confirm':
         if (c.claimed || c.redeemed) return true;
+        if (retTrialTaken(demo)) { toast(RETURNING_SOURCE.exclusion); navigate('activity=newcomer-free-challenge'); return true; }
         c.claimed = true; c.trialBalance = 100; c.spinIndex = 0; c.playMode = 'win';
         c.trialEnded = false; c.reachedTarget = false;
         store().save(); toast('已领取 RM100 试玩额度'); navigate('activity=newcomer-free-challenge'); return true;
@@ -1972,6 +2374,13 @@
       store().save();
       navigate('demo=nfc-play');
     }
+    const retGame = e.target.closest('[data-action="ret-open-game"]');
+    if (retGame && !retGame.disabled) {
+      const demo = store().load();
+      demo.returningMember.currentGame = retGame.getAttribute('data-ret-game') || 'lucky-star';
+      store().save();
+      navigate('demo=ret-play');
+    }
   }, true);
 
 
@@ -2071,7 +2480,8 @@
       maintenance: window.renderMaintenanceDemo,
       'newcomer-free-challenge': window.renderFreeChallengeDemo,
       'daily-wheel': window.renderDailyWheelDemo,
-      'vip-benefits': window.renderVipBenefitsDemo
+      'vip-benefits': window.renderVipBenefitsDemo,
+      'returning-member': window.renderReturningMemberDemo
     };
     let body;
     if (selected === 1) body = rules(p);
@@ -2083,6 +2493,7 @@
       'newcomer-free-challenge': () => sticky(nfcCta(demoOf().freeChallenge)),
       'daily-wheel': () => sticky(dwCta(demoOf().dailyWheel)),
       'vip-benefits': () => sticky(vbCta(demoOf().vipBenefits)),
+      'returning-member': () => sticky(retCta(demoOf().returningMember)),
       newcomer: () => sticky(ncCta(demoOf().newcomer)),
       referral: () => sticky(rfCta(demoOf().referral)),
       growth: () => sticky(grCta(demoOf().growth)),
@@ -2091,7 +2502,7 @@
     };
     const stickyHtml = selected === 0 && stickyFor[p.id] ? stickyFor[p.id]() : (p.id === 'anniversary' && selected === 2 ? sticky(anCta(demoOf().anniversary)) : '');
     const hero = p.banner ? `<div class="detail-hero">${banner(p)}</div>` : '';
-    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
+    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'returning-member', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
     $('#app').innerHTML = `<article class="detail ${detailClass}"><button class="back-link" data-back>${icon('arrow')} 返回活动列表</button>${hero}<div class="detail-heading"><span class="badge">${p.badge}</span><h2>${p.title}</h2><p class="trial-prose">${p.secondary}</p></div><div class="activity-tabs" aria-label="活动内容">${p.tabs.map((t, i) => `<button data-tab="${i}" class="${i === selected ? 'active' : ''}" aria-pressed="${i === selected}">${t}</button>`).join('')}</div><div id="detail-content">${body}</div>${stickyHtml}<button class="support-link" data-support>需要帮助？联系客服</button>${footer()}</article>`;
     if (p.id === 'referral' && selected === 0 && $('#friend-search')) $('#friend-search').addEventListener('input', updateSearch);
   };

@@ -9,7 +9,8 @@ const PROMOS=[
 {id:'referral',title:'邀请好友挑战，赚取高达RM1,000',fullTitle:'邀请好友挑战，赚取高达RM1,000',category:'invite',tag:'邀请好友',banner:'invite',summary:'每成功邀请一名好友，最高累计赚取RM1,000',secondary:'好友完成指定任务后，系统自动解锁对应邀请奖励。',badge:'每名好友最高 RM1,000',tabs:['我的邀请','活动规则']},
 {id:'growth',title:'成长彩金200%扶持计划',fullTitle:'成长彩金200%扶持计划',category:'growth',tag:'成长彩金',banner:'growth',summary:'首充200% · 最高 RM5,888',secondary:'随着有效投注逐步解锁奖励，领取后无需额外流水。',badge:'五个奖励档位',tabs:['成长进度','活动规则']},
 {id:'anniversary',title:'3周年幸运大抽奖',fullTitle:'3周年幸运大抽奖',category:'surprise',tag:'周年抽奖',banner:'anniversary',summary:'头奖 RM100,000',secondary:'有效流水每满 RM200 获得一张抽奖券',badge:'第3期 · 截图展示期',tabs:['活动详情','活动规则','我的抽奖券']},
-{id:'maintenance',title:'维护补偿 · 100分挑战',fullTitle:'维护补偿 · 100分挑战领RM100',category:'surprise',tag:'维护补偿',banner:'maintenance',summary:'挑战完成领取 RM100 现金',secondary:'100活动分达到200分后，手动领取',badge:'每人限参加一次',tabs:['活动详情','活动规则']}
+{id:'maintenance',title:'维护补偿 · 100分挑战',fullTitle:'维护补偿 · 100分挑战领RM100',category:'surprise',tag:'维护补偿',banner:'maintenance',summary:'挑战完成领取 RM100 现金',secondary:'100活动分达到200分后，手动领取',badge:'每人限参加一次',tabs:['活动详情','活动规则']},
+{id:'returning-member',title:'老会员回归，免费赢取RM188',fullTitle:'老会员回归，免费赢取RM188',category:'surprise',tag:'老会员回归',summary:'免费RM100试玩，达标兑换RM188现金',secondary:'试玩余额达到RM200，即可兑换RM188现金奖励。',badge:'老会员 · 仅限领取一次',tabs:['活动详情','活动规则']}
 ];
 const NEW_STEPS=[
 {title:'领取',heading:'实名认证后领取 RM88',short:'完成 KYC',text:'完成 KYC 实名认证后，可领取 RM88 活动金；活动金只能用于指定游戏。'},
@@ -163,6 +164,38 @@ const VIP_RULES=[
 
 // Structured official copy for activity pages and demos. Wording is taken from the
 // existing transcribed rules; no new reward amounts or terms are added.
+
+const RETURNING_SOURCE={
+  reward:'免费RM100试玩，达标兑换RM188现金',
+  eligibility:[
+    '历史曾经成功充值的会员均符合基本参与资格。',
+    '必须完成实名认证。',
+    '每位合格会员仅可领取一次。'
+  ],
+  steps:[
+    {title:'进入活动',heading:'进入老会员回归活动页面',text:'进入老会员回归活动页面。'},
+    {title:'领取额度',heading:'免费领取RM100试玩额度',text:'免费领取RM100试玩额度。'},
+    {title:'去试玩',heading:'在指定游戏内进行试玩',text:'在指定游戏内进行试玩。'},
+    {title:'达标余额',heading:'试玩余额达到RM200',text:'试玩余额达到RM200。'},
+    {title:'兑换现金',heading:'成功达标后，兑换RM188现金奖励',text:'成功达标后，兑换RM188现金奖励。'}
+  ],
+  terms:[
+    '每位会员仅限领取一次。',
+    '试玩额度不得直接提款、转让或充值。',
+    '未达到RM200不可兑换奖励。',
+    '兑换后试玩额度自动清零。',
+    '此活动与新人免费体验礼互斥，不允许同一会员重复领取两种免费试玩奖励。'
+  ],
+  exclusion:'此活动与新人免费体验礼互斥，不允许同一会员重复领取两种免费试玩奖励。',
+  exclusionNote:'演示中，该互斥规则适用于「新人免费挑战赢取RM100」。'
+};
+const RETURNING_RULES=[
+  ['活动奖励',[RETURNING_SOURCE.reward]],
+  ['参与条件',RETURNING_SOURCE.eligibility],
+  ['活动流程',RETURNING_SOURCE.steps.map(s=>s.text)],
+  ['重要条款',RETURNING_SOURCE.terms]
+];
+
 const NEWCOMER_SOURCE={
  reward:'实名认证领取 RM88',
  summary:'完成挑战，充值解锁最高 RM1,888',

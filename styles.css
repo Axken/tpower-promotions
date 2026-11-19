@@ -333,3 +333,7 @@ html,body{height:100%;overflow:hidden}
   .vip-example-table{font-size:11px}
   .vip-benefit-card{padding:12px 13px}
 }
+
+.return-card-hero{background:radial-gradient(ellipse at top right,#1e4a3a55,transparent 70%),linear-gradient(115deg,#15241f,#141516)}
+.return-card-hero .trial-card-tag{border-color:#2f6a54;color:#9ee0c0;background:#1a3d3057}
+.return-hero{background:radial-gradient(ellipse at top right,#1e4a3a44,transparent 65%),linear-gradient(160deg,#15221e,#151516)}
