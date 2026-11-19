@@ -148,12 +148,12 @@
       opts.progressHtml ? `<section class="section-panel" id="task-progress"><div class="section-header"><h3>奖励或任务进度</h3></div>${opts.progressHtml}</section>` : '',
       core.conditionsBlock(keyRows(p.id)),
       core.rulesBlock(opts.rules || []),
-      core.supportEntry(),
-      core.demoPanel(p.id)
+      core.supportEntry()
     ].join('');
     const cta = `<div class="unified-cta trial-cta-slot">${core.ctaButton(st)}</div>`;
     $('#app').innerHTML = `<article class="detail unified-detail trial-detail promo-detail">${'<button class="back-link" data-back>' + icon('arrow') + ' 返回活动列表</button>'}${body}${cta}<p class="preview-note">TPOWER · 活动页面交互预览<br>当前为演示，未连接真实充值、游戏、提款或发奖接口</p></article>`;
     document.title = p.title + ' · TPOWER';
+    if (core.syncHasCta) core.syncHasCta();
   }
 
   function fdCalc(optionId, amount) {
@@ -200,10 +200,10 @@
       }).join('')}</div>`;
       if (f.option) {
         const opt = FIRST_DEPOSIT_SOURCE.options.find(o => o.id === f.option);
-        action += `<div class="table-wrap" style="margin-top:12px"><table class="prize-table"><thead><tr><th>充值金额</th><th>可得彩金</th><th>所需有效流水</th></tr></thead><tbody>${
+        action += `<div class="table-wrap" style="margin-top:12px"><table class="prize-table stack-on-mobile"><thead><tr><th>充值金额</th><th>可得彩金</th><th>所需有效流水</th></tr></thead><tbody>${
           FIRST_DEPOSIT_SOURCE.amounts.map(n => {
             const c = fdCalc(f.option, n);
-            return `<tr><td>${core.rm(n)}</td><td>${core.rm(c.bonus)}</td><td>${core.rm(c.need)}</td></tr>`;
+            return `<tr><td data-label="充值金额">${core.rm(n)}</td><td data-label="可得彩金">${core.rm(c.bonus)}</td><td data-label="所需有效流水">${core.rm(c.need)}</td></tr>`;
           }).join('')
         }</tbody></table></div>
         <p class="fine-print">已按「${opt.title} ${opt.rateLabel}、上限 ${core.rm(opt.cap)}、${opt.wagerText}」计算示例。</p>
@@ -257,10 +257,10 @@
     }).join('')}</div>`;
     if (r.option) {
       const opt = DAILY_RELOAD_SOURCE.options.find(o => o.id === r.option);
-      action += `<div class="table-wrap" style="margin-top:12px"><table class="prize-table"><thead><tr><th>再存金额</th><th>可得彩金</th><th>所需有效流水</th></tr></thead><tbody>${
+      action += `<div class="table-wrap" style="margin-top:12px"><table class="prize-table stack-on-mobile"><thead><tr><th>再存金额</th><th>可得彩金</th><th>所需有效流水</th></tr></thead><tbody>${
         DAILY_RELOAD_SOURCE.amounts.map(n => {
           const c = drCalc(r.option, n);
-          return `<tr><td>${core.rm(n)}</td><td>${core.rm(c.bonus)}</td><td>${core.rm(c.need)}</td></tr>`;
+          return `<tr><td data-label="再存金额">${core.rm(n)}</td><td data-label="可得彩金">${core.rm(c.bonus)}</td><td data-label="所需有效流水">${core.rm(c.need)}</td></tr>`;
         }).join('')
       }</tbody></table></div>
       ${r.deposited ? `<p>本笔再存 ${core.rm(r.depositAmount)} 已入账，彩金 ${core.rm(r.bonus)}。</p>` : `<div class="fd-bet-actions">${DAILY_RELOAD_SOURCE.amounts.map(n => `<button type="button" class="outline-wide" data-action="dr-confirm-${n}">确认参与并再存 ${core.rm(n)}</button>`).join('')}</div>`}
@@ -319,7 +319,7 @@
     const titles = GROWTH_SOURCE.titles;
     const caps = GROWTH_SOURCE.caps;
     const action = `<p>首充档位<strong>不限时</strong>；后续档位各限 <strong>10 天</strong>。解锁示例：电子投注 ${core.rm(1000)} × 0.3% = ${core.rm(3)}。</p>
-      ${g.started || d.member.hasFirstDeposit ? '<button type="button" class="outline-wide" data-action="gr-bet-valid">演示电子投注 RM10,000</button><button type="button" class="outline-wide" data-action="gr-go-claim">立即领取已解锁彩金</button>' : '<p>完成首次有效充值后自动启动。可在演示控制中模拟充值。</p>'}`;
+      ${g.started || d.member.hasFirstDeposit ? '<div class="fd-bet-actions"><button type="button" class="outline-wide" data-action="gr-bet-valid">演示电子投注 RM10,000</button><button type="button" class="outline-wide" data-action="gr-go-claim">立即领取已解锁彩金</button></div>' : '<p>完成首次有效充值后自动启动。可在演示控制中模拟充值。</p>'}`;
     const rows = titles.map((t, i) => {
       const unlocked = (g.unlocked && g.unlocked[i]) || 0;
       const claimed = (g.claimed && g.claimed[i]) || 0;
@@ -328,9 +328,9 @@
       const limit = i === 0 ? '不限时' : ((g.daysLeft && g.daysLeft[i] != null) ? `剩余 ${g.daysLeft[i]} 天` : '限10天');
       const expired = g.expired && g.expired[i];
       const current = (g.tier || 0) === i ? '（当前档位）' : '';
-      return `<tr class="${(g.tier || 0) === i ? 'current-level' : ''}"><td>${t}${current}</td><td>${core.rm(caps[i])}</td><td>${core.rm(unlocked)}</td><td>${core.rm(claimed)}</td><td>${core.rm(claimable)}</td><td>${core.rm(left)}</td><td>${expired ? '已失效' : limit}</td></tr>`;
+      return `<tr class="${(g.tier || 0) === i ? 'current-level' : ''}"><td data-label="档位">${t}${current}</td><td data-label="上限">${core.rm(caps[i])}</td><td data-label="已解锁">${core.rm(unlocked)}</td><td data-label="已领取">${core.rm(claimed)}</td><td data-label="可领取">${core.rm(claimable)}</td><td data-label="剩余金额">${core.rm(left)}</td><td data-label="期限">${expired ? '已失效' : limit}</td></tr>`;
     }).join('');
-    const progress = `<div class="table-wrap"><table class="prize-table"><thead><tr><th>档位</th><th>上限</th><th>已解锁</th><th>已领取</th><th>可领取</th><th>剩余金额</th><th>期限</th></tr></thead><tbody>${rows}</tbody></table></div>
+    const progress = `<div class="table-wrap"><table class="prize-table stack-on-mobile"><thead><tr><th>档位</th><th>上限</th><th>已解锁</th><th>已领取</th><th>可领取</th><th>剩余金额</th><th>期限</th></tr></thead><tbody>${rows}</tbody></table></div>
       <p class="fine-print">后续档位开启充值门槛待确认。演示数值按已公布档位上限与比例计算。</p>`;
     paint(p, { actionHtml: action, progressHtml: progress, rules: GROWTH_SOURCE.terms });
   }
@@ -409,17 +409,21 @@
     const core = C();
     const friends = r.friends || [];
     const action = `<p>RM1,000 是<strong>每位合格好友的累计奖励上限</strong>，不是所有好友合计上限。</p>
+      <div class="fd-bet-actions">
       <button type="button" class="outline-wide" data-action="ref-friend-kyc">演示添加合格好友</button>
       <button type="button" class="outline-wide" data-action="ref-friend-kyc">演示好友完成实名</button>
       <button type="button" class="outline-wide" data-action="ref-friend-deposit">演示好友累计充值 RM100</button>
-      <button type="button" class="outline-wide" data-action="ref-friend-bet">演示好友有效投注 RM1,000</button>`;
+      <button type="button" class="outline-wide" data-action="ref-friend-bet">演示好友有效投注 RM1,000</button>
+      </div>`;
     const rows = friends.length ? friends.map(f => {
       const next = f.disqualified ? '—' : (!f.kyc ? '下一项：完成实名认证 RM2' : (!f.deposited ? '下一项：累计充值 RM100，解锁 RM3' : '下一项：每累计有效投注 RM1,000，解锁 RM0.50'));
-      return `<tr><td class="masked">${core.esc(maskName(f.name))}</td><td class="masked">${core.esc(maskPhone(f.account))}</td><td>${f.disqualified ? '已取消资格' : (f.kyc ? '已实名' : '未实名')} / ${f.deposited ? '已达充值' : '未达充值'} / ${f.betUnits || 0} 单位</td><td>${core.rm(f.unlocked || 0)}</td><td>${next}</td><td>${core.rm(1000)}</td></tr>`;
-    }).join('') : '<tr><td colspan="6">暂无好友记录</td></tr>';
-    const progress = `<div class="table-wrap"><table class="prize-table"><thead><tr><th>好友</th><th>账号</th><th>任务进度</th><th>已到账奖励</th><th>下一项奖励</th><th>累计上限</th></tr></thead><tbody>${rows}</tbody></table></div>
-      <p class="fine-print">好友姓名与账号已做部分隐藏。</p>`;
-    paint(p, { actionHtml: action, progressHtml: progress, rules: REFERRAL_SOURCE.terms });
+      return `<tr><td data-label="好友" class="masked">${core.esc(maskName(f.name))}</td><td data-label="账号" class="masked">${core.esc(maskPhone(f.account))}</td><td data-label="任务进度">${f.disqualified ? '已取消资格' : (f.kyc ? '已实名' : '未实名')} / ${f.deposited ? '已达充值' : '未达充值'} / ${f.betUnits || 0} 单位</td><td data-label="已到账奖励">${core.rm(f.unlocked || 0)}</td><td data-label="下一项奖励">${next}</td><td data-label="累计上限">${core.rm(1000)}</td></tr>`;
+    }).join('') : '';
+    const progress = friends.length
+      ? `<div class="table-wrap"><table class="prize-table stack-on-mobile"><thead><tr><th>好友</th><th>账号</th><th>任务进度</th><th>已到账奖励</th><th>下一项奖励</th><th>累计上限</th></tr></thead><tbody>${rows}</tbody></table></div>`
+      : '<p class="fine-print">暂无好友记录</p>';
+    const progressHtml = progress + '<p class="fine-print">好友姓名与账号已做部分隐藏。</p>';
+    paint(p, { actionHtml: action, progressHtml, rules: REFERRAL_SOURCE.terms });
   }
 
   function renderAnniversary(p) {
@@ -434,10 +438,12 @@
         <li><span>中奖结果</span><strong>${a.drawDone ? (a.winAmount ? (a.prizeName || '已中奖') + ' ' + core.rm(a.winAmount) : '未中奖') : '尚未开奖'}</strong></li>
       </ul>
       <p class="fine-print">一张券同时符合多个奖项时的计奖方式待确认。奖金流水及提款条件待确认。</p>
+      <div class="fd-bet-actions">
       <button type="button" class="outline-wide" data-action="an-add-turnover">演示有效投注 RM200（获得1张券）</button>
-      <button type="button" class="outline-wide" data-action="an-go-draw">演示开奖</button>`;
+      <button type="button" class="outline-wide" data-action="an-go-draw">演示开奖</button>
+      </div>`;
     const progress = `<p>已累计流水 ${core.rm(a.turnover || 0)}，抽奖券 ${(a.tickets || []).length} 张。</p>
-      ${(a.tickets || []).length ? `<div class="table-wrap"><table class="prize-table"><thead><tr><th>券号</th><th>6位号码</th></tr></thead><tbody>${a.tickets.map((t, i) => `<tr><td>${i + 1}</td><td>${core.esc(t.number || t || '')}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
+      ${(a.tickets || []).length ? `<div class="table-wrap"><table class="prize-table stack-on-mobile"><thead><tr><th>券号</th><th>6位号码</th></tr></thead><tbody>${a.tickets.map((t, i) => `<tr><td data-label="券号">${i + 1}</td><td data-label="6位号码">${core.esc(t.number || t || '')}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
     paint(p, { actionHtml: action, progressHtml: progress, rules: DRAW_SOURCE.terms.concat(DRAW_SOURCE.eligibility) });
   }
 
@@ -445,8 +451,8 @@
     const core = C();
     const action = `<p>正式等级门槛、保级周期、奖励及领取条件<strong>待确认</strong>。下表为演示用<strong>示例</strong>，不能当成正式规则。</p>
       <p class="fine-print">${VIP_SOURCE.exampleNote}</p>
-      <div class="table-wrap"><table class="prize-table"><thead><tr><th>等级（示例）</th><th>升级礼金（示例）</th><th>保级礼金（示例）</th><th>返水（示例）</th><th>每周关怀（示例）</th><th>节日礼金（示例）</th></tr></thead><tbody>${
-        VIP_SOURCE.exampleLevels.map(l => `<tr><td>${l.name}</td><td>${core.rm(l.upgrade)}</td><td>${core.rm(l.retention)}</td><td>${(l.rebate * 100).toFixed(1)}%</td><td>${core.rm(l.weekly)}</td><td>${core.rm(l.festival)}</td></tr>`).join('')
+      <div class="table-wrap"><table class="prize-table stack-on-mobile"><thead><tr><th>等级（示例）</th><th>升级礼金（示例）</th><th>保级礼金（示例）</th><th>返水（示例）</th><th>每周关怀（示例）</th><th>节日礼金（示例）</th></tr></thead><tbody>${
+        VIP_SOURCE.exampleLevels.map(l => `<tr><td data-label="等级（示例）">${l.name}</td><td data-label="升级礼金（示例）">${core.rm(l.upgrade)}</td><td data-label="保级礼金（示例）">${core.rm(l.retention)}</td><td data-label="返水（示例）">${(l.rebate * 100).toFixed(1)}%</td><td data-label="每周关怀（示例）">${core.rm(l.weekly)}</td><td data-label="节日礼金（示例）">${core.rm(l.festival)}</td></tr>`).join('')
       }</tbody></table></div>
       <div class="fd-bet-actions">${VIP_SOURCE.benefits.map(b => `<button type="button" class="outline-wide" data-action="vb-go-${b.id}">${core.esc(b.title)}</button>`).join('')}</div>`;
     const d = D();
@@ -564,12 +570,12 @@
     const cashB = (m.wallets.cash || 0) + (m.wallets.withdrawable || 0);
     const html = `<section class="reward-feature"><div class="panel-top"><span class="eyebrow">可转换金额</span></div><div class="amount">${core.rm(out)}</div>
       <p>转换金额以当时符合规则的可转余额为准（活动钱包中本笔可转部分 ${core.rm(out)}），不是固定套用初始本金加彩金以外的数额。</p></section>
-      ${core.convertBreakdown({ outAmount: out, activityBefore: actB, activityAfter: core.r2(actB - out), cashBefore: cashB, cashAfter: core.r2(cashB + out), note: '现金钱包此处含可提款余额，到账记入可提款余额。' })}
-      <button type="button" class="primary" data-action="${kind}-convert-confirm">确认转换</button>`;
+      ${core.convertBreakdown({ outAmount: out, activityBefore: actB, activityAfter: core.r2(actB - out), cashBefore: cashB, cashAfter: core.r2(cashB + out), note: '现金钱包此处含可提款余额，到账记入可提款余额。' })}`;
     const back = 'activity=' + (kind === 'fd' ? 'first-deposit-bonus' : 'daily-reload');
     $('#app').innerHTML = `<article class="detail unified-detail"><button class="back-link" data-back>${icon('arrow')} 返回活动</button>
       <header class="detail-head"><h2>转换至可提款余额</h2></header>
       ${html}
+      <div class="action-bar unified-cta"><button type="button" class="primary" data-action="${kind}-convert-confirm">确认转换</button></div>
       <p class="preview-note">当前为演示，未连接真实充值、游戏、提款或发奖接口</p></article>`;
     document.querySelectorAll('[data-back]').forEach(b => { /* default data-back goes to category; override below */ });
     document.title = '转换至可提款余额 · TPOWER';
@@ -577,6 +583,7 @@
     if (backBtn) {
       backBtn.addEventListener('click', ev => { ev.preventDefault(); ev.stopImmediatePropagation(); navigate(back); }, true);
     }
+    if (core.syncHasCta) core.syncHasCta();
   }
 
   function doConvert(kind) {
@@ -729,6 +736,7 @@
         <div class="card-overlay"><span class="tag">${core.esc(p.tag || p.badge || '')}</span><strong>${core.esc(p.title)}</strong><span class="sub">${core.esc(p.id === 'daily-wheel' ? '单笔充值超过RM100可获1次抽奖，每日最多3次，最高赢取RM888' : (p.summary || ''))}</span></div>
       </div>
       <div class="card-footer"><div>
+        <span class="card-tag">${core.esc(p.tag || p.badge || '')}</span>
         <div class="card-title">${core.esc(p.title)}</div>
         <div class="card-type">${core.esc(p.id === 'daily-wheel' ? '单笔充值超过RM100可获1次抽奖，每日最多3次，最高赢取RM888' : (stateLine || p.summary))}</div>
         ${store() && stateLine && stateLine !== p.summary && p.id !== 'daily-wheel' ? `<span class="card-state">${core.esc(stateLine)}</span>` : ''}
@@ -790,6 +798,19 @@
     };
     try { window.DemoCore.syncShared(window.DemoAPI.load()); } catch (e) {}
   }
+  /* Hide stale toasts on real navigation; keep a toast fired in the same tick as navigate(). */
+  const __route = window.route || route;
+  window.route = function () {
+    const t = document.getElementById('demo-toast');
+    if (t && t.classList.contains('show') && Date.now() - (t._shownAt || 0) > 80) {
+      t.classList.remove('show');
+      clearTimeout(t._t);
+    }
+    const r = __route.apply(this, arguments);
+    if (window.DemoCore && window.DemoCore.syncHasCta) window.DemoCore.syncHasCta();
+    return r;
+  };
+
   /* Re-render once all overrides are in place. */
   if (typeof route === 'function') route();
 })();

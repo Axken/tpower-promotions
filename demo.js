@@ -250,7 +250,7 @@
     const back = backHash != null
       ? `<button type="button" class="back-link" data-demo-nav="${esc(backHash)}">${icon('arrow')} 返回</button>`
       : '';
-    return `<article class="demo-screen">${back}${journeyBar()}<div class="demo-heading"><span class="demo-badge">演示模式</span><h2>${title}</h2></div>${body}</article>`;
+    return `<article class="demo-screen">${back}<div class="demo-heading"><h2>${title}</h2></div>${body}</article>`;
   }
 
   window.toast = function toast(message) {
@@ -263,19 +263,23 @@
     }
     el.textContent = message;
     el.classList.add('show');
+    el._shownAt = Date.now();
     clearTimeout(el._t);
     el._t = setTimeout(() => el.classList.remove('show'), 2400);
   };
 
   function ensureBanner() {
-    if (document.getElementById('demo-banner')) return;
-    const bar = document.createElement('div');
-    bar.id = 'demo-banner';
-    bar.className = 'demo-banner';
-    bar.innerHTML = '<span class="demo-badge">演示模式</span><span class="demo-banner-text">完整领奖流程预览，不连接真实账户</span><button type="button" class="text-button" data-action="demo-reset">重置演示</button>';
-    const shell = document.querySelector('.site-shell');
-    const app = document.getElementById('app');
-    if (shell && app) shell.insertBefore(bar, app);
+    let bar = document.getElementById('demo-banner');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'demo-banner';
+      bar.className = 'demo-banner';
+      const shell = document.querySelector('.site-shell');
+      const app = document.getElementById('app');
+      if (shell && app) shell.insertBefore(bar, app);
+      else document.body.prepend(bar);
+    }
+    bar.innerHTML = '<span class="demo-badge">演示模式</span><span class="demo-banner-text">完整领奖流程预览，不连接真实账户</span><button type="button" class="text-button" data-action="core-open-demo">演示控制</button>';
   }
 
   function renderRegister() {
@@ -483,7 +487,7 @@
 
   function renderRecords() {
     const rows = demo.records.length
-      ? `<ul class="record-list">${demo.records.map(r => `<li><div><strong>${esc(r.title)}</strong><small>${formatRecordTime(r.time)}</small></div><div class="record-right"><b>RM ${money(r.amount)}</b><span class="status-badge">${esc(r.status)}</span></div></li>`).join('')}</ul>`
+      ? `<ul class="record-list">${demo.records.map(r => `<li><div><strong>${esc(r.title)}</strong><small>${formatRecordTime(r.time)}</small></div><div class="record-right"><b>${(window.rm ? window.rm(r.amount) : ('RM ' + money(r.amount)))}</b><span class="status-badge">${esc(r.status)}</span></div></li>`).join('')}</ul>`
       : `<div class="compact-empty">${icon('receipt')}<h4>暂无领奖记录</h4><p>完成活动领奖后，记录将显示在这里。</p></div>`;
     $('#app').innerHTML = demoPage('领奖记录', `${rows}<p class="fine-print center">演示记录仅保存在本机浏览器中。</p>`, (() => { const id = currentRoute().get('activity'); return id ? 'activity=' + id : 'category=all'; })());
     document.title = '领奖记录 · TPOWER';

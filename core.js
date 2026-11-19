@@ -487,19 +487,14 @@
     return `<button type="button" class="support-link" data-support>需要帮助？联系客服</button>`;
   }
 
-  function demoPanel(currentId) {
+  function demoPanelButtons(currentId) {
     const d = demo();
     const m = memberOf(d);
     const failOn = m.forceFail ? '关闭强制失败' : '下一次领取/转换强制失败';
     const kyc = kycOk(d) ? '取消实名认证' : '完成实名认证';
     const fd = m.hasFirstDeposit ? '清除首次充值标记' : '标记已完成首次充值';
     const login = m.loggedIn ? '退出登录' : '演示登录';
-    return `<section class="demo-panel" id="demo-controls">
-      <details>
-        <summary>演示控制</summary>
-        <div class="demo-panel-body">
-          <p class="fine-print">以下仅为演示开关，不会连接真实充值、游戏、提款或发奖接口。</p>
-          <div class="demo-actions">
+    return `
             <button type="button" class="outline-wide" data-action="core-login-toggle">${login}</button>
             <button type="button" class="outline-wide" data-action="core-kyc">${kyc}</button>
             <button type="button" class="outline-wide" data-action="core-toggle-first">${fd}</button>
@@ -514,13 +509,89 @@
             <button type="button" class="outline-wide" data-action="core-maint-window">${m.maintInWindow === true ? '取消维护窗口期充值标记' : '标记为窗口期内已充值（维护补偿）'}</button>
             <button type="button" class="outline-wide" data-action="core-compat">查看活动兼容表</button>
             <button type="button" class="outline-wide" data-action="core-pending">查看待确认规则</button>
-            <button type="button" class="text-button" data-action="demo-reset">重置演示</button>
-          </div>
+            <button type="button" class="text-button" data-action="demo-reset">重置演示</button>`;
+  }
+
+  function currentActivityId() {
+    try {
+      return (typeof currentRoute === 'function' && currentRoute().get('activity')) || '';
+    } catch (e) { return ''; }
+  }
+
+  function ensureDemoSheet() {
+    if (!document.getElementById('demo-sheet-backdrop')) {
+      const bd = document.createElement('div');
+      bd.id = 'demo-sheet-backdrop';
+      bd.className = 'demo-sheet-backdrop';
+      bd.hidden = true;
+      bd.addEventListener('click', closeDemoSheet);
+      document.body.appendChild(bd);
+    }
+    if (!document.getElementById('demo-sheet')) {
+      const el = document.createElement('div');
+      el.id = 'demo-sheet';
+      el.className = 'demo-sheet';
+      el.hidden = true;
+      el.setAttribute('role', 'dialog');
+      el.setAttribute('aria-label', '演示控制');
+      document.body.appendChild(el);
+    }
+  }
+
+  function fillDemoSheet() {
+    ensureDemoSheet();
+    const currentId = currentActivityId();
+    const m = memberOf(demo());
+    const el = document.getElementById('demo-sheet');
+    el.innerHTML = `<div class="sheet-handle"></div>
+      <h3>演示控制</h3>
+      <div class="demo-panel" id="demo-controls">
+        <div class="demo-panel-body">
+          <p class="fine-print">以下仅为演示开关，不会连接真实充值、游戏、提款或发奖接口。</p>
+          <div class="demo-actions">${demoPanelButtons(currentId)}</div>
           <p class="fine-print">演示日：第 ${m.day || 1} 日 · 当前时间 ${labelMYT()}</p>
+          <button type="button" class="primary" data-action="core-close-demo">完成</button>
+        </div>
+      </div>`;
+  }
+
+  function openDemoSheet() {
+    fillDemoSheet();
+    document.getElementById('demo-sheet').hidden = false;
+    document.getElementById('demo-sheet-backdrop').hidden = false;
+    document.body.classList.add('demo-sheet-open');
+  }
+
+  function closeDemoSheet() {
+    const el = document.getElementById('demo-sheet');
+    const bd = document.getElementById('demo-sheet-backdrop');
+    if (el) el.hidden = true;
+    if (bd) bd.hidden = true;
+    document.body.classList.remove('demo-sheet-open');
+  }
+
+  function isDemoSheetOpen() {
+    const el = document.getElementById('demo-sheet');
+    return !!(el && !el.hidden);
+  }
+
+  function syncHasCta() {
+    const has = !!document.querySelector('#app .unified-cta, #app .trial-cta-slot, #app .action-bar');
+    document.body.classList.toggle('has-cta', has);
+  }
+
+  function demoPanel(currentId) {
+    return `<section class="demo-panel" id="demo-controls-inline">
+      <details>
+        <summary>演示控制</summary>
+        <div class="demo-panel-body">
+          <p class="fine-print">以下仅为演示开关，不会连接真实充值、游戏、提款或发奖接口。</p>
+          <div class="demo-actions">${demoPanelButtons(currentId)}</div>
         </div>
       </details>
     </section>`;
   }
+
 
   function rewardCard({ state, maxLabel, maxAmount, actualLabel, actualAmount, progressText, doneAmount, doneAt }) {
     if (state === 'completed') {
@@ -668,13 +739,18 @@
     } else if (window.DemoAPI) {
       location.reload();
     }
+    if (isDemoSheetOpen()) fillDemoSheet();
+    syncHasCta();
   }
 
   function handleCoreAction(name) {
     if (!name || !name.startsWith('core-')) return false;
     const d = demo();
     const m = memberOf(d);
-    const currentId = (typeof currentRoute === 'function' && currentRoute().get('activity')) || '';
+    const currentId = currentActivityId();
+
+    if (name === 'core-open-demo') { openDemoSheet(); return true; }
+    if (name === 'core-close-demo') { closeDemoSheet(); return true; }
 
     if (name === 'core-disabled') {
       const reason = document.querySelector('[data-action="core-disabled"]') && document.querySelector('[data-action="core-disabled"]').getAttribute('data-disabled-reason');
@@ -757,10 +833,10 @@
       refreshAll();
       return true;
     }
-    if (name === 'core-records') { navigate('demo=records'); return true; }
-    if (name === 'core-compat') { navigate('demo=compat'); return true; }
-    if (name === 'core-pending') { navigate('demo=pending'); return true; }
-    if (name === 'core-conflicts') { navigate('demo=compat'); return true; }
+    if (name === 'core-records') { closeDemoSheet(); navigate('demo=records'); return true; }
+    if (name === 'core-compat') { closeDemoSheet(); navigate('demo=compat'); return true; }
+    if (name === 'core-pending') { closeDemoSheet(); navigate('demo=pending'); return true; }
+    if (name === 'core-conflicts') { closeDemoSheet(); navigate('demo=compat'); return true; }
     if (name === 'core-consult') { toastUnwired('资格咨询。'); return true; }
     if (name === 'core-retry') {
       const p = m.processing;
@@ -783,7 +859,7 @@
     COMPAT.compatible.forEach(r => ok.set(pairKey(r.a, r.b), r));
     const pend = new Map();
     COMPAT.pendingExclusive.forEach(r => pend.set(pairKey(r.a, r.b), r));
-    let table = '<div class="table-wrap"><table class="prize-table compat-table"><thead><tr><th>活动</th>';
+    let table = '<div class="table-wrap compat-table-desktop"><table class="prize-table compat-table"><thead><tr><th>活动</th>';
     ids.forEach(id => { table += `<th>${esc(promoTitle(id))}</th>`; });
     table += '</tr></thead><tbody>';
     ids.forEach(a => {
@@ -799,17 +875,18 @@
       table += '</tr>';
     });
     table += '</tbody></table></div>';
-    const officialList = COMPAT.exclusive.map(r => `<li><strong>${esc(promoTitle(r.a))} 与 ${esc(promoTitle(r.b))}</strong>：${esc(r.reason)} 恢复资格：${esc(r.recover)}</li>`).join('');
-    const compatList = COMPAT.compatible.map(r => `<li><strong>${esc(promoTitle(r.a))} 与 ${esc(promoTitle(r.b))}</strong>：${esc(r.reason)}</li>`).join('');
-    const dep = COMPAT.depositTriggers.map(r => `<li><strong>${esc(promoTitle(r.promo))}</strong>：${esc(r.text)}</li>`).join('');
-    const bets = COMPAT.betCounts.map(r => `<li><strong>${esc(promoTitle(r.promo))}</strong>：${esc(r.text)}</li>`).join('');
+    const officialList = COMPAT.exclusive.map(r => `<article class="compat-card"><div class="compat-top"><strong>${esc(promoTitle(r.a))} 与 ${esc(promoTitle(r.b))}</strong><span class="tag">互斥</span></div><p>${esc(r.reason)}</p><p class="fine-print">恢复资格：${esc(r.recover)}</p></article>`).join('');
+    const compatList = COMPAT.compatible.map(r => `<article class="compat-card"><div class="compat-top"><strong>${esc(promoTitle(r.a))} 与 ${esc(promoTitle(r.b))}</strong><span class="tag ok">可同时</span></div><p>${esc(r.reason)}</p></article>`).join('');
+    const dep = COMPAT.depositTriggers.map(r => `<article class="compat-card"><div class="compat-top"><strong>${esc(promoTitle(r.promo))}</strong></div><p>${esc(r.text)}</p></article>`).join('');
+    const bets = COMPAT.betCounts.map(r => `<article class="compat-card"><div class="compat-top"><strong>${esc(promoTitle(r.promo))}</strong></div><p>${esc(r.text)}</p></article>`).join('')
+      + `<article class="compat-card"><p>${esc(COMPAT.pendingBetShare)}</p></article>`;
     $('#app').innerHTML = (window.DemoAPI && window.DemoAPI.demoPage ? window.DemoAPI.demoPage('活动兼容表', `
-      <p>下表只把原文写明的关系标为「互斥」或「可同时」，其余一律为待确认，前台不会按待确认项自动拦截。</p>
+      <p>只把原文写明的关系标为「互斥」或「可同时」，其余一律为待确认，前台不会按待确认项自动拦截。</p>
       ${table}
-      <section class="section-panel"><div class="section-header"><h3>原文写明的互斥</h3></div><ul class="trial-terms">${officialList}</ul></section>
-      <section class="section-panel"><div class="section-header"><h3>原文写明可同时触发</h3></div><ul class="trial-terms">${compatList}</ul></section>
-      <section class="section-panel"><div class="section-header"><h3>同一笔充值可以触发哪些奖励</h3></div><ul class="trial-terms">${dep}</ul></section>
-      <section class="section-panel"><div class="section-header"><h3>同一笔有效投注可以计入哪些活动</h3></div><ul class="trial-terms">${bets}<li>${esc(COMPAT.pendingBetShare)}</li></ul></section>
+      <section class="section-panel"><div class="section-header"><h3>原文写明的互斥</h3></div>${officialList}</section>
+      <section class="section-panel"><div class="section-header"><h3>原文写明可同时触发</h3></div>${compatList}</section>
+      <section class="section-panel"><div class="section-header"><h3>同一笔充值可以触发哪些奖励</h3></div>${dep}</section>
+      <section class="section-panel"><div class="section-header"><h3>同一笔有效投注可以计入哪些活动</h3></div>${bets}</section>
     `, 'category=all') : `<article class="detail"><h2>活动兼容表</h2>${table}</article>`);
     document.title = '活动兼容表 · TPOWER';
   }
@@ -832,7 +909,8 @@
     supportEntry, demoPanel, rewardCard, listRewardLine,
     toastUnwired, applySimDeposit, creditActivity, takeActivity,
     creditWithdrawable, creditCash, addRecord, beginProcess, refreshAll,
-    handleCoreAction, renderCompatPage, renderPendingPage, promoTitle, pairKey
+    handleCoreAction, renderCompatPage, renderPendingPage, promoTitle, pairKey,
+    openDemoSheet, closeDemoSheet, fillDemoSheet, isDemoSheetOpen, syncHasCta
   };
 
   /* Hook money display helper without breaking RM ${money()} legacy. */
