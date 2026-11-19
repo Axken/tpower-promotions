@@ -336,16 +336,65 @@ VIP专属|VIP專屬|VIP exclusive|Eksklusif VIP|Đặc quyền VIP|สิทธ�
 有效流水（仅计老虎机、捕鱼）|有效流水（僅計老虎機、捕魚）|Valid turnover (slots and fishing only)|Pusing ganti sah (slot dan meriam ikan sahaja)|Doanh thu hợp lệ (chỉ slots và bắn cá)|เทิร์นที่มีผล (นับเฉพาะสล็อตและยิงปลา)|Turnover valid (hanya slot dan tembak ikan)|मान्य टर्नओवर (केवल स्लॉट और फिशिंग)
 本笔再存|本筆再存|This reload|Reload ini|Lần nạp lại này|การฝากซ้ำนี้|Reload ini|यह रीलोड
 再存活动钱包|再存活動錢包|Reload promo wallet|Dompet aktiviti reload|Ví sự kiện nạp lại|กระเป๋ากิจกรรมฝากซ้ำ|Dompet promo reload|रीलोड प्रोमो वॉलेट
+新人首存彩金|新人首存彩金|New Member First Deposit Bonus|Bonus Deposit Pertama Ahli Baharu|New Member First Deposit Bonus|New Member First Deposit Bonus|New Member First Deposit Bonus|New Member First Deposit Bonus
+活动兼容表|活動兼容表|Activity compatibility table|Jadual keserasian aktiviti|Activity compatibility table|Activity compatibility table|Activity compatibility table|Activity compatibility table
+待确认规则|待確認規則|Rules pending confirmation|Peraturan menunggu pengesahan|Rules pending confirmation|Rules pending confirmation|Rules pending confirmation|Rules pending confirmation
+待确认|待確認|Pending confirmation|Menunggu pengesahan|Pending confirmation|Pending confirmation|Pending confirmation|Pending confirmation
+演示控制|演示控制|Demo controls|Kawalan demo|Demo controls|Demo controls|Demo controls|Demo controls
+当前为演示，未连接真实功能|當前為演示，未連接真實功能|This is a demo and is not connected to live features|Ini adalah demo dan tidak disambungkan ke fungsi sebenar|This is a demo and is not connected to live features|This is a demo and is not connected to live features|This is a demo and is not connected to live features|This is a demo and is not connected to live features
+我的参与资格与当前状态|我的參與資格與當前狀態|My eligibility and current status|Kelayakan dan status saya|My eligibility and current status|My eligibility and current status|My eligibility and current status|My eligibility and current status
+当前需要操作的内容|當前需要操作的內容|What you need to do now|Tindakan yang diperlukan sekarang|What you need to do now|What you need to do now|What you need to do now|What you need to do now
+奖励或任务进度|獎勵或任務進度|Reward or task progress|Kemajuan ganjaran atau tugasan|Reward or task progress|Reward or task progress|Reward or task progress|Reward or task progress
+关键参与条件|關鍵參與條件|Key participation conditions|Syarat penyertaan utama|Key participation conditions|Key participation conditions|Key participation conditions|Key participation conditions
+完整活动规则|完整活動規則|Full event rules|Peraturan penuh aktiviti|Full event rules|Full event rules|Full event rules|Full event rules
+登录后查看资格|登錄後查看資格|Log in to view eligibility|Log masuk untuk lihat kelayakan|Log in to view eligibility|Log in to view eligibility|Log in to view eligibility|Log in to view eligibility
+领取活动金|領取活動金|Claim promo funds|Tuntut kredit aktiviti|Claim promo funds|Claim promo funds|Claim promo funds|Claim promo funds
+请选择优惠类别|請選擇優惠類別|Please choose an offer type|Sila pilih jenis tawaran|Please choose an offer type|Please choose an offer type|Please choose an offer type|Please choose an offer type
+去充值|去儲值|Go to deposit|Pergi deposit|Go to deposit|Go to deposit|Go to deposit|Go to deposit
+查看进度|查看進度|View progress|Lihat kemajuan|View progress|View progress|View progress|View progress
+查看适用游戏|查看適用遊戲|View eligible games|Lihat permainan layak|View eligible games|View eligible games|View eligible games|View eligible games
+转换余额|轉換餘額|Convert balance|Tukar baki|Convert balance|Convert balance|Convert balance|Convert balance
+正在处理，请勿重复操作|正在處理，請勿重複操作|Processing, do not repeat|Sedang diproses, jangan ulang|Processing, do not repeat|Processing, do not repeat|Processing, do not repeat|Processing, do not repeat
+查看领取记录|查看領取記錄|View claim history|Lihat rekod tuntutan|View claim history|View claim history|View claim history|View claim history
+查看当前进行中的活动|查看當前進行中的活動|View active events|Lihat aktiviti berjalan|View active events|View active events|View active events|View active events
+重新操作|重新操作|Try again|Cuba semula|Try again|Try again|Try again|Try again
+活动已完成|活動已完成|Event completed|Aktiviti selesai|Event completed|Event completed|Event completed|Event completed
+确认参与|確認參與|Confirm participation|Sahkan penyertaan|Confirm participation|Confirm participation|Confirm participation|Confirm participation
+确认并完成演示充值|確認並完成演示儲值|Confirm and complete the demo deposit|Sahkan dan lengkapkan deposit demo|Confirm and complete the demo deposit|Confirm and complete the demo deposit|Confirm and complete the demo deposit|Confirm and complete the demo deposit
+转换明细|轉換明細|Conversion details|Butiran penukaran|Conversion details|Conversion details|Conversion details|Conversion details
+本次转出金额|本次轉出金額|Amount transferred out|Jumlah dipindahkan keluar|Amount transferred out|Amount transferred out|Amount transferred out|Amount transferred out
+活动钱包|活動錢包|Promo wallet|Dompet aktiviti|Promo wallet|Promo wallet|Promo wallet|Promo wallet
+现金钱包|現金錢包|Cash wallet|Dompet tunai|Cash wallet|Cash wallet|Cash wallet|Cash wallet
+可提款余额|可提款餘額|Withdrawable balance|Baki boleh dikeluarkan|Withdrawable balance|Withdrawable balance|Withdrawable balance|Withdrawable balance
+适用会员|適用會員|Eligible members|Ahli yang layak|Eligible members|Eligible members|Eligible members|Eligible members
+充值条件|儲值條件|Deposit conditions|Syarat deposit|Deposit conditions|Deposit conditions|Deposit conditions|Deposit conditions
+奖励比例及上限|獎勵比例及上限|Bonus rate and cap|Kadar dan had bonus|Bonus rate and cap|Bonus rate and cap|Bonus rate and cap|Bonus rate and cap
+流水计算方式|流水計算方式|Turnover calculation|Pengiraan pusing ganti|Turnover calculation|Turnover calculation|Turnover calculation|Turnover calculation
+适用游戏|適用遊戲|Eligible games|Permainan layak|Eligible games|Eligible games|Eligible games|Eligible games
+活动期限及领取期限|活動期限及領取期限|Event and claim period|Tempoh aktiviti dan tuntutan|Event and claim period|Event and claim period|Event and claim period|Event and claim period
+是否可同时参加|是否可同時參加|Can it be combined|Boleh diserta bersama|Can it be combined|Can it be combined|Can it be combined|Can it be combined
+资格咨询|資格諮詢|Eligibility enquiry|Pertanyaan kelayakan|Eligibility enquiry|Eligibility enquiry|Eligibility enquiry|Eligibility enquiry
+演示登录|演示登錄|Demo log in|Log masuk demo|Demo log in|Demo log in|Demo log in|Demo log in
+退出登录|退出登錄|Log out|Log keluar|Log out|Log out|Log out|Log out
+标记已完成首次充值|標記已完成首次儲值|Mark first deposit as completed|Tandai deposit pertama selesai|Mark first deposit as completed|Mark first deposit as completed|Mark first deposit as completed|Mark first deposit as completed
+使当前活动过期|使當前活動過期|Expire this event (demo)|Tamatkan aktiviti ini (demo)|Expire this event (demo)|Expire this event (demo)|Expire this event (demo)|Expire this event (demo)
+下一次领取/转换强制失败|下一次領取/轉換強制失敗|Force the next claim or conversion to fail|Paksa tuntutan atau penukaran seterusnya gagal|Force the next claim or conversion to fail|Force the next claim or conversion to fail|Force the next claim or conversion to fail|Force the next claim or conversion to fail
+单笔充值超过RM100可获1次抽奖，每日最多3次，最高赢取RM888|單筆儲值超過RM100可獲1次抽獎，每日最多3次，最高贏取RM888|One deposit over RM100 grants 1 spin, up to 3 per day, max RM888|Deposit melebihi RM100 beri 1 putaran, maks. 3 sehari, hingga RM888|One deposit over RM100 grants 1 spin, up to 3 per day, max RM888|One deposit over RM100 grants 1 spin, up to 3 per day, max RM888|One deposit over RM100 grants 1 spin, up to 3 per day, max RM888|One deposit over RM100 grants 1 spin, up to 3 per day, max RM888
+老虎机 100%|老虎機 100%|Slots 100%|Slot 100%|Slots 100%|Slots 100%|Slots 100%|Slots 100%
+真人 50%|真人 50%|Live casino 50%|Kasino langsung 50%|Live casino 50%|Live casino 50%|Live casino 50%|Live casino 50%
+已登录（演示会员陈美玲）|已登錄（演示會員陳美玲）|Logged in (demo member Chen Meiling)|Telah log masuk (ahli demo Chen Meiling)|Logged in (demo member Chen Meiling)|Logged in (demo member Chen Meiling)|Logged in (demo member Chen Meiling)|Logged in (demo member Chen Meiling)
+尚未完成首次充值|尚未完成首次儲值|First deposit not completed|Deposit pertama belum selesai|First deposit not completed|First deposit not completed|First deposit not completed|First deposit not completed
+已完成首次充值|已完成首次儲值|First deposit completed|Deposit pertama selesai|First deposit completed|First deposit completed|First deposit completed|First deposit completed
 `;
 const UI_DICTIONARIES=Object.fromEntries(UI_LANGUAGES.map(([code])=>[code,{}]));
 for(const row of UI_TRANSLATION_ROWS.trim().split('\n')){const cells=row.split('|');if(cells.length!==8)throw new Error('Invalid locale row: '+cells[0]);UI_LANGUAGES.forEach(([code],i)=>UI_DICTIONARIES[code][cells[0]]=cells[i]);}
 const UI_NOTES={
  'zh-CN':'',
- 'zh-TW':'介面語言已切換。活動名稱、規則正文及圖片文字保留簡體中文原文。',
- en:'Interface translated. Activity names, rule text and artwork remain in the original Chinese.',
- ms:'Bahasa antara muka ditukar. Nama aktiviti, teks peraturan dan imej kekal dalam bahasa Cina asal.',
- vi:'Đã đổi ngôn ngữ giao diện. Tên hoạt động, nội dung thể lệ và hình ảnh giữ nguyên tiếng Trung.',
- th:'เปลี่ยนภาษาของส่วนติดต่อแล้ว ชื่อกิจกรรม เนื้อหากติกา และข้อความในภาพยังเป็นภาษาจีนต้นฉบับ',
- id:'Bahasa antarmuka diubah. Nama acara, isi aturan, dan gambar tetap dalam bahasa Mandarin asli.',
- hi:'इंटरफ़ेस की भाषा बदल गई है। कार्यक्रम के नाम, नियमों का पाठ और चित्र मूल चीनी में हैं।'
+ 'zh-TW':'介面已切換為繁體。若個別新文案尚未提供譯文，會保留簡體原文。',
+ en:'The interface, activity titles, status, buttons and available rule copy are in English. Decorative poster images are not localized. Missing strings stay in the original Chinese.',
+ ms:'Antara muka, tajuk aktiviti, status, butang dan teks peraturan yang tersedia dipaparkan dalam bahasa Melayu. Imej poster hiasan tidak diterjemah. Rentetan yang tiada terjemahan kekal dalam bahasa Cina asal.',
+ vi:'Giao diện ưu tiên tiếng Anh khi chưa có bản dịch. Một số nội dung gốc có thể vẫn bằng tiếng Trung.',
+ th:'เมื่อไม่มีคำแปล ระบบจะแสดงภาษาอังกฤษเป็นหลัก บางข้อความอาจยังเป็นภาษาจีนต้นฉบับ',
+ id:'Jika terjemahan belum ada, antarmuka memakai bahasa Inggris. Sebagian teks sumber mungkin tetap dalam bahasa Mandarin.',
+ hi:'अनुवाद उपलब्ध न होने पर इंटरफ़ेस अंग्रेज़ी पर वापस जाता है। कुछ मूल पाठ चीनी में रह सकते हैं।'
 };

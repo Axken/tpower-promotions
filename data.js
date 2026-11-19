@@ -3,7 +3,7 @@
 const CATEGORIES=[['all','全部活动','gift'],['new','新人豪礼','adduser'],['growth','充值加码','cash'],['surprise','惊喜福利','gift'],['vip','VIP尊享','crown'],['invite','邀友赚礼','friends']];
 const PROMOS=[
 {id:'newcomer-free-challenge',title:'新人免费挑战赢取RM100',fullTitle:'新人免费挑战赢取RM100',category:'new',tag:'新人挑战',summary:'免费RM100试玩，达标兑换RM100现金',secondary:'试玩余额达到RM200，即可兑换RM100现金奖励。',badge:'新注册会员 · 终身限领一次',tabs:['活动详情','活动规则']},
-{id:'daily-wheel',title:'每日幸运大转盘RM888',fullTitle:'每日幸运大转盘RM888',category:'surprise',tag:'每日转盘',summary:'每日最多3次免费抽奖，最高赢取RM888',secondary:'单笔充值超过RM100获得1次抽奖，彩金需完成3倍流水后转现金。',badge:'每日最多3次 · 最高 RM888',tabs:['活动详情','活动规则']},
+{id:'daily-wheel',title:'每日幸运大转盘RM888',fullTitle:'每日幸运大转盘RM888',category:'surprise',tag:'每日转盘',summary:'单笔充值超过RM100可获1次抽奖，每日最多3次，最高赢取RM888',secondary:'单笔充值超过RM100获得1次抽奖，彩金需完成3倍流水后转现金。',badge:'每日最多3次 · 最高 RM888',tabs:['活动详情','活动规则']},
 {id:'vip-benefits',title:'VIP会员专属福利',fullTitle:'VIP会员专属福利',category:'vip',tag:'VIP专属',summary:'会员等级越高，享有对应VIP权益',secondary:'会员等级越高，享有对应VIP权益。各VIP等级门槛、彩金金额、返水比例及提款规则另设统一等级表。',badge:'五大专属福利',tabs:['活动详情','活动规则','我的记录']},
 {id:'newcomer',title:'新人专享挑战',fullTitle:'Tpower新人专享挑战活动',category:'new',tag:'新人专享',banner:'new',summary:'实名认证领取 RM88',secondary:'完成挑战，充值解锁最高 RM1,888',badge:'每位新会员限一次',tabs:['活动详情','活动规则']},
 {id:'referral',title:'邀请好友挑战，赚取高达RM1,000',fullTitle:'邀请好友挑战，赚取高达RM1,000',category:'invite',tag:'邀请好友',banner:'invite',summary:'每成功邀请一名好友，最高累计赚取RM1,000',secondary:'好友完成指定任务后，系统自动解锁对应邀请奖励。',badge:'每名好友最高 RM1,000',tabs:['我的邀请','活动规则']},
@@ -11,7 +11,7 @@ const PROMOS=[
 {id:'anniversary',title:'3周年幸运大抽奖',fullTitle:'3周年幸运大抽奖',category:'surprise',tag:'周年抽奖',banner:'anniversary',summary:'头奖 RM100,000',secondary:'有效流水每满 RM200 获得一张抽奖券',badge:'第3期 · 截图展示期',tabs:['活动详情','活动规则','我的抽奖券']},
 {id:'maintenance',title:'维护补偿 · 100分挑战',fullTitle:'维护补偿 · 100分挑战领RM100',category:'surprise',tag:'维护补偿',banner:'maintenance',summary:'挑战完成领取 RM100 现金',secondary:'100活动分达到200分后，手动领取',badge:'每人限参加一次',tabs:['活动详情','活动规则']},
 {id:'returning-member',title:'老会员回归，免费赢取RM188',fullTitle:'老会员回归，免费赢取RM188',category:'surprise',tag:'老会员回归',summary:'免费RM100试玩，达标兑换RM188现金',secondary:'试玩余额达到RM200，即可兑换RM188现金奖励。',badge:'老会员 · 仅限领取一次',tabs:['活动详情','活动规则']},
-{id:'first-deposit-bonus',title:'新人首存彩金100%',fullTitle:'新人首存彩金100%',category:'new',tag:'首存彩金',summary:'首次充值最高领取RM300彩金',secondary:'首次充值最高领取RM300彩金。玩家根据指定游戏类别选择其中一个首存优惠，完成对应有效流水后，方可转换至可提款余额。',badge:'首次充值 · 最高 RM300',tabs:['活动详情','活动规则']},
+{id:'first-deposit-bonus',title:'新人首存彩金',fullTitle:'新人首存彩金',category:'new',tag:'首存彩金',summary:'首次充值最高领取RM300彩金',secondary:'首次充值最高领取RM300彩金。玩家根据指定游戏类别选择其中一个首存优惠，完成对应有效流水后，方可转换至可提款余额。',badge:'首次充值 · 最高 RM300',tabs:['活动详情','活动规则']},
 {id:'daily-reload',title:'每日再存10%彩金',fullTitle:'每日再存10%彩金',category:'growth',tag:'每日再存',summary:'每日再存额外领取10%，最高RM300',secondary:'每日再存额外领取10%，最高RM300。适用于已完成首次充值的会员，完成指定倍数的有效流水后，才可转换为可提款余额。',badge:'每日再存 · 最高 RM300',tabs:['活动详情','活动规则']}
 ];
 const NEW_STEPS=[

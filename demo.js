@@ -1,6 +1,6 @@
 (() => {
-  const DEMO_KEY = 'tpower-promo-demo-v7';
-  const LEGACY_DEMO_KEYS = ['tpower-promo-demo-v6', 'tpower-promo-demo-v5', 'tpower-promo-demo-v4', 'tpower-promo-demo-v3', 'tpower-trial-demo-v2', 'tpower-trial-demo-v1'];
+  const DEMO_KEY = 'tpower-promo-demo-v8';
+  const LEGACY_DEMO_KEYS = ['tpower-promo-demo-v7', 'tpower-promo-demo-v6', 'tpower-promo-demo-v5', 'tpower-promo-demo-v4', 'tpower-promo-demo-v3', 'tpower-trial-demo-v2', 'tpower-trial-demo-v1'];
   const JOURNEY = ['领取', '试玩', '达标', '兑换', '到账'];
   const WIN_SPINS = [
     { delta: 20, symbols: ['7', '7', '7'] },
@@ -149,7 +149,8 @@
       vipBenefits: defaultVipBenefits(),
       returningMember: defaultReturningMember(),
       firstDepositBonus: defaultFirstDepositBonus(),
-      dailyReload: defaultDailyReload()
+      dailyReload: defaultDailyReload(),
+      member: (window.DemoCore && window.DemoCore.defaultMember) ? window.DemoCore.defaultMember() : { loggedIn: true, kycApproved: true, hasFirstDeposit: false, day: 1, forceFail: false, processing: null, expired: {}, overlapDemo: false, maintInWindow: null, wallets: { cash: 0, activity: 0, withdrawable: 0 } }
     };
   }
   function loadDemo() {
@@ -187,6 +188,13 @@
       parsed.returningMember = Object.assign(base.returningMember, parsed.returningMember || {});
       parsed.firstDepositBonus = Object.assign(base.firstDepositBonus, parsed.firstDepositBonus || {});
       parsed.dailyReload = Object.assign(base.dailyReload, parsed.dailyReload || {});
+      parsed.member = Object.assign(base.member, parsed.member || {});
+      parsed.member.wallets = Object.assign({ cash: 0, activity: 0, withdrawable: 0 }, (base.member && base.member.wallets) || {}, (parsed.member && parsed.member.wallets) || {});
+      if (window.DemoCore && window.DemoCore.syncShared) {
+        window.DemoCore.syncShared(Object.assign(base, parsed));
+        if (window.DemoCore.inferHasFirstDeposit(Object.assign(base, parsed))) parsed.member.hasFirstDeposit = true;
+      }
+
       if (!Array.isArray(parsed.records)) parsed.records = [];
       return Object.assign(base, parsed, { spinning: false });
     } catch {
@@ -618,7 +626,7 @@
     const y = $('#app').scrollTop;
     const p = PROMOS.find(x => x.id === 'newcomer-free-challenge');
     const tab = Number(currentRoute().get('tab') || 0);
-    renderDetail(p, Number.isFinite(tab) ? tab : 0);
+    (window.renderDetail || renderDetail)(p, Number.isFinite(tab) ? tab : 0);
     $('#app').scrollTo(0, y);
   };
 
@@ -799,7 +807,7 @@
 
   const _handleAction = handleAction;
   handleAction = function (name) {
-    if (name && /^(demo-|trial-|nc-|ref-|gr-|an-|mt-|nfc-|dw-|vb-|ret-|fd-|dr-)/.test(name)) return handleDemoAction(name);
+    if (name && /^(demo-|trial-|nc-|ref-|gr-|an-|mt-|nfc-|dw-|vb-|ret-|fd-|dr-|core-)/.test(name)) return handleDemoAction(name);
     return _handleAction(name);
   };
 
