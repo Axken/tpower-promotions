@@ -564,7 +564,7 @@
     };
     if (pages[screen]) pages[screen]();
     else if (typeof window.PromoRenderDemo === 'function' && window.PromoRenderDemo(screen, demo)) { /* handled */ }
-    else navigate('category=all');
+    else if (typeof window.PromoRenderDemo === 'function') navigate('category=all');
     $('#app').scrollTo(0, 0);
   };
 
