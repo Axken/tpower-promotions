@@ -2869,10 +2869,12 @@
         if (!n.deposited || n.bonusReleased) return true;
         n.wager12 = n.wager12Need;
         n.bonusReleased = true;
+        const ncBefore = r2(demo.mainWallet || 0);
         demo.mainWallet = r2(demo.mainWallet + n.unlockedBonus);
         record('新人专享挑战 · 解锁彩金', n.unlockedBonus, '已到账');
         store().save();
-        toast('12倍流水已完成，解锁彩金已发放至真钱钱包');
+        if (window.lxReward) lxReward({ kicker: '新人专享挑战 · 12倍流水已完成', title: '解锁彩金已发放', amount: n.unlockedBonus, dest: '真钱钱包', rows: [['真钱钱包', ncBefore, demo.mainWallet]], note: '本金仍需完成1倍流水。' });
+        else toast('12倍流水已完成，解锁彩金已发放至真钱钱包');
         navigate('demo=nc-wager');
         return true;
       case 'nc-principal-accelerate':
@@ -3023,9 +3025,13 @@
       case 'mt-finish-confirm':
         if (!m.reached || m.completed) return true;
         m.completed = true; m.points = 0;
+        const mtBefore = r2(demo.mainWallet || 0);
         demo.mainWallet = r2(demo.mainWallet + 100);
         record('维护补偿 · 100分挑战', 100, '已到账');
-        store().save(); toast('RM100 现金已到账，剩余活动分已清零'); navigate('demo=records'); return true;
+        store().save();
+        if (window.lxReward) lxReward({ kicker: '维护补偿 · 任务完成', title: 'RM100 现金已到账', amount: 100, dest: '主钱包', rows: [['主钱包', mtBefore, demo.mainWallet], ['剩余活动分', '已清零']], note: '可用于本人账号投注，也可直接申请取款。' });
+        else toast('RM100 现金已到账，剩余活动分已清零');
+        navigate('demo=records'); return true;
       case 'mt-make-ineligible':
         if (m.joined || m.completed) return true;
         m.eligible = false; store().save(); toast('演示：当前账户不符资格'); refreshPromo(); return true;
