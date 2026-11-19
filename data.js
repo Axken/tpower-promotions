@@ -10,7 +10,8 @@ const PROMOS=[
 {id:'growth',title:'成长彩金200%扶持计划',fullTitle:'成长彩金200%扶持计划',category:'growth',tag:'成长彩金',banner:'growth',summary:'首充200% · 最高 RM5,888',secondary:'随着有效投注逐步解锁奖励，领取后无需额外流水。',badge:'五个奖励档位',tabs:['成长进度','活动规则']},
 {id:'anniversary',title:'3周年幸运大抽奖',fullTitle:'3周年幸运大抽奖',category:'surprise',tag:'周年抽奖',banner:'anniversary',summary:'头奖 RM100,000',secondary:'有效流水每满 RM200 获得一张抽奖券',badge:'第3期 · 截图展示期',tabs:['活动详情','活动规则','我的抽奖券']},
 {id:'maintenance',title:'维护补偿 · 100分挑战',fullTitle:'维护补偿 · 100分挑战领RM100',category:'surprise',tag:'维护补偿',banner:'maintenance',summary:'挑战完成领取 RM100 现金',secondary:'100活动分达到200分后，手动领取',badge:'每人限参加一次',tabs:['活动详情','活动规则']},
-{id:'returning-member',title:'老会员回归，免费赢取RM188',fullTitle:'老会员回归，免费赢取RM188',category:'surprise',tag:'老会员回归',summary:'免费RM100试玩，达标兑换RM188现金',secondary:'试玩余额达到RM200，即可兑换RM188现金奖励。',badge:'老会员 · 仅限领取一次',tabs:['活动详情','活动规则']}
+{id:'returning-member',title:'老会员回归，免费赢取RM188',fullTitle:'老会员回归，免费赢取RM188',category:'surprise',tag:'老会员回归',summary:'免费RM100试玩，达标兑换RM188现金',secondary:'试玩余额达到RM200，即可兑换RM188现金奖励。',badge:'老会员 · 仅限领取一次',tabs:['活动详情','活动规则']},
+{id:'first-deposit-bonus',title:'新人首存彩金100%',fullTitle:'新人首存彩金100%',category:'new',tag:'首存彩金',summary:'首次充值最高领取RM300彩金',secondary:'首次充值最高领取RM300彩金。玩家根据指定游戏类别选择其中一个首存优惠，完成对应有效流水后，方可转换至可提款余额。',badge:'首次充值 · 最高 RM300',tabs:['活动详情','活动规则']}
 ];
 const NEW_STEPS=[
 {title:'领取',heading:'实名认证后领取 RM88',short:'完成 KYC',text:'完成 KYC 实名认证后，可领取 RM88 活动金；活动金只能用于指定游戏。'},
@@ -194,6 +195,33 @@ const RETURNING_RULES=[
   ['参与条件',RETURNING_SOURCE.eligibility],
   ['活动流程',RETURNING_SOURCE.steps.map(s=>s.text)],
   ['重要条款',RETURNING_SOURCE.terms]
+];
+
+
+const FIRST_DEPOSIT_SOURCE={
+  reward:'首次充值最高领取RM300彩金',
+  options:[
+    {id:'slots',title:'老虎机',rate:1,rateLabel:'100%',cap:300,wagerMult:12,wagerText:'本金+彩金x12'},
+    {id:'live',title:'真人',rate:0.5,rateLabel:'50%',cap:300,wagerMult:25,wagerText:'本金+彩金x25'}
+  ],
+  amounts:[100,300,500],
+  rules:[
+    '仅限会员首次成功充值。',
+    '每位会员只能领取一次首存彩金。',
+    '玩家根据指定游戏类别选择其中一个首存优惠。',
+    '彩金根据实际充值金额及活动比例计算。',
+    '完成对应有效流水后，方可转换至可提款余额。',
+    '活动流水仅计算所选游戏类别的合格投注。',
+    '首存优惠不得重复领取。',
+    '每个会员只能选择一种首存彩金。',
+    '同一充值不可同时领取老虎机及真人两种优惠。',
+    '此活动不能与其他充值活动重叠。'
+  ]
+};
+const FIRST_DEPOSIT_RULES=[
+  ['活动奖励',[FIRST_DEPOSIT_SOURCE.reward]],
+  ['首存优惠',FIRST_DEPOSIT_SOURCE.options.map(o=>o.title+'：彩金比例'+o.rateLabel+'，最高彩金RM'+o.cap+'，流水倍数 '+o.wagerText)],
+  ['活动规则',FIRST_DEPOSIT_SOURCE.rules]
 ];
 
 const NEWCOMER_SOURCE={

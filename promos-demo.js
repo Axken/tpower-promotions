@@ -106,10 +106,11 @@
       'newcomer-free-challenge': () => ({ labels: NFC_JOURNEY, current: nfcIndex(demo.freeChallenge), finished: demo.freeChallenge.redeemed }),
       'daily-wheel': () => ({ labels: DW_JOURNEY, current: dwIndex(demo.dailyWheel), finished: (demo.dailyWheel.converted || 0) > 0 && (demo.dailyWheel.bonusWallet || 0) <= 0 }),
       'vip-benefits': () => ({ labels: VB_JOURNEY, current: vbIndex(demo.vipBenefits), finished: (demo.vipBenefits.history || []).length > 0 && vbPendingCount(demo.vipBenefits) === 0 }),
-      'returning-member': () => ({ labels: RET_JOURNEY, current: retIndex(demo.returningMember), finished: demo.returningMember.redeemed })
+      'returning-member': () => ({ labels: RET_JOURNEY, current: retIndex(demo.returningMember), finished: demo.returningMember.redeemed }),
+      'first-deposit-bonus': () => ({ labels: FD_JOURNEY, current: fdIndex(demo.firstDepositBonus), finished: demo.firstDepositBonus.converted })
     };
     if (map[id]) return map[id]();
-    const byScreen = { nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', vb: 'vip-benefits', ret: 'returning-member' };
+    const byScreen = { nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', vb: 'vip-benefits', ret: 'returning-member', fd: 'first-deposit-bonus' };
     if (byScreen[prefix] && map[byScreen[prefix]]) return map[byScreen[prefix]]();
     return null;
   };
@@ -1839,6 +1840,314 @@
   }
 
 
+  /* ------------ 新人首存彩金100% ------------ */
+  const FD_JOURNEY = ['选择优惠', '首次充值', '完成流水', '转换可提款', '已领取'];
+  const FD_BET = 200;
+  function fdOf() {
+    return demoOf().firstDepositBonus;
+  }
+  function fdOpt(id) {
+    return FIRST_DEPOSIT_SOURCE.options.find(o => o.id === id) || null;
+  }
+  function fdCalc(optionId, amount) {
+    const opt = fdOpt(optionId);
+    if (!opt) return { bonus: 0, need: 0, opt: null };
+    const bonus = r2(Math.min(amount * opt.rate, opt.cap));
+    const need = r2((amount + bonus) * opt.wagerMult);
+    return { bonus, need, opt };
+  }
+  function fdIndex(f) {
+    if (f.converted) return 4;
+    if (f.deposited && f.turnoverNeed > 0 && (f.turnover || 0) >= f.turnoverNeed) return 3;
+    if (f.deposited) return 2;
+    if (f.option) return 1;
+    return 0;
+  }
+  function fdCta(f) {
+    if (f.converted) return ['已领取', 'demo-done', true];
+    if (f.overlap) return ['不可领取（与其他充值活动重叠）', 'fd-overlap', false];
+    if (f.deposited && f.turnoverNeed > 0 && (f.turnover || 0) >= f.turnoverNeed) return ['转换至可提款余额', 'fd-go-convert', false];
+    if (f.deposited) return ['去完成有效流水', 'fd-go-turnover', false];
+    if (f.option) return ['去首次充值', 'fd-go-deposit', false];
+    return ['请先选择一种首存优惠', 'fd-need-option', false];
+  }
+  function fdStatus(f) {
+    if (f.converted) return ['已领取 · 仅限一次', 'muted'];
+    if (f.overlap) return ['与其他充值活动重叠', 'muted'];
+    if (f.deposited && f.turnoverNeed > 0 && (f.turnover || 0) >= f.turnoverNeed) return ['流水已完成 · 可转换', ''];
+    if (f.deposited) return ['待完成有效流水', ''];
+    if (f.option) return ['已选择' + fdOpt(f.option).title + ' · 待首次充值', ''];
+    return ['已认证 · 尚未充值', ''];
+  }
+  function fdWallets(f) {
+    const demo = demoOf();
+    const locked = f.deposited && !f.converted ? r2((f.depositAmount || 0) + (f.bonus || 0)) : 0;
+    return `<div class="wallet-pair">
+      <div class="wallet-card ${locked ? 'trial' : ''}"><span>活动钱包（本金+彩金）</span><strong>RM ${money(locked)}</strong><small>${f.converted ? '已转换至可提款余额' : f.deposited ? '完成流水后方可转换' : '首次充值后入账'}</small></div>
+      <div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>可提款余额</span><strong>RM ${money(demo.mainWallet)}</strong><small>${f.converted ? '本金与彩金已转入' : '完成流水后转换入此余额'}</small></div>
+    </div>`;
+  }
+  function fdOptionCards(f) {
+    return `<div class="fd-option-grid">${FIRST_DEPOSIT_SOURCE.options.map(o => {
+      const selected = f.option === o.id;
+      const locked = f.option && f.option !== o.id;
+      return `<button type="button" class="fd-option-card ${selected ? 'is-selected' : ''} ${locked ? 'is-locked' : ''}" data-action="fd-choose-${o.id}" aria-pressed="${selected}">
+        <div class="panel-top"><span class="eyebrow">${o.title}</span><span class="status-badge ${selected ? '' : locked ? 'muted' : ''}">${selected ? '已选择' : locked ? '不可选择' : '可选'}</span></div>
+        <div class="fd-option-rate">${o.rateLabel}</div>
+        <ul class="kyc-summary">
+          <li><span>最高彩金</span><strong>RM ${money(o.cap)}</strong></li>
+          <li><span>流水倍数</span><strong>${o.wagerText}</strong></li>
+        </ul>
+        <p class="fine-print trial-prose">${locked ? '每个会员只能选择一种首存彩金。同一充值不可同时领取老虎机及真人两种优惠。' : selected ? '已锁定该优惠，另一选项不可再选。' : '选择后将锁定，不能再领取另一种优惠。'}</p>
+      </button>`;
+    }).join('')}</div>`;
+  }
+  function fdCalcTable(f) {
+    if (!f.option) return '';
+    const opt = fdOpt(f.option);
+    return `<section class="section-panel" id="fd-deposit">
+      <div class="section-header"><h3>演示首次充值</h3><span>${opt.title} · ${opt.rateLabel} · 最高 RM${opt.cap}</span></div>
+      <p class="fine-print trial-prose">彩金根据实际充值金额及活动比例计算：彩金 = 充值金额 × ${opt.rateLabel}，最高 RM ${money(opt.cap)}。所需有效流水 =（本金 + 彩金）× ${opt.wagerMult}。</p>
+      <div class="table-wrap"><table class="prize-table fd-calc-table">
+        <thead><tr><th>充值金额</th><th>可得彩金</th><th>所需有效流水</th></tr></thead>
+        <tbody>${FIRST_DEPOSIT_SOURCE.amounts.map(n => {
+          const c = fdCalc(f.option, n);
+          const current = f.deposited && f.depositAmount === n;
+          return `<tr${current ? ' class="current-level"' : ''}><td>RM ${money(n)}</td><td>RM ${money(c.bonus)}</td><td>RM ${money(c.need)}</td></tr>`;
+        }).join('')}</tbody>
+      </table></div>
+      ${f.deposited ? `<p class="trial-prose">已完成首次充值 RM ${money(f.depositAmount)}，获得彩金 RM ${money(f.bonus)}，所需有效流水 RM ${money(f.turnoverNeed)}。</p>` : ''}
+      <div class="fd-bet-actions">${FIRST_DEPOSIT_SOURCE.amounts.map(n => `<button type="button" class="outline-wide" data-action="fd-deposit-${n}">${f.deposited ? '演示再次充值 RM' + n + '（不发放彩金）' : '演示首次充值 RM' + n}</button>`).join('')}</div>
+    </section>`;
+  }
+  window.renderFirstDepositDemo = function () {
+    store().ensureBanner();
+    const f = store().load().firstDepositBonus;
+    const [status, statusCls] = fdStatus(f);
+    const viewStep = inspect('first-deposit-bonus', 4, fdIndex(f));
+    const steps = [
+      { title: '选择优惠', heading: '选择其中一个首存优惠', text: '玩家根据指定游戏类别选择其中一个首存优惠。每个会员只能选择一种首存彩金。同一充值不可同时领取老虎机及真人两种优惠。' },
+      { title: '首次充值', heading: '仅限会员首次成功充值', text: '仅限会员首次成功充值。彩金根据实际充值金额及活动比例计算。' },
+      { title: '完成流水', heading: '完成对应有效流水', text: '活动流水仅计算所选游戏类别的合格投注。完成对应有效流水后，方可转换至可提款余额。' },
+      { title: '转换余额', heading: '转换至可提款余额', text: '完成对应有效流水后，方可转换至可提款余额。每位会员只能领取一次首存彩金。' }
+    ];
+    const s = steps[viewStep] || steps[0];
+    return `${store().journeyBar()}${fdWallets(f)}
+      <section class="reward-feature trial-hero fd-hero">
+        <div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div>
+        <div class="amount"><small>最高 RM</small>300<span>.00</span></div>
+        <p class="trial-prose">${FIRST_DEPOSIT_SOURCE.reward}</p>
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>参与条件</h3><span>演示账户</span></div>
+        ${checks(['已登录（演示会员陈美玲）', '已完成实名认证', f.deposited ? '已完成首次充值' : '尚未充值，可参与首次充值优惠', f.overlap ? '当前与其他充值活动重叠（演示）' : '未与其他充值活动重叠'])}
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>首存优惠</h3><span>只能选择一种</span></div>
+        ${fdOptionCards(f)}
+      </section>
+      ${fdCalcTable(f)}
+      ${f.deposited && !f.converted ? `<section class="section-panel"><div class="section-header"><h3>流水进度</h3><span>${(f.turnoverNeed || 0) > 0 ? money(f.turnover || 0) + ' / ' + money(f.turnoverNeed) : ''}</span></div>
+        <div class="bar-label"><span>有效流水（仅计${fdOpt(f.option).title}）</span><span>RM ${money(f.turnover || 0)} / RM ${money(f.turnoverNeed)}</span></div>
+        <progress max="${Math.max(1, f.turnoverNeed)}" value="${Math.min(f.turnoverNeed || 0, f.turnover || 0)}" aria-label="有效流水进度"></progress>
+        <p class="fine-print trial-prose">活动流水仅计算所选游戏类别的合格投注。</p>
+        <button type="button" class="outline-wide" data-action="fd-go-turnover">去完成有效流水</button>
+      </section>` : ''}
+      <section class="section-panel">
+        <div class="section-header"><h3>活动重叠</h3></div>
+        <p class="trial-prose">此活动不能与其他充值活动重叠。</p>
+        ${f.overlap
+          ? '<button type="button" class="outline-wide" data-action="fd-toggle-overlap">取消重叠演示</button>'
+          : '<button type="button" class="outline-wide" data-action="fd-toggle-overlap">演示其他充值活动进行中（重叠）</button>'}
+      </section>
+      <section class="section-panel flow-panel"><div class="section-header"><h3>活动流程</h3><span>点击步骤查看要求</span></div>${stepper(steps, viewStep, 'first-deposit-bonus')}<div class="step-explanation trial-prose"><div class="step-heading"><span class="step-kicker">0${viewStep + 1} / 04</span><h4>${s.heading}</h4></div><p>${s.text}</p></div></section>
+      <section class="section-panel"><div class="section-header"><h3>活动规则</h3></div>${termsList(FIRST_DEPOSIT_SOURCE.rules)}</section>
+      <button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>
+      <button type="button" class="text-button trial-reset" data-action="demo-reset">重置演示</button>`;
+  };
+  function renderFdTurnover() {
+    const f = fdOf();
+    const opt = fdOpt(f.option) || FIRST_DEPOSIT_SOURCE.options[0];
+    const done = (f.turnover || 0) >= (f.turnoverNeed || 0) && f.turnoverNeed > 0;
+    $('#app').innerHTML = page('完成有效流水', `
+      ${fdWallets(f)}
+      <section class="section-panel">
+        <div class="section-header"><h3>所选优惠</h3><span>${opt.title}</span></div>
+        <ul class="kyc-summary">
+          <li><span>首次充值</span><strong>RM ${money(f.depositAmount)}</strong></li>
+          <li><span>彩金</span><strong>RM ${money(f.bonus)}</strong></li>
+          <li><span>流水倍数</span><strong>${opt.wagerText}</strong></li>
+        </ul>
+        <div class="bar-label"><span>有效流水（仅计${opt.title}）</span><span>RM ${money(f.turnover || 0)} / RM ${money(f.turnoverNeed)}</span></div>
+        <progress max="${Math.max(1, f.turnoverNeed)}" value="${Math.min(f.turnoverNeed || 0, f.turnover || 0)}" aria-label="有效流水进度"></progress>
+        <p class="fine-print trial-prose">活动流水仅计算所选游戏类别的合格投注。</p>
+      </section>
+      <section class="section-panel">
+        <div class="section-header"><h3>演示投注</h3></div>
+        <div class="fd-bet-actions">
+          <button type="button" class="outline-wide" data-action="fd-bet-slots">演示老虎机投注 RM${FD_BET}</button>
+          <button type="button" class="outline-wide" data-action="fd-bet-live">演示真人投注 RM${FD_BET}</button>
+        </div>
+        <button type="button" class="text-button" data-action="fd-accelerate">演示加速完成流水（演示用）</button>
+      </section>
+      ${done ? '<button type="button" class="primary" data-action="fd-go-convert">转换至可提款余额</button>' : ''}
+    `, 'activity=first-deposit-bonus');
+    document.title = '完成有效流水 · TPOWER';
+  }
+  function renderFdConvert() {
+    const f = fdOf();
+    const total = r2((f.depositAmount || 0) + (f.bonus || 0));
+    const demo = demoOf();
+    $('#app').innerHTML = page('转换至可提款余额', `
+      <section class="reward-feature trial-hero fd-hero">
+        <div class="panel-top"><span class="eyebrow">可转换金额</span><span class="status-badge">流水已完成</span></div>
+        <div class="amount"><small>RM</small>${Math.floor(total)}<span>.${money(total).slice(-2)}</span></div>
+        <p class="trial-prose">完成对应有效流水后，方可转换至可提款余额。其中本金 RM ${money(f.depositAmount)}，彩金 RM ${money(f.bonus)}。</p>
+      </section>
+      <section class="section-panel">
+        ${termsList(['每位会员只能领取一次首存彩金。', '首存优惠不得重复领取。', '转换后本金与彩金进入可提款余额。'])}
+        <div class="wallet-pair">
+          <div class="wallet-card trial"><span>活动钱包（转换后清零）</span><strong>RM ${money(total)}</strong></div>
+          <div class="wallet-card main"><span>可提款余额（到账后）</span><strong>RM ${money((demo.mainWallet || 0) + total)}</strong></div>
+        </div>
+      </section>
+      <button type="button" class="primary" data-action="fd-convert-confirm">确认转换</button>
+    `, 'activity=first-deposit-bonus');
+    document.title = '转换至可提款余额 · TPOWER';
+  }
+  function handleFdAction(name, demo) {
+    if (!name || !name.startsWith('fd-')) return false;
+    const f = demo.firstDepositBonus;
+    if (!f) return false;
+    const refresh = () => {
+      const screen = currentRoute().get('demo') || '';
+      if (screen.startsWith('fd-') && typeof window.PromoRenderDemo === 'function') {
+        window.PromoRenderDemo(screen);
+        return;
+      }
+      refreshPromo();
+    };
+    if (name === 'fd-need-option') {
+      toast('玩家根据指定游戏类别选择其中一个首存优惠。');
+      const el = document.getElementById('fd-deposit') || document.querySelector('.fd-option-grid');
+      if (el && $('#app')) $('#app').scrollTop = Math.max(0, el.closest('.section-panel') ? el.closest('.section-panel').offsetTop - 8 : el.offsetTop - 8);
+      return true;
+    }
+    if (name === 'fd-overlap') {
+      toast('此活动不能与其他充值活动重叠。');
+      return true;
+    }
+    if (name === 'fd-toggle-overlap') {
+      if (f.deposited && !f.overlap) { toast('已领取或充值后不再切换重叠演示，请先重置演示'); return true; }
+      f.overlap = !f.overlap;
+      store().save();
+      toast(f.overlap ? '已演示其他充值活动进行中，本活动不可领取' : '已取消重叠演示');
+      refresh();
+      return true;
+    }
+    if (name === 'fd-choose-slots' || name === 'fd-choose-live') {
+      const id = name === 'fd-choose-live' ? 'live' : 'slots';
+      if (!fdOpt(id)) return true;
+      if (f.overlap) { toast('此活动不能与其他充值活动重叠。'); return true; }
+      if (f.converted || (f.deposited && f.bonus > 0)) { toast('每位会员只能领取一次首存彩金。首存优惠不得重复领取。'); return true; }
+      if (f.option && f.option !== id) {
+        toast('每个会员只能选择一种首存彩金。同一充值不可同时领取老虎机及真人两种优惠。');
+        refresh();
+        return true;
+      }
+      if (f.option === id) { refresh(); return true; }
+      f.option = id;
+      store().save();
+      toast('已选择「' + fdOpt(id).title + '」首存优惠，另一种优惠已锁定');
+      refresh();
+      return true;
+    }
+    if (name === 'fd-go-deposit') {
+      if (f.overlap) { toast('此活动不能与其他充值活动重叠。'); return true; }
+      if (!f.option) { toast('请先选择一种首存优惠'); return true; }
+      refreshPromo();
+      requestAnimationFrame(() => {
+        const el = document.getElementById('fd-deposit');
+        if (el && $('#app')) $('#app').scrollTop = Math.max(0, el.offsetTop - 8);
+      });
+      return true;
+    }
+    if (name === 'fd-deposit-100' || name === 'fd-deposit-300' || name === 'fd-deposit-500') {
+      const amount = Number(name.split('-').pop() || 0);
+      if (!amount) return true;
+      if (f.overlap) { toast('此活动不能与其他充值活动重叠。'); return true; }
+      if (!f.option) { toast('请先选择一种首存优惠'); return true; }
+      if (f.converted) { toast('每位会员只能领取一次首存彩金。首存优惠不得重复领取。'); return true; }
+      if (f.deposited) {
+        demo.mainWallet = r2((demo.mainWallet || 0) + amount);
+        store().save();
+        toast('仅限会员首次成功充值。本次充值不发放彩金。');
+        refresh();
+        return true;
+      }
+      const c = fdCalc(f.option, amount);
+      f.deposited = true;
+      f.depositAmount = amount;
+      f.bonus = c.bonus;
+      f.turnover = 0;
+      f.turnoverNeed = c.need;
+      store().save();
+      toast('首次充值 RM ' + money(amount) + ' 成功，获得彩金 RM ' + money(c.bonus) + '，需完成有效流水 RM ' + money(c.need));
+      refresh();
+      return true;
+    }
+    if (name === 'fd-go-turnover') {
+      if (!f.deposited || f.converted) return true;
+      navigate('demo=fd-turnover');
+      return true;
+    }
+    if (name === 'fd-bet-slots' || name === 'fd-bet-live') {
+      if (!f.deposited || f.converted) return true;
+      const cat = name === 'fd-bet-live' ? 'live' : 'slots';
+      if (cat !== f.option) {
+        toast('活动流水仅计算所选游戏类别的合格投注。该笔「' + (fdOpt(cat) ? fdOpt(cat).title : '其他') + '」投注不计入。');
+        return true;
+      }
+      if ((f.turnover || 0) >= f.turnoverNeed) { toast('所需有效流水已完成'); refresh(); return true; }
+      const add = r2(Math.min(FD_BET, Math.max(0, f.turnoverNeed - (f.turnover || 0))));
+      f.turnover = r2((f.turnover || 0) + add);
+      store().save();
+      toast('演示' + fdOpt(cat).title + '有效投注 RM ' + money(FD_BET) + '，计入流水 RM ' + money(add));
+      refresh();
+      return true;
+    }
+    if (name === 'fd-accelerate') {
+      if (!f.deposited || f.converted) return true;
+      f.turnover = f.turnoverNeed;
+      store().save();
+      toast('已演示加速完成所需有效流水（演示用）');
+      refresh();
+      return true;
+    }
+    if (name === 'fd-go-convert') {
+      if (!f.deposited || f.converted) return true;
+      if ((f.turnover || 0) < f.turnoverNeed) { toast('请先完成对应有效流水'); navigate('demo=fd-turnover'); return true; }
+      if ($('#modal') && $('#modal').open) closeModal();
+      navigate('demo=fd-convert');
+      return true;
+    }
+    if (name === 'fd-convert-confirm') {
+      if (!f.deposited || f.converted) return true;
+      if ((f.turnover || 0) < f.turnoverNeed) { toast('请先完成对应有效流水'); return true; }
+      const total = r2((f.depositAmount || 0) + (f.bonus || 0));
+      const bonus = f.bonus;
+      f.converted = true;
+      demo.mainWallet = r2((demo.mainWallet || 0) + total);
+      record('新人首存彩金100%', bonus, '已到账');
+      store().save();
+      toast('已转换至可提款余额，彩金 RM ' + money(bonus) + ' 已到账');
+      navigate('activity=first-deposit-bonus');
+      return true;
+    }
+    return false;
+  }
+
+
   window.PromoRenderDemo = function (screen) {
     store().ensureBanner();
     store().load();
@@ -1876,7 +2185,9 @@
       'ret-play': renderRetPlay,
       'ret-redeem': renderRetRedeem,
       'ret-redeem-process': renderRetRedeemProcess,
-      'ret-redeem-success': renderRetRedeemSuccess
+      'ret-redeem-success': renderRetRedeemSuccess,
+      'fd-turnover': renderFdTurnover,
+      'fd-convert': renderFdConvert
     };
     if (!pages[screen]) return false;
     const demo = demoOf();
@@ -1904,13 +2215,15 @@
       'ret-redeem': () => demo.returningMember.reachedTarget && !demo.returningMember.redeemed,
       'ret-redeem-process': () => demo.returningMember.reachedTarget && !demo.returningMember.redeemed,
       'ret-redeem-success': () => demo.returningMember.redeemed,
+      'fd-turnover': () => demo.firstDepositBonus.deposited && !demo.firstDepositBonus.converted,
+      'fd-convert': () => demo.firstDepositBonus.deposited && !demo.firstDepositBonus.converted && (demo.firstDepositBonus.turnover || 0) >= (demo.firstDepositBonus.turnoverNeed || 0) && demo.firstDepositBonus.turnoverNeed > 0,
       'dw-spin': () => true,
       'dw-turnover': () => (demo.dailyWheel.bonusWallet || 0) > 0 || (demo.dailyWheel.converted || 0) > 0,
       'dw-convert': () => (demo.dailyWheel.bonusWallet || 0) > 0 && (demo.dailyWheel.turnover || 0) >= (demo.dailyWheel.turnoverNeed || 0) && demo.dailyWheel.turnoverNeed > 0
     };
     if (gates[screen] && !gates[screen]()) {
       const back = {
-        nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', vb: 'vip-benefits', ret: 'returning-member'
+        nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', vb: 'vip-benefits', ret: 'returning-member', fd: 'first-deposit-bonus'
       }[screen.split('-')[0]];
       navigate('activity=' + back);
       return true;
@@ -1936,6 +2249,7 @@
     const demo = store().load();
     if (handleVipAction(name, demo)) return true;
     if (handleRetAction(name, demo)) return true;
+    if (handleFdAction(name, demo)) return true;
     const n = demo.newcomer;
     const r = demo.referral;
     const g = demo.growth;
@@ -2481,7 +2795,8 @@
       'newcomer-free-challenge': window.renderFreeChallengeDemo,
       'daily-wheel': window.renderDailyWheelDemo,
       'vip-benefits': window.renderVipBenefitsDemo,
-      'returning-member': window.renderReturningMemberDemo
+      'returning-member': window.renderReturningMemberDemo,
+      'first-deposit-bonus': window.renderFirstDepositDemo
     };
     let body;
     if (selected === 1) body = rules(p);
@@ -2494,6 +2809,7 @@
       'daily-wheel': () => sticky(dwCta(demoOf().dailyWheel)),
       'vip-benefits': () => sticky(vbCta(demoOf().vipBenefits)),
       'returning-member': () => sticky(retCta(demoOf().returningMember)),
+      'first-deposit-bonus': () => sticky(fdCta(demoOf().firstDepositBonus)),
       newcomer: () => sticky(ncCta(demoOf().newcomer)),
       referral: () => sticky(rfCta(demoOf().referral)),
       growth: () => sticky(grCta(demoOf().growth)),
@@ -2502,7 +2818,7 @@
     };
     const stickyHtml = selected === 0 && stickyFor[p.id] ? stickyFor[p.id]() : (p.id === 'anniversary' && selected === 2 ? sticky(anCta(demoOf().anniversary)) : '');
     const hero = p.banner ? `<div class="detail-hero">${banner(p)}</div>` : '';
-    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'returning-member', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
+    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'returning-member', 'first-deposit-bonus', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
     $('#app').innerHTML = `<article class="detail ${detailClass}"><button class="back-link" data-back>${icon('arrow')} 返回活动列表</button>${hero}<div class="detail-heading"><span class="badge">${p.badge}</span><h2>${p.title}</h2><p class="trial-prose">${p.secondary}</p></div><div class="activity-tabs" aria-label="活动内容">${p.tabs.map((t, i) => `<button data-tab="${i}" class="${i === selected ? 'active' : ''}" aria-pressed="${i === selected}">${t}</button>`).join('')}</div><div id="detail-content">${body}</div>${stickyHtml}<button class="support-link" data-support>需要帮助？联系客服</button>${footer()}</article>`;
     if (p.id === 'referral' && selected === 0 && $('#friend-search')) $('#friend-search').addEventListener('input', updateSearch);
   };

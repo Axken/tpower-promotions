@@ -337,3 +337,23 @@ html,body{height:100%;overflow:hidden}
 .return-card-hero{background:radial-gradient(ellipse at top right,#1e4a3a55,transparent 70%),linear-gradient(115deg,#15241f,#141516)}
 .return-card-hero .trial-card-tag{border-color:#2f6a54;color:#9ee0c0;background:#1a3d3057}
 .return-hero{background:radial-gradient(ellipse at top right,#1e4a3a44,transparent 65%),linear-gradient(160deg,#15221e,#151516)}
+
+.fd-card-hero{background:radial-gradient(ellipse at top right,#5a1e3a55,transparent 70%),linear-gradient(115deg,#24151c,#151215)}
+.fd-card-hero .trial-card-tag{border-color:#7a2848;color:#f0b3c8;background:#54203357}
+.fd-option-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.fd-option-chips span{background:#2a1820;border:1px solid #5a2a3a;border-radius:5px;padding:4px 8px;font-size:11px;color:#f1c2d1}
+.fd-hero{background:radial-gradient(ellipse at top right,#5a1e3a44,transparent 65%),linear-gradient(160deg,#22151b,#151416)}
+.fd-option-grid{display:grid;gap:10px}
+.fd-option-card{display:block;width:100%;text-align:left;padding:14px 16px;border-radius:14px;border:1px solid #3d2832;background:linear-gradient(160deg,#1c1418,#141312);color:inherit}
+.fd-option-card:hover{border-color:#7a3650}
+.fd-option-card.is-selected{border-color:#e12d3d;box-shadow:0 0 0 1px #e12d3d55;background:linear-gradient(160deg,#2a151c,#161214)}
+.fd-option-card.is-locked{opacity:.62}
+.fd-option-rate{font-size:32px;font-weight:650;letter-spacing:-.03em;margin:8px 0 10px;color:#f3d0da}
+.fd-bet-actions{display:grid;gap:8px;margin:12px 0}
+@media(min-width:900px){
+  .fd-option-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .fd-option-rate{font-size:26px}
+  .fd-option-card{padding:12px 13px}
+}

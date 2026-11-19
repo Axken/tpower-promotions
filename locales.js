@@ -269,6 +269,23 @@ VIP专属|VIP專屬|VIP exclusive|Eksklusif VIP|Đặc quyền VIP|สิทธ�
 未达到RM200，不可兑换|未達到RM200，不可兌換|Below RM200, cannot redeem|Belum RM200, tidak boleh ditebus|Chưa đạt RM200, không đổi được|ยังไม่ถึง RM200 แลกไม่ได้|Belum RM200, tidak dapat ditukar|RM200 से कम, रिडीम नहीं
 查看新人免费挑战赢取RM100|查看新人免費挑戰贏取RM100|View newcomer free challenge|Lihat cabaran percuma ahli baharu|Xem thử thách miễn phí tân thủ|ดูความท้าทายฟรีสมาชิกใหม่|Lihat tantangan gratis anggota baru|न्यूकमर फ्री चैलेंज देखें
 查看老会员回归活动|查看老會員回歸活動|View returning-member event|Lihat aktiviti ahli kembali|Xem sự kiện thành viên cũ trở lại|ดูกิจกรรมสมาชิกเก่ากลับมา|Lihat acara anggota lama kembali|वापस आए सदस्य कार्यक्रम देखें
+首存彩金|首存彩金|First-deposit bonus|Bonus deposit pertama|Thưởng nạp lần đầu|โบนัสฝากครั้งแรก|Bonus deposit pertama|पहली जमा बोनस
+请先选择一种首存优惠|請先選擇一種首存優惠|Choose one first-deposit offer first|Sila pilih satu tawaran deposit pertama|Hãy chọn một ưu đãi nạp lần đầu|เลือกข้อเสนอฝากครั้งแรกก่อน|Pilih satu penawaran deposit pertama|पहले एक फर्स्ट-डिपॉजिट ऑफर चुनें
+去首次充值|去首次儲值|Go to first deposit|Pergi ke deposit pertama|Đến nạp lần đầu|ไปฝากครั้งแรก|Ke deposit pertama|पहली जमा पर जाएँ
+去完成有效流水|去完成有效流水|Complete valid turnover|Selesaikan pusing ganti sah|Hoàn thành doanh thu hợp lệ|ทำเทิร์นที่มีผลให้ครบ|Selesaikan turnover valid|मान्य टर्नओवर पूरा करें
+转换至可提款余额|轉換至可提款餘額|Convert to withdrawable balance|Tukar kepada baki boleh dikeluarkan|Chuyển sang số dư có thể rút|แปลงเป็นยอดถอนได้|Ubah ke saldo yang bisa ditarik|निकासी योग्य शेष में बदलें
+确认转换|確認轉換|Confirm conversion|Sahkan penukaran|Xác nhận chuyển|ยืนยันการแปลง|Konfirmasi konversi|रूपांतरण की पुष्टि करें
+演示首次充值 RM300|演示首次儲值 RM300|Demo first deposit RM300|Demo deposit pertama RM300|Demo nạp lần đầu RM300|เดโมฝากครั้งแรก RM300|Demo deposit pertama RM300|डेमो पहली जमा RM300
+演示首次充值 RM500|演示首次儲值 RM500|Demo first deposit RM500|Demo deposit pertama RM500|Demo nạp lần đầu RM500|เดโมฝากครั้งแรก RM500|Demo deposit pertama RM500|डेमो पहली जमा RM500
+演示再次充值 RM100（不发放彩金）|演示再次儲值 RM100（不發放彩金）|Demo another deposit RM100 (no bonus)|Demo deposit semula RM100 (tiada bonus)|Demo nạp thêm RM100 (không thưởng)|เดโมฝากอีก RM100 (ไม่มีโบนัส)|Demo deposit lagi RM100 (tanpa bonus)|डेमो फिर जमा RM100 (कोई बोनस नहीं)
+演示再次充值 RM300（不发放彩金）|演示再次儲值 RM300（不發放彩金）|Demo another deposit RM300 (no bonus)|Demo deposit semula RM300 (tiada bonus)|Demo nạp thêm RM300 (không thưởng)|เดโมฝากอีก RM300 (ไม่มีโบนัส)|Demo deposit lagi RM300 (tanpa bonus)|डेमो फिर जमा RM300 (कोई बोनस नहीं)
+演示再次充值 RM500（不发放彩金）|演示再次儲值 RM500（不發放彩金）|Demo another deposit RM500 (no bonus)|Demo deposit semula RM500 (tiada bonus)|Demo nạp thêm RM500 (không thưởng)|เดโมฝากอีก RM500 (ไม่มีโบนัส)|Demo deposit lagi RM500 (tanpa bonus)|डेमो फिर जमा RM500 (कोई बोनस नहीं)
+演示老虎机投注 RM200|演示老虎機投注 RM200|Demo slots bet RM200|Demo pertaruhan slot RM200|Demo cược slots RM200|เดโมเดิมพันสล็อต RM200|Demo taruhan slot RM200|डेमो स्लॉट दांव RM200
+演示真人投注 RM200|演示真人投注 RM200|Demo live bet RM200|Demo pertaruhan live RM200|Demo cược live RM200|เดโมเดิมพันไลฟ์ RM200|Demo taruhan live RM200|डेमो लाइव दांव RM200
+演示加速完成流水（演示用）|演示加速完成流水（演示用）|Demo: finish turnover (demo only)|Demo: selesaikan pusing ganti (demo)|Demo: hoàn tất doanh thu (bản demo)|เดโม: ทำเทิร์นให้ครบ (สำหรับเดโม)|Demo: selesaikan turnover (hanya demo)|डेमो: टर्नओवर पूरा करें (केवल डेमो)
+演示其他充值活动进行中（重叠）|演示其他儲值活動進行中（重疊）|Demo: another deposit promo is active (overlap)|Demo: promo deposit lain sedang aktif (bertindih)|Demo: ưu đãi nạp khác đang diễn ra (trùng)|เดโม: โปรฝากอื่นกำลังใช้ (ทับซ้อน)|Demo: promo deposit lain sedang aktif (tumpang tindih)|डेमो: अन्य जमा प्रोमो सक्रिय (ओवरलैप)
+取消重叠演示|取消重疊演示|Undo overlap demo|Batalkan demo bertindih|Hủy demo trùng ưu đãi|ยกเลิกเดโมทับซ้อน|Batalkan demo tumpang tindih|ओवरलैप डेमो हटाएँ
+不可领取（与其他充值活动重叠）|不可領取（與其他儲值活動重疊）|Cannot claim (overlaps another deposit promo)|Tidak boleh dituntut (bertindih dengan promo deposit lain)|Không thể nhận (trùng ưu đãi nạp khác)|รับไม่ได้ (ทับกับโปรฝากอื่น)|Tidak dapat diklaim (tumpang tindih promo deposit lain)|प्राप्त नहीं कर सकते (अन्य जमा प्रोमो से ओवरलैप)
 `;
 const UI_DICTIONARIES=Object.fromEntries(UI_LANGUAGES.map(([code])=>[code,{}]));
 for(const row of UI_TRANSLATION_ROWS.trim().split('\n')){const cells=row.split('|');if(cells.length!==8)throw new Error('Invalid locale row: '+cells[0]);UI_LANGUAGES.forEach(([code],i)=>UI_DICTIONARIES[code][cells[0]]=cells[i]);}
