@@ -365,3 +365,113 @@ html,body{height:100%;overflow:hidden}
 .dr-option-card:hover{border-color:#36707a}
 .dr-option-card.is-selected{border-color:#2d9de1;box-shadow:0 0 0 1px #2d9de155;background:linear-gradient(160deg,#15202a,#121416)}
 .dr-option-card .fd-option-rate{color:#d0e8f3}
+
+/* ===== fix3: refined premium palette, buttons & type for activity detail pages (visual only, no layout change) ===== */
+@font-face{font-family:"Inter";font-style:normal;font-weight:400 600;font-display:swap;src:url("assets/fonts/inter-latin-var.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+:root{--bg:#0e0d0d;--lx-bg:#0e0d0d;--lx-surface:#161414;--lx-surface-2:#1b1918;--lx-surface-3:#211e1d;--lx-line:rgba(255,255,255,.08);--lx-line-2:rgba(255,255,255,.14);--lx-red:#b3202a;--lx-red-hover:#c02731;--lx-red-press:#9a1b24;--lx-red-tint:rgba(179,32,42,.12);--lx-red-line:rgba(179,32,42,.55);--lx-gold:#c9a96e;--lx-gold-tint:rgba(201,169,110,.08);--lx-gold-line:rgba(201,169,110,.32);--lx-text:#ede7e3;--lx-text-2:#aca39e;--lx-text-3:#8f8782;--lx-font:"Inter","PingFang SC","HarmonyOS Sans SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",system-ui,-apple-system,sans-serif}
+body{background:var(--lx-bg)}
+:is(.promo-detail,.demo-screen,[id=modal]){font-family:var(--lx-font);color:var(--lx-text);font-feature-settings:"cv11","ss01"}
+:is(.promo-detail,.demo-screen,[id=modal]) :is(h2,h3,h4,b,strong){font-weight:600}
+:is(.promo-detail,.demo-screen,[id=modal]) :is(td,th,strong,b,.amount,.stat-row strong,.wallet-card strong,.growth-amount,.trial-path strong,.fd-option-rate,.period-dates b){font-variant-numeric:tabular-nums}
+#modal{background:var(--lx-surface);border-color:var(--lx-line-2);box-shadow:0 24px 64px rgba(0,0,0,.6)}
+#modal .dialog-top>span{color:var(--lx-text-3);letter-spacing:.18em}
+#modal .icon-button{background:rgba(255,255,255,.04)}
+#modal-body p{color:var(--lx-text-2)}
+#modal-body .subnote{color:var(--lx-text-3)}
+#modal-body .dialog-illustration{background:var(--lx-surface-3);border-color:var(--lx-line-2)}
+#modal-body .dialog-illustration svg{color:var(--lx-gold)}
+
+/* Heading */
+:is(.promo-detail,.demo-screen) .back-link{color:var(--lx-text-2)}
+:is(.promo-detail,.demo-screen) .back-link:hover{color:var(--lx-text)}
+.promo-detail .detail-heading .badge{color:var(--lx-gold);border-color:var(--lx-gold-line);background:transparent;border-radius:4px;letter-spacing:.06em}
+.promo-detail .detail-heading h2{font-weight:600;letter-spacing:0}
+.promo-detail .detail-heading p{color:var(--lx-text-2)}
+.promo-detail .activity-tabs{border-bottom-color:var(--lx-line)}
+.promo-detail .activity-tabs button{color:var(--lx-text-3)}
+.promo-detail .activity-tabs button.active{color:var(--lx-text);font-weight:500}
+.promo-detail .activity-tabs button.active:after{height:2px;background:var(--lx-red);border-radius:0}
+
+/* Surfaces: flat charcoal + hairline, no glow */
+:is(.promo-detail,.demo-screen,[id=modal]) :is(.section-panel,.full-rules,.level-card,.wallet-card,.essential-grid>div,.vip-benefit-card,.fd-option-card,.dr-option-card,.demo-status-card,.play-wallet,.terms,.empty){background:var(--lx-surface);border-color:var(--lx-line);box-shadow:none}
+:is(.promo-detail,.demo-screen) :is(.reward-feature,.fd-hero,.dr-hero,.return-hero,.wheel-hero,.draw-hero,.trial-hero,.growth-overview,.reward-summary){background:linear-gradient(180deg,rgba(179,32,42,.07),rgba(179,32,42,0) 55%),var(--lx-surface-2);border-color:var(--lx-line-2);box-shadow:none}
+:is(.promo-detail,.demo-screen) .vip-hero{background:linear-gradient(180deg,var(--lx-gold-tint),rgba(201,169,110,0) 55%),var(--lx-surface-2);border-color:var(--lx-line-2)}
+:is(.promo-detail,.demo-screen) :is(.wallet-card.trial,.wallet-card.main.highlight,.demo-status-card.success){background:var(--lx-surface-2);border-color:var(--lx-line-2)}
+:is(.promo-detail,.demo-screen) .wallet-card.main.highlight strong{color:var(--lx-gold)}
+:is(.promo-detail,.demo-screen,[id=modal]) :is(.step-explanation,.locked-games,.waiting-box,.rate-grid>div,.number-balls>span,.slot-window span,.game-tile .game-icon,.upload-slot,.language-note){background:var(--lx-surface-3);border-color:var(--lx-line)}
+:is(.promo-detail,.demo-screen) .rate-grid{background:var(--lx-line);border-color:var(--lx-line)}
+:is(.promo-detail,.demo-screen) .trial-cta-slot{background:linear-gradient(180deg,rgba(14,13,13,0),var(--lx-bg) 28%)}
+:is(.promo-detail,.demo-screen) :is(.stat-row,.stat-row>div+div,.period-dates,.trial-hero .trial-path,.wheel-hero .stat-row,.total-line,.kyc-summary li,.terms details+details,td,.reward-summary>div+div){border-color:var(--lx-line)}
+
+/* Text colours */
+:is(.promo-detail,.demo-screen,[id=modal]) :is(.eyebrow,.section-header>span,.snapshot-tag,.unit-note,.fine-print,.section-caption,.wallet-card small,.level-title small,.level-status,.compact-empty p,.period-dates span,.draw-reference p,.locked-games p,.growth-amount>span,.progress-ring small){color:var(--lx-text-3)!important}
+:is(.promo-detail,.demo-screen) .eyebrow{letter-spacing:.08em}
+:is(.promo-detail,.demo-screen,[id=modal]) :is(.reward-feature>p,.rule-content,.step-explanation p,.eligibility-list li,.trial-terms li,.wallet-card span,.stat-row span,.bar-label,.rate-grid span,.essential-grid span,.total-line>span,.trial-path span,.growth-hero-copy,.kyc-summary li,.locked-games b,.waiting-box,.compact-empty h4,.amount small,.reward-summary small,.growth-amount small,.period-dates small,.demo-form label,.trial-prose,.vip-benefit-card .trial-prose){color:var(--lx-text-2)}
+:is(.promo-detail,.demo-screen) :is(.essential-grid strong,.trial-path strong,.kyc-summary strong,.level-title b){color:var(--lx-text)}
+:is(.promo-detail,.demo-screen) .card-link{color:var(--lx-text)}
+:is(.promo-detail,.demo-screen) .section-header h3{font-weight:600;letter-spacing:.01em}
+:is(.promo-detail,.demo-screen) :is(.section-header h4,.step-heading h4,.rate-head h4,summary){font-weight:500}
+:is(.promo-detail,.demo-screen) .step-kicker{color:var(--lx-gold);letter-spacing:.1em}
+
+/* Amounts */
+:is(.promo-detail,.demo-screen) .amount{font-weight:600;letter-spacing:-.03em;color:var(--lx-text)}
+:is(.promo-detail,.demo-screen) .amount>span{color:var(--lx-gold)}
+:is(.promo-detail,.demo-screen) .amount small{letter-spacing:.04em}
+:is(.promo-detail,.demo-screen) :is(.wallet-card strong,.reward-summary strong,.stat-row strong,.growth-amount,.trial-path strong,.progress-ring b){font-weight:600;letter-spacing:-.01em}
+:is(.promo-detail,.demo-screen) :is(.reward-summary strong span,.growth-amount small){color:var(--lx-text-3)}
+:is(.promo-detail,.demo-screen) .stat-row em{color:var(--lx-gold)}
+:is(.promo-detail,.demo-screen) .fd-option-rate,:is(.promo-detail,.demo-screen) .dr-option-card .fd-option-rate{font-weight:600;color:var(--lx-text);letter-spacing:-.02em}
+:is(.promo-detail,.demo-screen) :is(.rate-grid b){color:var(--lx-gold);font-weight:500}
+:is(.promo-detail,.demo-screen) :is(.first-prize td,.vip-example-table tr.current-level td){color:var(--lx-gold);font-weight:600}
+
+/* Tables */
+:is(.promo-detail,.demo-screen,[id=modal]) th{background:rgba(255,255,255,.03);color:var(--lx-text-3);letter-spacing:.06em;font-weight:400}
+:is(.promo-detail,.demo-screen,[id=modal]) td{border-bottom-color:var(--lx-line);color:var(--lx-text-2)}
+:is(.promo-detail,.demo-screen,[id=modal]) td:last-child{color:var(--lx-text);font-weight:500}
+
+/* Buttons */
+:is(.promo-detail,.demo-screen,[id=modal]) .primary{background:var(--lx-red);border-color:transparent;color:#fff;border-radius:12px;font-weight:500;letter-spacing:.04em;box-shadow:none;filter:none;transition:background-color .15s ease}
+:is(.promo-detail,.demo-screen,[id=modal]) .primary:hover{background:var(--lx-red-hover);filter:none}
+:is(.promo-detail,.demo-screen,[id=modal]) .primary:active{background:var(--lx-red-press)}
+:is(.promo-detail,.demo-screen,[id=modal]) :is(.outline-wide,.secondary,.button-pair .secondary){background:transparent;border-color:var(--lx-line-2);color:var(--lx-text);border-radius:12px;font-weight:400;box-shadow:none}
+:is(.promo-detail,.demo-screen,[id=modal]) :is(.outline-wide,.secondary):hover{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.24)}
+:is(.promo-detail,.demo-screen,[id=modal]) :is(.outline-wide,.secondary):active{background:rgba(255,255,255,.06)}
+:is(.promo-detail,.demo-screen,[id=modal]) .text-button{color:var(--lx-text-2);text-decoration:underline;text-decoration-color:rgba(255,255,255,.22);text-underline-offset:4px}
+:is(.promo-detail,.demo-screen,[id=modal]) .text-button:hover{color:var(--lx-text)}
+:is(.promo-detail,.demo-screen,[id=modal]) .support-link{color:var(--lx-text-3)}
+:is(.promo-detail,.demo-screen,[id=modal]) button:disabled{background:var(--lx-surface-3)!important;border-color:var(--lx-line);color:var(--lx-text-3);box-shadow:none}
+:is(.promo-detail,.demo-screen,[id=modal]) .info-icon{background:transparent;border-color:var(--lx-line-2);color:var(--lx-text-2);font-weight:500}
+:is(.promo-detail,.demo-screen) :is(.fd-option-card,.dr-option-card,.vip-benefit-card):hover{border-color:var(--lx-line-2);background:var(--lx-surface)}
+:is(.promo-detail,.demo-screen) :is(.fd-option-card,.dr-option-card).is-selected{border-color:var(--lx-red);box-shadow:none;background:var(--lx-surface-2)}
+
+/* Chips & status tags: one neutral, one red tint, gold only for examples */
+:is(.promo-detail,.demo-screen,[id=modal]) .status-badge{background:var(--lx-red-tint);border-color:rgba(179,32,42,.4);color:#e3bdb9;letter-spacing:.02em}
+:is(.promo-detail,.demo-screen,[id=modal]) .status-badge.muted{background:rgba(255,255,255,.04);border-color:var(--lx-line-2);color:var(--lx-text-2)}
+:is(.promo-detail,.demo-screen,[id=modal]) :is(.rule-chips span,.fd-option-chips span,.dr-option-chips span,.vip-benefit-chips span,.pending){background:rgba(255,255,255,.04);border-color:var(--lx-line-2);color:var(--lx-text-2)}
+:is(.promo-detail,.demo-screen,[id=modal]) .example-tag{background:var(--lx-gold-tint);border-color:var(--lx-gold-line);color:var(--lx-gold);border-radius:4px}
+:is(.promo-detail,.demo-screen,[id=modal]) .info-note{background:rgba(179,32,42,.08);border-color:rgba(179,32,42,.3);color:#dcc6c2}
+
+/* Steps, marks, progress */
+:is(.promo-detail,.demo-screen) :is(.flow-steps,.journey-steps):before{background:var(--lx-line-2)}
+:is(.promo-detail,.demo-screen) :is(.flow-steps button,.journey-steps li){color:var(--lx-text-3)}
+:is(.promo-detail,.demo-screen) :is(.flow-steps b,.journey-steps b){background:var(--lx-surface-2);border-color:var(--lx-line-2);color:var(--lx-text-3);font-weight:500;box-shadow:none}
+:is(.promo-detail,.demo-screen) :is(.flow-steps button.active,.journey-steps li.current){color:var(--lx-text)}
+:is(.promo-detail,.demo-screen) :is(.flow-steps button.active b,.journey-steps li.current b){background:var(--lx-red);border-color:var(--lx-red);color:#fff;box-shadow:none}
+:is(.promo-detail,.demo-screen) :is(.flow-steps button.done,.journey-steps li.done,.trial-steps button.done){color:var(--lx-text-2)}
+:is(.promo-detail,.demo-screen) :is(.flow-steps button.done b,.journey-steps li.done b,.trial-steps button.done b){background:transparent;border-color:var(--lx-red-line);color:#e3bdb9}
+:is(.promo-detail,.demo-screen,[id=modal]) .eligibility-mark{background:transparent;border-color:var(--lx-red-line)}
+:is(.promo-detail,.demo-screen,[id=modal]) .eligibility-mark:before{border-color:#e3bdb9}
+:is(.promo-detail,.demo-screen,[id=modal]) .trial-terms li:before{background:var(--lx-text-3)}
+:is(.promo-detail,.demo-screen) .trial-path-arrow:before{background:var(--lx-line-2)}
+:is(.promo-detail,.demo-screen) .trial-path-arrow:after{border-color:var(--lx-text-3)}
+:is(.promo-detail,.demo-screen) :is(.level-icon){background:transparent;border-color:var(--lx-line-2)}
+:is(.promo-detail,.demo-screen) .level-icon svg{color:var(--lx-gold)}
+:is(.promo-detail,.demo-screen) .level-status.current{color:#e3bdb9!important}
+:is(.promo-detail,.demo-screen,[id=modal]) progress{background:rgba(255,255,255,.08)}
+:is(.promo-detail,.demo-screen,[id=modal]) progress::-webkit-progress-bar{background:rgba(255,255,255,.08)}
+:is(.promo-detail,.demo-screen,[id=modal]) progress::-webkit-progress-value{background:var(--lx-red)}
+:is(.promo-detail,.demo-screen,[id=modal]) progress::-moz-progress-bar{background:var(--lx-red)}
+:is(.promo-detail,.demo-screen,[id=modal]) .goal-burst{background:var(--lx-red);box-shadow:none}
+:is(.promo-detail,.demo-screen) .lucky-wheel{box-shadow:none}
+:is(.promo-detail,.demo-screen) .wheel-pointer{filter:none}
+:is(.promo-detail,.demo-screen,[id=modal]) :is(.demo-form input,.demo-form select){background:var(--lx-surface-3);border-color:var(--lx-line-2)}
