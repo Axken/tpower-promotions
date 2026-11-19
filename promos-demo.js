@@ -1564,7 +1564,6 @@
       growth: window.renderGrowthDemo,
       anniversary: window.renderAnniversaryDemo,
       maintenance: window.renderMaintenanceDemo,
-      'newcomer-trial': trial,
       'newcomer-free-challenge': window.renderFreeChallengeDemo,
       'daily-wheel': window.renderDailyWheelDemo
     };
@@ -1574,7 +1573,6 @@
     else if (selected === 2) body = tickets();
     else body = (pages[p.id] || (() => ''))();
     const stickyFor = {
-      'newcomer-trial': trialSticky,
       'newcomer-free-challenge': () => sticky(nfcCta(demoOf().freeChallenge)),
       'daily-wheel': () => sticky(dwCta(demoOf().dailyWheel)),
       newcomer: () => sticky(ncCta(demoOf().newcomer)),
@@ -1585,7 +1583,7 @@
     };
     const stickyHtml = selected === 0 && stickyFor[p.id] ? stickyFor[p.id]() : (p.id === 'anniversary' && selected === 2 ? sticky(anCta(demoOf().anniversary)) : '');
     const hero = p.banner ? `<div class="detail-hero">${banner(p)}</div>` : '';
-    const detailClass = ['newcomer-trial', 'newcomer-free-challenge', 'daily-wheel', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
+    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
     $('#app').innerHTML = `<article class="detail ${detailClass}"><button class="back-link" data-back>${icon('arrow')} 返回活动列表</button>${hero}<div class="detail-heading"><span class="badge">${p.badge}</span><h2>${p.title}</h2><p class="trial-prose">${p.secondary}</p></div><div class="activity-tabs" aria-label="活动内容">${p.tabs.map((t, i) => `<button data-tab="${i}" class="${i === selected ? 'active' : ''}" aria-pressed="${i === selected}">${t}</button>`).join('')}</div><div id="detail-content">${body}</div>${stickyHtml}<button class="support-link" data-support>需要帮助？联系客服</button>${footer()}</article>`;
     if (p.id === 'referral' && selected === 0 && $('#friend-search')) $('#friend-search').addEventListener('input', updateSearch);
   };

@@ -162,6 +162,7 @@
     const screen = params.get('demo');
     const id = params.get('activity');
     const trialScreens = ['claim', 'games', 'play', 'redeem', 'redeem-process', 'redeem-success'];
+    if (id === 'newcomer-free-challenge') return null;
     if (id === 'newcomer-trial' || (screen && trialScreens.includes(screen))) {
       return { labels: JOURNEY, current: journeyIndex(), finished: demo.redeemed };
     }
@@ -215,7 +216,7 @@
         <button type="submit" class="primary" id="register-submit" ${sent ? '' : 'disabled'}>注册</button>
       </form>
       <p class="fine-print center trial-prose">仅限新注册会员。同一手机号、真实姓名或设备仅限领取一次。</p>
-    `, 'activity=newcomer-trial');
+    `, 'activity=newcomer-free-challenge');
     document.title = '注册 / 登录 · TPOWER';
   }
 
@@ -240,7 +241,7 @@
         <p class="fine-print">点击上传栏即可模拟选择演示图片，不会读取你的相册或摄像头。</p>
         <button type="submit" class="primary">提交认证</button>
       </form>
-    `, 'activity=newcomer-trial');
+    `, 'activity=newcomer-free-challenge');
     document.title = '实名认证 · TPOWER';
   }
 
@@ -271,7 +272,7 @@
           <li><span>证件</span><strong>${esc(demo.kyc.idNumber)}</strong></li>
           <li><span>状态</span><strong>已认证</strong></li>
         </ul>
-        <button type="button" class="primary" data-demo-nav="activity=newcomer-trial">返回活动领取额度</button>
+        <button type="button" class="primary" data-demo-nav="activity=newcomer-free-challenge">返回活动领取额度</button>
       </section>
     `);
     document.title = '认证成功 · TPOWER';
@@ -293,7 +294,7 @@
         </ul>
       </section>
       <button type="button" class="primary" data-action="demo-claim-confirm">确认领取</button>
-    `, 'activity=newcomer-trial');
+    `, 'activity=newcomer-free-challenge');
     document.title = '领取试玩额度 · TPOWER';
   }
 
@@ -305,7 +306,7 @@
       </div>
       <p class="demo-lead trial-prose">在指定游戏中进行试玩。试玩额度不可直接充值、转账或提款。</p>
       <div class="game-grid">${GAMES.map(g => `<button type="button" class="game-tile" data-action="demo-open-game" data-game="${g.id}"><span class="game-icon">${icon(g.icon)}</span><strong>${g.name}</strong><small>${g.tag}</small></button>`).join('')}</div>
-    `, 'activity=newcomer-trial');
+    `, 'activity=newcomer-free-challenge');
     document.title = '指定游戏 · TPOWER';
   }
 
@@ -352,7 +353,7 @@
         </div>
       </section>
       <button type="button" class="primary" data-action="demo-redeem-confirm">确认兑换</button>
-    `, 'activity=newcomer-trial');
+    `, 'activity=newcomer-free-challenge');
     document.title = '兑换现金 · TPOWER';
   }
 
@@ -372,7 +373,7 @@
       demo.mainWallet = 100;
       demo.records.unshift({
         id: 'trial-cash-' + now.getTime(),
-        title: '新人免费体验礼',
+        title: '新人免费挑战赢取RM100',
         amount: 100,
         status: '已到账',
         time: now.toISOString()
@@ -393,7 +394,7 @@
           <div class="wallet-card trial"><span>试玩钱包</span><strong>RM 0.00</strong><small>已清零</small></div>
         </div>
         <button type="button" class="primary" data-demo-nav="demo=records">查看领奖记录</button>
-        <button type="button" class="outline-wide" data-demo-nav="activity=newcomer-trial">返回活动</button>
+        <button type="button" class="outline-wide" data-demo-nav="activity=newcomer-free-challenge">返回活动</button>
       </section>
     `);
     document.title = '兑换成功 · TPOWER';
@@ -439,7 +440,6 @@
         <ul class="kyc-summary">
           <li><span>登录</span><strong>已登录</strong></li>
           <li><span>实名认证</span><strong>${kycLabel}</strong></li>
-          <li><span>体验礼</span><strong>${demo.redeemed ? '已领取' : demo.claimed ? '进行中' : '未参加'}</strong></li>
           <li><span>免费挑战</span><strong>${demo.freeChallenge.redeemed ? '已领取' : demo.freeChallenge.claimed ? '进行中' : '未参加'}</strong></li>
           <li><span>每日转盘</span><strong>${demo.dailyWheel.converted > 0 && demo.dailyWheel.bonusWallet <= 0 && demo.dailyWheel.earnedToday === 0 && demo.dailyWheel.usedToday === 0 ? '已领取' : (demo.dailyWheel.earnedToday || demo.dailyWheel.usedToday || demo.dailyWheel.bonusWallet > 0 || demo.dailyWheel.converted > 0) ? '进行中' : '未参加'}</strong></li>
           <li><span>新人挑战</span><strong>${demo.newcomer.completed ? '已完成' : demo.newcomer.abandoned ? '已放弃' : demo.newcomer.expired ? '资格已失效' : demo.newcomer.claimed ? '进行中' : '未参加'}</strong></li>
@@ -459,7 +459,7 @@
     clearTimeout(demoTimer);
     demo = loadDemo();
     if (['register', 'kyc', 'kyc-review', 'kyc-success'].includes(screen)) {
-      navigate('activity=newcomer-trial');
+      navigate('activity=newcomer-free-challenge');
       return;
     }
     if (typeof window.PromoRenderDemo === 'function' && !['claim', 'games', 'play', 'redeem', 'redeem-process', 'redeem-success', 'records', 'account'].includes(screen)) {
@@ -477,7 +477,7 @@
       'redeem-success': () => demo.redeemed
     };
     if (gate[screen] && !gate[screen]()) {
-      navigate('activity=newcomer-trial');
+      navigate('activity=newcomer-free-challenge');
       return;
     }
     const pages = {
@@ -544,7 +544,7 @@
   };
   window.refreshTrial = function () {
     const y = $('#app').scrollTop;
-    const p = PROMOS.find(x => x.id === 'newcomer-trial');
+    const p = PROMOS.find(x => x.id === 'newcomer-free-challenge');
     const tab = Number(currentRoute().get('tab') || 0);
     renderDetail(p, Number.isFinite(tab) ? tab : 0);
     $('#app').scrollTo(0, y);
@@ -570,7 +570,7 @@
     if ($('#modal') && $('#modal').open) closeModal();
     if (!silent) toast('演示已重置');
     const id = currentRoute().get('activity');
-    const known = ['newcomer-free-challenge', 'daily-wheel', 'newcomer-trial', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'];
+    const known = ['newcomer-free-challenge', 'daily-wheel', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'];
     navigate(id && known.includes(id) ? 'activity=' + id : 'category=all');
   }
 
@@ -626,7 +626,7 @@
       case 'demo-otp':
       case 'demo-register':
       case 'demo-go-kyc':
-        navigate('activity=newcomer-trial');
+        navigate('activity=newcomer-free-challenge');
         break;
       case 'demo-upload':
         break;
@@ -652,7 +652,7 @@
         demo.reachedTarget = false;
         saveDemo();
         toast('已领取 RM100 试玩额度');
-        navigate('activity=newcomer-trial');
+        navigate('activity=newcomer-free-challenge');
         break;
       case 'demo-go-play':
         if (!demo.claimed || demo.redeemed) return;
@@ -737,8 +737,16 @@
     clearTimeout(demoTimer);
     const params = currentRoute();
     let id = params.get('activity');
-    if (id === 'newcomer-trial-notes') id = 'newcomer-trial';
     const screen = params.get('demo');
+    const tab = params.get('tab');
+    const oldTrialScreens = ['claim', 'games', 'play', 'redeem', 'redeem-process', 'redeem-success'];
+    if (id === 'newcomer-trial' || id === 'newcomer-trial-notes' || (screen && oldTrialScreens.includes(screen))) {
+      const next = 'activity=newcomer-free-challenge' + (tab ? '&tab=' + tab : '');
+      if ((location.hash || '').replace(/^#/, '') !== next) {
+        navigate(next);
+        return;
+      }
+    }
     if (screen) {
       renderDemo(screen);
       return;
