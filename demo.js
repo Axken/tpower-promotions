@@ -89,6 +89,7 @@
   function defaultReturningMember() {
     return {
       deposited: true,
+      lastLoginDays: 8,
       claimed: false, trialBalance: 0, trialEnded: false, reachedTarget: false, redeemed: false,
       playMode: 'win', spinIndex: 0, lastSymbols: ['7', '星', '铃'], spinning: false, currentGame: 'lucky-star'
     };
