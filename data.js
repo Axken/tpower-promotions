@@ -3,7 +3,7 @@
 const CATEGORIES=[['all','全部活动','gift'],['new','新人豪礼','adduser'],['growth','充值加码','cash'],['surprise','惊喜福利','gift'],['vip','VIP尊享','crown'],['invite','邀友赚礼','friends']];
 const PROMOS=[
 {id:'newcomer-free-challenge',title:'新人免费挑战赢取RM100',fullTitle:'新人免费挑战赢取RM100',category:'new',tag:'新人挑战',banner:'photo',summary:'免费RM100试玩，达标兑换RM100现金',secondary:'试玩余额达到RM200，即可兑换RM100现金奖励。',badge:'新注册会员 · 终身限领一次',tabs:['活动详情','活动规则']},
-{id:'daily-wheel',title:'每日幸运大转盘RM888',fullTitle:'每日幸运大转盘RM888',category:'surprise',tag:'每日转盘',banner:'photo',summary:'每日最多3次免费抽奖，最高赢取RM888',secondary:'单笔充值满RM100或以上获得1次抽奖，每天最多3次。次数每日00:00更新，未使用次数不结转。彩金需完成3倍流水后转现金。',badge:'每日最多3次 · 最高 RM888',tabs:['活动详情','活动规则']},
+{id:'daily-wheel',title:'每日幸运大转盘RM888',fullTitle:'每日幸运大转盘RM888',category:'surprise',tag:'每日转盘',banner:'photo',summary:'每日最多3次免费抽奖，最高赢取RM888',secondary:'单笔充值满RM100或以上获得1次抽奖，每天最多3次。次数每日更新，彩金需完成3倍流水后转现金。',badge:'每日最多3次 · 最高 RM888',tabs:['活动详情','活动规则']},
 {id:'vip-benefits',title:'VIP会员专属福利',fullTitle:'VIP会员专属福利',category:'vip',tag:'VIP专属',banner:'photo',summary:'会员等级越高，享有对应VIP权益',secondary:'会员等级越高，享有对应VIP权益。各VIP等级门槛、彩金金额、返水比例及提款规则另设统一等级表。',badge:'五大专属福利',tabs:['活动详情','活动规则','我的记录']},
 {id:'newcomer',title:'新人专享挑战',fullTitle:'Tpower新人专享挑战活动',category:'new',tag:'新人专享',banner:'new',summary:'实名认证领取 RM88',secondary:'完成挑战，充值解锁最高 RM1,888',badge:'每位新会员限一次',tabs:['活动详情','活动规则']},
 {id:'referral',title:'邀请好友挑战，赚取高达RM1,000',fullTitle:'邀请好友挑战，赚取高达RM1,000',category:'invite',tag:'邀请好友',banner:'invite',summary:'每成功邀请一名好友，最高累计赚取RM1,000',secondary:'好友完成指定任务后，系统自动解锁对应邀请奖励。',badge:'每名好友最高 RM1,000',tabs:['我的邀请','活动规则']},
