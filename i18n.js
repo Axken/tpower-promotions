@@ -51,6 +51,11 @@
       if(mtLeft){const labels={'zh-TW':`去指定遊戲使用活動分。還差 ${mtLeft[1]} 分即可領取。`,en:`Use promo points in the designated games. ${mtLeft[1]} points more to claim.`,ms:`Gunakan mata promosi dalam permainan yang ditetapkan. Tinggal ${mtLeft[1]} mata lagi untuk menuntut.`,vi:`Vào game chỉ định dùng điểm hoạt động. Còn thiếu ${mtLeft[1]} điểm là nhận được.`,th:`ไปใช้คะแนนกิจกรรมในเกมที่กำหนด อีก ${mtLeft[1]} คะแนนจะรับได้`,id:`Pakai poin promo di game yang ditentukan. Tinggal ${mtLeft[1]} poin lagi untuk klaim.`,hi:`निर्धारित गेम में प्रोमो अंक इस्तेमाल करें। दावा करने के लिए ${mtLeft[1]} अंक और चाहिए।`};translated=labels[language];}
       const fdLeft=key.match(/^在所选游戏类别投注。还差 RM (.+) 有效流水即可转换。$/);
       if(fdLeft){const labels={'zh-TW':`在所選遊戲類別投注。還差 RM ${fdLeft[1]} 有效流水即可轉換。`,en:`Bet in the selected game category. RM ${fdLeft[1]} more valid turnover to convert.`,ms:`Pertaruhan dalam kategori permainan yang dipilih. Tinggal RM ${fdLeft[1]} pusing ganti sah lagi untuk menukar.`,vi:`Cược trong danh mục game đã chọn. Còn thiếu RM ${fdLeft[1]} doanh thu hợp lệ là chuyển được.`,th:`เดิมพันในหมวดเกมที่เลือก อีก RM ${fdLeft[1]} เทิร์นที่ถูกต้องจะแปลงได้`,id:`Bertaruh di kategori game yang dipilih. Tinggal RM ${fdLeft[1]} turnover valid lagi untuk konversi.`,hi:`चुनी गई गेम श्रेणी में दांव लगाएँ। बदलने के लिए RM ${fdLeft[1]} और मान्य टर्नओवर चाहिए।`};translated=labels[language];}
+      const grClaim=key.match(/^领取 MYR (.+)$/);
+      if(grClaim){const labels={'zh-TW':`領取 MYR ${grClaim[1]}`,en:`Claim MYR ${grClaim[1]}`,ms:`Tuntut MYR ${grClaim[1]}`,vi:`Nhận MYR ${grClaim[1]}`,th:`รับ MYR ${grClaim[1]}`,id:`Klaim MYR ${grClaim[1]}`,hi:`MYR ${grClaim[1]} दावा करें`};translated=labels[language];}
+      const anClaim=key.match(/^领取 RM (.+) 奖金$/);
+      if(anClaim){const labels={'zh-TW':`領取 RM ${anClaim[1]} 獎金`,en:`Claim RM ${anClaim[1]} prize`,ms:`Tuntut hadiah RM ${anClaim[1]}`,vi:`Nhận thưởng RM ${anClaim[1]}`,th:`รับรางวัล RM ${anClaim[1]}`,id:`Klaim hadiah RM ${anClaim[1]}`,hi:`RM ${anClaim[1]} पुरस्कार दावा करें`};translated=labels[language];}
+
     }
     if(translated===undefined)return source;
     return source.slice(0,source.length-source.trimStart().length)+translated+source.slice(source.trimEnd().length);
