@@ -689,3 +689,32 @@ button:disabled,button:disabled:hover,button:disabled:active,button:disabled:foc
   .promo-detail .reward-feature .amount{margin-top:6px}
   .promo-detail .growth-overview{padding-top:12px}
 }
+
+
+/* fix8: demo mode toggle in the header, next to the language selector */
+.language-control{gap:8px;flex-wrap:nowrap}
+.demo-toggle{display:inline-flex;align-items:center;gap:6px;margin:0;cursor:pointer;user-select:none;color:#c9b8bf;font-size:12px;line-height:1;flex:none;white-space:nowrap}
+.demo-toggle input{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;opacity:0;pointer-events:none}
+.demo-toggle-ui{position:relative;width:28px;height:16px;border-radius:99px;background:#2a2226;border:1px solid #51404a;flex:none;transition:background .2s,border-color .2s}
+.demo-toggle-ui:after{content:"";position:absolute;top:1px;left:1px;width:12px;height:12px;border-radius:50%;background:#c9b8bf;transition:transform .2s,background .2s}
+.demo-toggle input:checked + .demo-toggle-ui{background:#3d2e1c;border-color:#C9A96E}
+.demo-toggle input:checked + .demo-toggle-ui:after{transform:translateX(12px);background:#C9A96E}
+.demo-toggle input:focus-visible + .demo-toggle-ui{outline:2px solid #f06779;outline-offset:2px}
+html.demo-on .demo-toggle-label{color:#e8d5a8}
+html.demo-off .demo-banner,
+html.demo-off .demo-tools,
+html.demo-off .journey-steps,
+html.demo-off .next-guide,
+html.demo-off .end-state,
+html.demo-off #demo-toast{display:none !important}
+@media(max-width:600px){
+  .language-control{flex-direction:column;align-items:stretch;gap:4px}
+  .demo-toggle{font-size:10px;gap:4px}
+  .language-control select{width:100%;max-width:none;min-height:32px;padding:6px 4px}
+}
+@media(max-width:360px){
+  .demo-toggle{font-size:10px;gap:3px}
+  .demo-toggle-ui{width:24px;height:14px}
+  .demo-toggle-ui:after{width:10px;height:10px}
+  .demo-toggle input:checked + .demo-toggle-ui:after{transform:translateX(10px)}
+}

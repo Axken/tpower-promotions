@@ -1,6 +1,7 @@
 (() => {
   const r2 = n => Math.round((Number(n) || 0) * 100) / 100;
   const store = () => window.DemoAPI;
+  const isDemoOn = () => typeof window.DemoMode !== 'undefined' && window.DemoMode.isOn();
   const demoOf = () => store().get();
 
   const NC_JOURNEY = ['领取', '流水', '解锁', '彩金流水', '完成'];
@@ -48,6 +49,7 @@
     return `<ul class="trial-terms trial-prose">${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
   }
   function stepper(steps, viewStep, attr, allDone) {
+    if (typeof window.DemoMode !== 'undefined' && !window.DemoMode.isOn()) return '';
     return `<div class="flow-steps trial-steps" aria-label="活动流程">${steps.map((st, i) => `<button type="button" data-promo-step="${attr}:${i}" aria-pressed="${viewStep === i}" class="${viewStep === i ? 'active' : ''}${i < viewStep || allDone ? ' done' : ''}"><b>${i < viewStep || allDone ? '✓' : i + 1}</b><span>${st.plain || st.title}</span></button>`).join('')}</div>`;
   }
   function howToJoin(items) {
@@ -62,6 +64,7 @@
     return null;
   }
   function leadBlock(guide) {
+    if (typeof window.DemoMode !== 'undefined' && !window.DemoMode.isOn()) return '';
     const g = guide || {};
     const j = currentJourney();
     const total = (j && j.labels && j.labels.length) ? j.labels.length : (g.total || 0);
@@ -72,18 +75,22 @@
       : nextGuide(step, total, g.text || '', false);
   }
   function nextGuide(step, total, text, done) {
+    if (typeof window.DemoMode !== 'undefined' && !window.DemoMode.isOn()) return '';
     const kicker = done ? '已完成' : '下一步';
     const progress = total ? (done ? `共 ${total} 步` : `第 ${step} 步，共 ${total} 步`) : '';
     return `<p class="next-guide" role="status"><span class="next-guide-kicker">${kicker}</span>${progress ? `<span class="next-guide-step">${progress}</span>` : ''}<span class="next-guide-text">${text}</span></p>`;
   }
   function endState(title, detail, next) {
+    if (typeof window.DemoMode !== 'undefined' && !window.DemoMode.isOn()) return '';
     return `<section class="end-state" aria-live="polite"><div class="end-state-kicker">已完成</div><h3>${title}</h3><p>${detail}</p>${next ? `<p class="end-state-next">${next}</p>` : ''}</section>`;
   }
   function demoTools(inner, id) {
+    if (typeof window.DemoMode !== 'undefined' && !window.DemoMode.isOn()) return '';
     if (!inner || !String(inner).trim()) return '';
     return `<section class="demo-tools"${id ? ' id="' + id + '"' : ''} aria-label="演示工具"><div class="demo-tools-head">演示工具</div><p class="demo-tools-note">仅用于预览流程，不是活动本身的操作。</p>${inner}</section>`;
   }
   function flowBlock(steps, viewStep, attr, guide, explain, allDone) {
+    if (typeof window.DemoMode !== 'undefined' && !window.DemoMode.isOn()) return '';
     const total = steps.length;
     const g = guide || {};
     const step = viewStep + 1;
@@ -118,6 +125,7 @@
   }
   const OVERLAP_MSG = '当前有其他充值活动进行中（演示设定）。此活动不能与其他充值活动重叠，暂不可参与。';
   function sticky(triple) {
+    if (typeof window.DemoMode !== 'undefined' && !window.DemoMode.isOn()) return '';
     const [label, name, disabled, reason] = triple;
     return `<div class="trial-cta-slot">${action(label, name, disabled)}${disabled && reason ? `<p class="cta-reason">${reason}</p>` : ''}</div>`;
   }
@@ -2919,6 +2927,7 @@
   }
 
   window.PromoHandleAction = function (name) {
+    if (!isDemoOn()) return false;
     if (name === 'go-records') { navigate('demo=records'); return true; }
     const demo = store().load();
     if (handleVipAction(name, demo)) return true;
@@ -3309,6 +3318,7 @@
   }
 
   document.addEventListener('click', e => {
+    if (!isDemoOn()) return;
     const btn = e.target.closest('button[data-action]');
     if (btn && !btn.disabled) {
       const name = btn.getAttribute('data-action');
@@ -3372,6 +3382,7 @@
 
 
   document.addEventListener('click', e => {
+    if (!isDemoOn()) return;
     const game = e.target.closest('[data-action="nfc-open-game"]');
     if (game && !game.disabled) {
       const demo = store().load();
@@ -3449,6 +3460,7 @@
   }
 
   document.addEventListener('click', e => {
+    if (!isDemoOn()) return;
     const btn = e.target.closest('button[data-action]');
     if (!btn || btn.disabled) return;
     const name = btn.getAttribute('data-action');
@@ -3472,9 +3484,198 @@
     }
   }, true);
 
+
+  function publicOptionCards(options) {
+    return `<div class="fd-option-grid">${options.map(o => `<div class="fd-option-card">
+      <div class="panel-top"><span class="eyebrow">${o.title}</span></div>
+      <div class="fd-option-rate">${o.rateLabel}</div>
+      <ul class="kyc-summary">
+        <li><span>最高彩金</span><strong>RM ${money(o.cap)}</strong></li>
+        <li><span>流水倍数</span><strong>${o.wagerText}</strong></li>
+      </ul>
+    </div>`).join('')}</div>`;
+  }
+  function publicRulesButton(label) {
+    return `<button type="button" class="outline-wide" data-tab="1">${label} ${icon('arrow')}</button>`;
+  }
+  function publicHero(opts) {
+    const path = opts.path ? pathRow(opts.path) : '';
+    const extra = opts.extra || '';
+    return `<section class="reward-feature trial-hero ${opts.cls || ''}">
+      <div class="panel-top"><span class="eyebrow">${opts.eyebrow || '活动奖励'}</span></div>
+      ${opts.amount}
+      <p class="trial-prose">${opts.text}</p>
+      ${path}${opts.cta || ''}
+      ${extra}
+    </section>`;
+  }
+  function publicSection(title, body, hint) {
+    return `<section class="section-panel"><div class="section-header"><h3>${title}</h3>${hint ? `<span>${hint}</span>` : ''}</div>${body}</section>`;
+  }
+  function publicBody(id) {
+    const join = howToJoin;
+    const rulesBtn = publicRulesButton('查看完整活动规则');
+    if (id === 'newcomer-free-challenge') {
+      return publicHero({
+        cls: '',
+        amount: '<div class="amount"><small>RM</small>100<span>.00</span></div>',
+        text: CHALLENGE_SOURCE.reward,
+        path: [['RM100', '免费试玩'], ['RM200', '达标余额'], ['RM100', '兑换现金']]
+      }) + join(['免费领取 RM100 试玩额度', '在指定游戏把试玩余额玩到 RM200', '兑换 RM100 现金到主钱包'])
+        + publicSection('参与条件', checks(CHALLENGE_SOURCE.eligibility))
+        + publicSection('重要条款', termsList(CHALLENGE_SOURCE.terms))
+        + rulesBtn;
+    }
+    if (id === 'daily-wheel') {
+      const prizes = (typeof WHEEL_SOURCE !== 'undefined' ? WHEEL_SOURCE.prizes : [888, 588, 188, 58, 18, 8]);
+      return publicHero({
+        cls: 'wheel-hero',
+        amount: '<div class="amount"><small>最高 RM</small>888</div>',
+        text: WHEEL_SOURCE.reward,
+        extra: `<div class="wheel-prize-chips" aria-hidden="true">${prizes.map(n => `<span>RM${n}</span>`).join('')}</div>`
+      }) + join(['单笔充值满 RM100 或以上，获得 1 次抽奖（每天最多 3 次）', '转动转盘，奖金进入活动彩金钱包', '完成 3 倍有效流水后，转换为现金'])
+        + publicSection('参与条件', checks(WHEEL_SOURCE.eligibility))
+        + publicSection('重要条款', termsList(WHEEL_SOURCE.terms))
+        + rulesBtn;
+    }
+    if (id === 'vip-benefits') {
+      const cards = `<div class="vip-benefit-grid">${VIP_SOURCE.benefits.map(b => `<div class="vip-benefit-card">
+        <div class="panel-top"><span class="eyebrow">${b.title}</span></div>
+        <p class="trial-prose">${b.text}</p>
+      </div>`).join('')}</div>`;
+      return publicHero({
+        cls: 'vip-hero',
+        amount: '',
+        text: VIP_SOURCE.reward + ' ' + VIP_SOURCE.summary
+      }) + join(['按你的 VIP 等级查看可领的礼金', '点对应项目领取', '奖励发放到主钱包'])
+        + publicSection('五大专属福利', cards)
+        + publicSection('风控补充', termsList(VIP_SOURCE.terms))
+        + rulesBtn;
+    }
+    if (id === 'newcomer') {
+      const cta = action('立即领取活动金', 'new-claim');
+      const table = `<div class="table-wrap"><table><thead><tr><th>活动余额</th><th>充值金额</th><th>可解锁彩金</th></tr></thead><tbody><tr><td>RM500</td><td>RM500</td><td>RM500</td></tr><tr><td>RM1,000</td><td>RM600</td><td>RM600</td></tr><tr><td>RM2,000</td><td>RM2,000</td><td>RM1,888</td></tr></tbody></table></div><p class="fine-print">最低充值 RM10；只有一次充值解锁机会。该次充值同时激活成长彩金计划。</p><button class="text-button" data-promo="growth">查看成长彩金计划 ${icon('arrow')}</button>`;
+      return publicHero({
+        amount: '<div class="amount"><small>RM</small>88<span>.00</span></div>',
+        text: '完成实名认证后领取 · 每位新会员限一次',
+        eyebrow: '新人活动金',
+        cta
+      }) + `<div class="essential-grid"><div><strong>5倍</strong><span>首阶段流水 RM440</span></div><div><strong>48小时</strong><span>充值解锁期限</span></div><div><strong>RM1,888</strong><span>解锁彩金上限</span></div></div>`
+        + join(['领取 RM88 活动金并完成指定流水', '在时限内充值，按 1:1 解锁彩金', '完成流水后，解锁彩金进入真钱钱包'])
+        + publicSection('参与条件', checks(NEWCOMER_SOURCE.eligibility))
+        + publicSection('充值解锁示例', table, '1:1 · 最高 RM1,888')
+        + publicSection('重要条款', termsList(NEWCOMER_SOURCE.terms))
+        + rulesBtn;
+    }
+    if (id === 'referral') {
+      const cta = action('邀请好友', 'invite');
+      const empty = `<div class="compact-empty" id="friend-empty">${icon('friends')}<h4>暂无邀请好友</h4><p>好友记录将显示在这里</p></div>`;
+      return publicHero({
+        eyebrow: '每位成功邀请',
+        amount: '<div class="amount"><small>最高 RM</small>1,000</div>',
+        text: REFERRAL_SOURCE.reward,
+        cta
+      }) + join(['分享你的邀请码或链接给好友', '好友完成实名认证、充值和有效投注', '对应奖励自动进入你的主钱包'])
+        + publicSection('我的邀请', statRow([['已邀请好友', '0<span> 位</span>'], ['已解锁总额', '0.00'], ['已领取总额', '0.00'], ['待领取', '0.00']], 'four-stats') + '<span class="unit-note">金额单位：MYR</span>')
+        + publicSection('推荐奖励明细', empty, '0 位好友')
+        + publicSection('重要条款', termsList(REFERRAL_SOURCE.terms))
+        + publicRulesButton('查看活动说明');
+    }
+    if (id === 'growth') {
+      const levels = (typeof LEVELS !== 'undefined' ? LEVELS : [['首充', '5,888.00'], ['Lv 1', '1,888.00'], ['Lv 2', '5,888.00'], ['Lv 3', '8,888.00'], ['Lv 4', '18,888.00']]);
+      const list = `<section class="level-list">${levels.map((row, i) => {
+        const title = row[0], amt = row[1];
+        return `<details class="level-card" ${i === 0 ? 'open' : ''}><summary><span class="level-icon">${icon('gift')}</span><span class="level-title"><b>${title}</b><small>成长彩金 MYR ${amt}</small></span>${icon('arrow')}</summary><div class="level-content">${i === 0 ? `<div class="section-header small"><h4>解锁比例</h4><button class="text-button" data-action="rates">查看说明 ${icon('arrow')}</button></div>${rateTable()}<p class="fine-print">有效投注按游戏类型比例解锁彩金。电子 0.3%，打鱼 0.3%，现场 0.1%，体育 0.5%。</p>` : '<p class="trial-prose">完成当前档位后自动激活。</p>'}</div></details>`;
+      }).join('')}</section>`;
+      return `<section class="section-panel growth-overview"><div class="section-header"><h3>当前档位 · 首充</h3></div><div class="growth-main"><div><span class="eyebrow">首充200% · 最高彩金</span><div class="growth-amount"><small>RM</small> 5,888<span>.00</span></div></div></div><p class="trial-prose">${GROWTH_SOURCE.reward}</p></section>`
+        + join(['先完成首次充值，激活 200% 档位', '在指定游戏累计有效投注，按比例解锁彩金', '解锁后领取奖励，完成当前档位后进入下一档'])
+        + `<div class="section-header outside"><h3>活动档位</h3><span>共 5 档</span></div>${list}`
+        + publicSection('重要条款', termsList(GROWTH_SOURCE.terms))
+        + publicRulesButton('查看活动说明');
+    }
+    if (id === 'anniversary') {
+      const cta = `<div class="button-pair">${action('我的抽奖券', 'tickets')}<button class="secondary" data-tab="1">活动说明</button></div>`;
+      return publicHero({
+        cls: 'draw-hero',
+        eyebrow: '3周年幸运大抽奖',
+        amount: '<div class="amount"><small>头奖 RM</small>100,000</div>',
+        text: '有效流水累计每满 RM200，获得1张抽奖券。',
+        extra: `<div class="period-dates"><div><span>活动开始</span><b>2026.11.15 <small>19:00:00</small></b></div><div><span>活动结束</span><b>2026.11.22 <small>18:59:59</small></b></div></div>${cta}`
+      }) + join(['有效流水每满 RM200，获得 1 张抽奖券', '按开奖号码核对是否中奖', '中奖后在 48 小时内手动领取'])
+        + (typeof note === 'function' ? note('中奖奖金须在48小时内手动领取，逾期自动作废。') : '<p class="fine-print">中奖奖金须在48小时内手动领取，逾期自动作废。</p>')
+        + publicSection('开奖参考', `<div class="draw-reference"><div><b>2026年11月22日</b><p>根据当周星期日 TOTO 6D 开奖号码兑奖</p></div><button class="text-button" data-action="draw-reference">查看参考说明 ${icon('arrow')}</button></div><div class="number-balls" aria-label="开奖号码">${Array(6).fill('<span>—</span>').join('')}</div>`, 'TOTO 6D')
+        + publicSection('奖项一览', prizeTable(), '共5个奖项');
+    }
+    if (id === 'maintenance') {
+      const process = `<div class="vertical-steps"><div><b>01</b><section><h4>领取100活动分</h4><p>符合资格后点击「参与活动」。</p></section></div><div><b>02</b><section><h4>在指定游戏达到200分</h4><p>活动分不能直接提现。</p></section></div><div><b>03</b><section><h4>手动完成任务，领 RM100</h4><p>返回活动页点击「完成任务」；领取后剩余活动分清零。</p></section></div></div>`;
+      return publicHero({
+        eyebrow: '维护补偿 · 限参加1次',
+        amount: '<div class="amount"><small>现金 RM</small>100</div>',
+        text: '领取100活动分，达到200分后手动完成任务。',
+        cta: '<button class="support-link" data-action="maint-eligibility">查看参与资格</button>'
+      }) + join(['符合资格后参加，领取 100 活动分', '在指定游戏把活动分打到 200 分', '手动完成任务，领取 RM100 现金'])
+        + publicSection('参与条件', checks(MAINT_SOURCE.eligibility) + '<div class="rule-chips"><span>每人1次</span><span>每设备1次</span><span>每IP 1次</span></div>')
+        + publicSection('活动流程', process)
+        + publicSection('重要条款', termsList(MAINT_SOURCE.terms))
+        + rulesBtn;
+    }
+    if (id === 'returning-member') {
+      return publicHero({
+        cls: 'return-hero',
+        amount: '<div class="amount"><small>RM</small>188<span>.00</span></div>',
+        text: RETURNING_SOURCE.reward,
+        path: [['RM100', '免费试玩'], ['RM200', '达标余额'], ['RM188', '兑换现金']]
+      }) + join(['连续 7 天未上线的老会员，免费领取 RM100 试玩', '在指定游戏把试玩余额玩到 RM200', '兑换 RM188 现金到主钱包'])
+        + publicSection('参与条件', checks(RETURNING_SOURCE.eligibility))
+        + publicSection('重要条款', termsList(RETURNING_SOURCE.terms))
+        + rulesBtn;
+    }
+    if (id === 'first-deposit-bonus') {
+      return publicHero({
+        cls: 'fd-hero',
+        amount: '<div class="amount"><small>最高 RM</small>300<span>.00</span></div>',
+        text: FIRST_DEPOSIT_SOURCE.reward
+      }) + join(['先选一种首存优惠（入账前可换）', '完成首次充值，得到对应彩金', '打完指定流水后，转换到可提款余额'])
+        + publicSection('参与条件', checks(FIRST_DEPOSIT_SOURCE.rules.slice(0, 3)))
+        + publicSection('首存优惠', publicOptionCards(FIRST_DEPOSIT_SOURCE.options), '只能选择一种')
+        + publicSection('活动规则', termsList(FIRST_DEPOSIT_SOURCE.rules))
+        + rulesBtn;
+    }
+    if (id === 'daily-reload') {
+      return publicHero({
+        cls: 'dr-hero',
+        amount: '<div class="amount"><small>最高 RM</small>300</div>',
+        text: DAILY_RELOAD_SOURCE.reward
+      }) + join(['已完成首次充值的会员，先选再存优惠', '再存一笔，按 10% 领取彩金（不超过类别上限）', '打完流水后转换到可提款余额，当天还可再存'])
+        + publicSection('参与条件', checks(DAILY_RELOAD_SOURCE.rules.slice(0, 3)))
+        + publicSection('再存优惠', publicOptionCards(DAILY_RELOAD_SOURCE.options), '按单笔及类别上限计算')
+        + publicSection('活动规则', termsList(DAILY_RELOAD_SOURCE.rules))
+        + rulesBtn;
+    }
+    return '';
+  }
+  function renderPublicDetail(p, tabIndex) {
+    const selected = Math.min(Math.max(tabIndex, 0), p.tabs.length - 1);
+    let body;
+    if (selected === 1) body = rules(p);
+    else if (selected === 2 && p.id === 'anniversary') body = (typeof _publicTickets === 'function' ? _publicTickets() : (typeof _tickets === 'function' ? _tickets() : tickets()));
+    else if (selected === 2 && p.id === 'vip-benefits') body = `<div class="compact-empty">${icon('receipt')}<h4>暂无奖励记录</h4><p class="trial-prose">领取升级礼金、保级礼金、返水、每周关怀或节日礼金后，记录将显示在这里。</p></div><button type="button" class="outline-wide" data-tab="0">返回活动详情</button>`;
+    else if (selected === 2) body = (typeof _publicTickets === 'function' ? _publicTickets() : '');
+    else body = publicBody(p.id);
+    const hero = p.banner ? `<div class="detail-hero">${banner(p)}</div>` : '';
+    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'returning-member', 'first-deposit-bonus', 'daily-reload', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
+    $('#app').innerHTML = `<article class="detail ${detailClass}"><button class="back-link" data-back>${icon('arrow')} 返回活动列表</button>${hero}<div class="detail-heading"><span class="badge">${p.badge}</span><h2>${p.title}</h2><p class="trial-prose">${p.secondary}</p></div><div class="activity-tabs" aria-label="活动内容">${p.tabs.map((tab, i) => `<button data-tab="${i}" class="${i === selected ? 'active' : ''}" aria-pressed="${i === selected}">${tab}</button>`).join('')}</div><div id="detail-content">${body}</div><button class="support-link" data-support>需要帮助？联系客服</button>${footer()}</article>`;
+    if (p.id === 'referral' && selected === 0 && $('#friend-search')) $('#friend-search').addEventListener('input', updateSearch);
+  }
+
   const _renderDetail = renderDetail;
   window.renderDetail = function (p, tabIndex = 0) {
     if (p.readOnly) { renderSourceDocument(p); return; }
+    if (!isDemoOn()) {
+      if (store() && store().removeBanner) store().removeBanner();
+      renderPublicDetail(p, tabIndex);
+      return;
+    }
     store() && store().ensureBanner && store().ensureBanner();
     store() && store().load && store().load();
     const selected = Math.min(Math.max(tabIndex, 0), p.tabs.length - 1);
@@ -3518,7 +3719,8 @@
   };
 
   const _tickets = tickets;
-  window.tickets = function () { return window.renderAnniversaryTickets ? window.renderAnniversaryTickets() : _tickets(); };
+  const _publicTickets = _tickets;
+  window.tickets = function () { if (!isDemoOn()) return _tickets(); return window.renderAnniversaryTickets ? window.renderAnniversaryTickets() : _tickets(); };
 
   document.addEventListener('click', e => {
     const period = e.target.closest('[data-period]');
@@ -3527,6 +3729,9 @@
     }
   }, true);
 
-  if (store()) store().ensureBanner();
+  if (store()) {
+    if (isDemoOn() && store().ensureBanner) store().ensureBanner();
+    else if (store().removeBanner) store().removeBanner();
+  }
   route();
 })();

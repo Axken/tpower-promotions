@@ -1,6 +1,146 @@
 (() => {
   const DEMO_KEY = 'tpower-promo-demo-v7';
   const LEGACY_DEMO_KEYS = ['tpower-promo-demo-v6', 'tpower-promo-demo-v5', 'tpower-promo-demo-v4', 'tpower-promo-demo-v3', 'tpower-trial-demo-v2', 'tpower-trial-demo-v1'];
+  const DEMO_MODE_KEY = 'tpower-promo-demo-mode-v8';
+
+  function isDemoFlag(v) {
+    return v === '1' || v === 'true' || v === 'on';
+  }
+  function isDemoMode() {
+    return document.documentElement.getAttribute('data-demo') === 'on';
+  }
+  function demoScreenActivity(screen) {
+    if (!screen) return '';
+    const exact = {
+      records: '', account: '',
+      claim: 'newcomer-free-challenge', games: 'newcomer-free-challenge', play: 'newcomer-free-challenge',
+      redeem: 'newcomer-free-challenge', 'redeem-process': 'newcomer-free-challenge', 'redeem-success': 'newcomer-free-challenge'
+    };
+    if (Object.prototype.hasOwnProperty.call(exact, screen)) return exact[screen];
+    const prefixes = [
+      ['nfc-', 'newcomer-free-challenge'], ['dw-', 'daily-wheel'], ['vb-', 'vip-benefits'],
+      ['ret-', 'returning-member'], ['fd-', 'first-deposit-bonus'], ['dr-', 'daily-reload'],
+      ['nc-', 'newcomer'], ['ref-', 'referral'], ['gr-', 'growth'], ['an-', 'anniversary'], ['mt-', 'maintenance']
+    ];
+    for (const [pre, id] of prefixes) if (String(screen).startsWith(pre)) return id;
+    return '';
+  }
+  function applyDemoModeClass(on) {
+    document.documentElement.setAttribute('data-demo', on ? 'on' : 'off');
+    document.documentElement.classList.toggle('demo-on', !!on);
+    document.documentElement.classList.toggle('demo-off', !on);
+    const input = document.getElementById('demo-mode-toggle');
+    if (input) input.checked = !!on;
+  }
+  function persistDemoMode(on) {
+    try { localStorage.setItem(DEMO_MODE_KEY, on ? '1' : '0'); } catch (e) {}
+  }
+  function stripDemoFlagFromUrl() {
+    try {
+      const url = new URL(location.href);
+      let changed = false;
+      if (isDemoFlag(url.searchParams.get('demo'))) {
+        url.searchParams.delete('demo');
+        changed = true;
+      }
+      const hashParams = new URLSearchParams(url.hash.startsWith('#') ? url.hash.slice(1) : url.hash);
+      if (isDemoFlag(hashParams.get('demo'))) {
+        hashParams.delete('demo');
+        const next = hashParams.toString();
+        url.hash = next ? '#' + next : '';
+        changed = true;
+      }
+      if (changed) history.replaceState(null, '', url.pathname + url.search + url.hash);
+    } catch (e) {}
+  }
+  function recordsFallback() {
+    simpleModal('领奖记录', '<p>暂未提供逐笔领奖记录。</p><p class="subnote">成长彩金截图有已领取汇总金额，预览不会将其编造成具体交易记录。</p>', 'receipt');
+  }
+  function bindRecordsButton() {
+    const btn = document.getElementById('records');
+    if (!btn) return;
+    btn.onclick = () => {
+      if (isDemoMode()) navigate('demo=records');
+      else recordsFallback();
+    };
+  }
+  function removeBanner() {
+    const bar = document.getElementById('demo-banner');
+    if (bar) bar.remove();
+  }
+  function syncDemoChrome() {
+    bindRecordsButton();
+    if (isDemoMode()) ensureBanner();
+    else removeBanner();
+  }
+  function leaveDemoScreenIfNeeded() {
+    const params = currentRoute();
+    const screen = params.get('demo');
+    if (!screen || isDemoFlag(screen)) return false;
+    const tab = params.get('tab');
+    const id = params.get('activity') || demoScreenActivity(screen);
+    if (id) {
+      navigate('activity=' + id + (tab ? '&tab=' + tab : ''));
+      return true;
+    }
+    navigate('category=' + ((typeof state !== 'undefined' && state.category) || 'all'));
+    return true;
+  }
+  function setDemoMode(on, opts) {
+    const options = opts || {};
+    const persist = options.persist !== false;
+    const render = options.render !== false;
+    const next = !!on;
+    const prev = isDemoMode();
+    applyDemoModeClass(next);
+    if (persist) persistDemoMode(next);
+    if (typeof closeModal === 'function' && $('#modal') && $('#modal').open) closeModal();
+    syncDemoChrome();
+    if (render && prev !== next) {
+      if (!next && leaveDemoScreenIfNeeded()) return;
+      if (typeof route === 'function') route();
+    }
+  }
+  function mountDemoToggle() {
+    if (document.getElementById('demo-mode-toggle')) return;
+    const host = document.querySelector('.language-control') || document.querySelector('.header-spacer');
+    if (!host) return;
+    host.classList.add('language-control');
+    const label = document.createElement('label');
+    label.className = 'demo-toggle';
+    label.setAttribute('for', 'demo-mode-toggle');
+    label.innerHTML = '<input type="checkbox" id="demo-mode-toggle" role="switch" aria-label="演示模式"><span class="demo-toggle-ui" aria-hidden="true"></span><span class="demo-toggle-label">演示</span>';
+    const select = host.querySelector('select');
+    if (select) host.insertBefore(label, select);
+    else host.append(label);
+    const input = label.querySelector('input');
+    input.checked = isDemoMode();
+    input.addEventListener('change', () => setDemoMode(input.checked));
+  }
+  function initDemoMode() {
+    const q = new URLSearchParams(location.search);
+    const h = new URLSearchParams((location.hash || '').replace(/^#/, ''));
+    let on = false;
+    let fromLink = false;
+    if (isDemoFlag(q.get('demo')) || isDemoFlag(h.get('demo'))) {
+      on = true;
+      fromLink = true;
+    } else {
+      try { on = localStorage.getItem(DEMO_MODE_KEY) === '1'; } catch (e) { on = false; }
+    }
+    applyDemoModeClass(on);
+    if (fromLink) persistDemoMode(true);
+    if (fromLink) stripDemoFlagFromUrl();
+    mountDemoToggle();
+    bindRecordsButton();
+  }
+  window.DemoMode = {
+    key: DEMO_MODE_KEY,
+    isOn: isDemoMode,
+    set: setDemoMode,
+    init: initDemoMode
+  };
+
   const JOURNEY = ['领取', '试玩', '达标', '兑换', '到账'];
   const WIN_SPINS = [
     { delta: 20, symbols: ['7', '7', '7'] },
@@ -235,6 +375,7 @@
     return null;
   }
   function journeyBar() {
+    if (!isDemoMode()) return '';
     const j = getActiveJourney();
     if (!j) return '';
     return buildJourney(j.labels, j.current, j.finished);
@@ -247,6 +388,7 @@
   }
 
   window.toast = function toast(message) {
+    if (!isDemoMode()) return;
     let el = document.getElementById('demo-toast');
     if (!el) {
       el = document.createElement('div');
@@ -261,6 +403,7 @@
   };
 
   function ensureBanner() {
+    if (!isDemoMode()) { removeBanner(); return; }
     if (document.getElementById('demo-banner')) return;
     const bar = document.createElement('div');
     bar.id = 'demo-banner';
@@ -528,6 +671,7 @@
   }
 
   window.renderDemo = function renderDemo(screen) {
+    if (!isDemoMode()) { leaveDemoScreenIfNeeded(); return; }
     ensureBanner();
     clearTimeout(demoTimer);
     demo = loadDemo();
@@ -765,9 +909,18 @@
     const nav = e.target.closest('[data-demo-nav]');
     if (nav) {
       e.preventDefault();
-      navigate(nav.getAttribute('data-demo-nav'));
+      const target = nav.getAttribute('data-demo-nav') || '';
+      const tp = new URLSearchParams(target.startsWith('#') ? target.slice(1) : target);
+      const screen = tp.get('demo');
+      if (!isDemoMode() && screen && !isDemoFlag(screen)) {
+        const id = tp.get('activity') || demoScreenActivity(screen);
+        if (id) navigate('activity=' + id + (tp.get('tab') ? '&tab=' + tp.get('tab') : ''));
+        return;
+      }
+      navigate(target);
       return;
     }
+    if (!isDemoMode()) return;
     const upload = e.target.closest('[data-action="demo-upload"]');
     if (upload) {
       const key = upload.getAttribute('data-upload');
@@ -790,6 +943,7 @@
     const form = e.target.closest('[data-demo-form]');
     if (!form) return;
     e.preventDefault();
+    if (!isDemoMode()) return;
     if (form.getAttribute('data-demo-form') === 'register') handleDemoAction('demo-register');
     if (form.getAttribute('data-demo-form') === 'kyc') handleDemoAction('demo-kyc-submit');
   });
@@ -812,30 +966,40 @@
     let id = params.get('activity');
     const screen = params.get('demo');
     const tab = params.get('tab');
+    if (isDemoFlag(screen) || isDemoFlag(new URLSearchParams(location.search).get('demo'))) {
+      setDemoMode(true, { persist: true, render: false });
+      stripDemoFlagFromUrl();
+    }
+    const screenNow = currentRoute().get('demo');
     const oldTrialScreens = ['claim', 'games', 'play', 'redeem', 'redeem-process', 'redeem-success'];
-    if (id === 'newcomer-trial' || id === 'newcomer-trial-notes' || (screen && oldTrialScreens.includes(screen))) {
+    if (id === 'newcomer-trial' || id === 'newcomer-trial-notes' || (screenNow && oldTrialScreens.includes(screenNow))) {
       const next = 'activity=newcomer-free-challenge' + (tab ? '&tab=' + tab : '');
       if ((location.hash || '').replace(/^#/, '') !== next) {
         navigate(next);
         return;
       }
     }
-    if (screen) {
-      renderDemo(screen);
+    if (screenNow && !isDemoFlag(screenNow)) {
+      if (!isDemoMode()) {
+        leaveDemoScreenIfNeeded();
+        return;
+      }
+      renderDemo(screenNow);
       return;
     }
     _route();
-    ensureBanner();
+    syncDemoChrome();
   };
   window.removeEventListener('hashchange', _route);
   window.addEventListener('hashchange', route);
 
-  $('#records').onclick = () => navigate('demo=records');
+  bindRecordsButton();
 
   const _origClick = document.addEventListener;
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-nav="account"]');
     if (!b || b.disabled) return;
+    if (!isDemoMode()) return;
     e.stopImmediatePropagation();
     navigate('demo=account');
   }, true);
@@ -844,6 +1008,7 @@
   document.addEventListener('click', e => {
     const stepBtn = e.target.closest('[data-trial-step]');
     if (stepBtn && !stepBtn.disabled) {
+      if (!isDemoMode()) { e.stopImmediatePropagation(); return; }
       e.stopImmediatePropagation();
       state.trial.inspect = Number(stepBtn.dataset.trialStep);
       refreshTrial();
@@ -861,9 +1026,12 @@
     formatRecordTime,
     addRecord(rec) { demo.records.unshift(rec); saveDemo(); },
     ensureBanner,
+    removeBanner,
+    isDemoMode,
     buildJourney
   };
 
-  ensureBanner();
+  initDemoMode();
+  syncDemoChrome();
   route();
 })();

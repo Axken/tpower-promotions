@@ -539,6 +539,8 @@ RM188 现金已到主钱包。本活动仅限领取一次。|RM188 現金已到�
 领取RM100现金|領取RM100現金|Claim RM100 cash|Tuntut RM100 tunai|Nhận RM100 tiền mặt|รับเงินสด RM100|Klaim RM100 tunai|RM100 नकद दावा करें
 参加并领取100活动分|參加並領取100活動分|Join and claim 100 promo points|Sertai dan tuntut 100 mata promosi|Tham gia và nhận 100 điểm hoạt động|เข้าร่วมและรับ 100 คะแนนกิจกรรม|Ikut dan klaim 100 poin promo|शामिल हों और 100 प्रोमो अंक लें
 兑换RM188到主钱包|兌換RM188到主錢包|Redeem RM188 to main wallet|Tebus RM188 ke dompet utama|Đổi RM188 vào ví chính|แลก RM188 เข้ากระเป๋าหลัก|Tebus RM188 ke dompet utama|RM188 मुख्य वॉलेट में रिडीम करें
+演示|示範|Demo|Demo|Demo|เดโม|Demo|डेमो
+演示模式|示範模式|Demo mode|Mod demo|Chế độ demo|โหมดสาธิต|Mode demo|डेमो मोड
 `;
 const UI_DICTIONARIES=Object.fromEntries(UI_LANGUAGES.map(([code])=>[code,{}]));
 for(const row of UI_TRANSLATION_ROWS.trim().split('\n')){const cells=row.split('|');if(cells.length!==8)throw new Error('Invalid locale row: '+cells[0]);UI_LANGUAGES.forEach(([code],i)=>UI_DICTIONARIES[code][cells[0]]=cells[i]);}
