@@ -830,3 +830,19 @@ html[data-skip-motion="1"] .fd-option-card.is-selected:after{animation:none!impo
   .wheel-pointer.is-tick{animation:none}
   .fx-spinner{animation:none;border-top-color:#fff}
 }
+
+
+/* fix10: full-ratio photo banners for 6 activities; do not crop text-heavy artwork */
+.banner-photo{background:#140c10}
+.banner-photo picture{position:absolute;inset:0;display:block;width:100%;height:100%}
+.banner-photo img{inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:center}
+@media(max-width:600px){
+  .promo-detail.has-photo-banner .detail-hero,
+  .promo-detail.has-photo-banner .detail-hero .banner,
+  .has-photo-banner .detail-hero,
+  .has-photo-banner .detail-hero .banner{
+    max-height:none;
+    aspect-ratio:auto;
+    height:auto;
+  }
+}

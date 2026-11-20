@@ -75,10 +75,10 @@
       if(node.nodeValue!==result)node.nodeValue=result;
       record.last=result;originalText.set(node,record);
     }
-    document.querySelectorAll('[aria-label],[placeholder],[title]').forEach(el=>{
+    document.querySelectorAll('[aria-label],[placeholder],[title],[alt]').forEach(el=>{
       if(el===select||el.closest('select'))return;
       let record=originalAttrs.get(el)||{};
-      for(const attr of ['aria-label','placeholder','title']){
+      for(const attr of ['aria-label','placeholder','title','alt']){
         if(!el.hasAttribute(attr))continue;
         const value=el.getAttribute(attr);let entry=record[attr];
         if(!entry||value!==entry.last)entry={source:value,last:value};
@@ -90,7 +90,7 @@
     // Source prose is explicitly distinguished from translated interface labels.
     document.querySelectorAll('.rule-content,.step-explanation p,.detail-heading h2,.detail-heading>p,.card-title,.card-type,.banner,.trial-prose,.eligibility-list,.trial-terms,.demo-lead').forEach(el=>el.lang='zh-CN');
     if(!location.hash.includes('activity='))document.title='TPOWER · '+UI_DICTIONARIES[language]['促销活动'];
-    observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','placeholder','title']});
+    observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','placeholder','title','alt']});
   }
   const observer=new MutationObserver(apply);
   select.addEventListener('change',()=>{language=allowed.has(select.value)?select.value:'zh-CN';try{localStorage.setItem(KEY,language)}catch{}apply();});

@@ -3461,7 +3461,7 @@
     const w = demo.dailyWheel;
     if (kind === 'ok' || kind === '100') {
       if ((w.earnedToday || 0) >= 3) {
-        toast('每名会员每日最多获得3次抽奖机会。');
+        toast('今日抽奖次数已达上限3次');
         refreshPromo();
         return;
       }
@@ -3761,7 +3761,7 @@
     else if (selected === 2) body = (typeof _publicTickets === 'function' ? _publicTickets() : '');
     else body = publicBody(p.id);
     const hero = p.banner ? `<div class="detail-hero">${banner(p)}</div>` : '';
-    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'returning-member', 'first-deposit-bonus', 'daily-reload', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
+    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'returning-member', 'first-deposit-bonus', 'daily-reload', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' + (p.banner === 'photo' ? ' has-photo-banner' : '') : '';
     $('#app').innerHTML = `<article class="detail ${detailClass}"><button class="back-link" data-back>${icon('arrow')} 返回活动列表</button>${hero}<div class="detail-heading"><span class="badge">${p.badge}</span><h2>${p.title}</h2><p class="trial-prose">${p.secondary}</p></div><div class="activity-tabs" aria-label="活动内容">${p.tabs.map((tab, i) => `<button data-tab="${i}" class="${i === selected ? 'active' : ''}" aria-pressed="${i === selected}">${tab}</button>`).join('')}</div><div id="detail-content">${body}</div><button class="support-link" data-support>需要帮助？联系客服</button>${footer()}</article>`;
     if (p.id === 'referral' && selected === 0 && $('#friend-search')) $('#friend-search').addEventListener('input', updateSearch);
   }
@@ -3811,7 +3811,7 @@
     };
     const stickyHtml = selected === 0 && stickyFor[p.id] ? stickyFor[p.id]() : (p.id === 'anniversary' && selected === 2 ? sticky(anCta(demoOf().anniversary)) : '');
     const hero = p.banner ? `<div class="detail-hero">${banner(p)}</div>` : '';
-    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'returning-member', 'first-deposit-bonus', 'daily-reload', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' : '';
+    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'returning-member', 'first-deposit-bonus', 'daily-reload', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' + (p.banner === 'photo' ? ' has-photo-banner' : '') : '';
     $('#app').innerHTML = `<article class="detail ${detailClass}"><button class="back-link" data-back>${icon('arrow')} 返回活动列表</button>${hero}<div class="detail-heading"><span class="badge">${p.badge}</span><h2>${p.title}</h2><p class="trial-prose">${p.secondary}</p></div><div class="activity-tabs" aria-label="活动内容">${p.tabs.map((t, i) => `<button data-tab="${i}" class="${i === selected ? 'active' : ''}" aria-pressed="${i === selected}">${t}</button>`).join('')}</div><div id="detail-content">${body}</div>${stickyHtml}<button class="support-link" data-support>需要帮助？联系客服</button>${footer()}</article>`;
     if (p.id === 'referral' && selected === 0 && $('#friend-search')) $('#friend-search').addEventListener('input', updateSearch);
   };

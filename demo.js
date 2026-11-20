@@ -738,7 +738,7 @@
     return `<div class="trial-cta-slot">${action(label, name, disabled)}</div>`;
   };
   window.trialCard = function (p) {
-    return `<button class="promo-card trial-list-card" data-promo="${p.id}" aria-label="查看${p.title}详情"><div class="trial-card-hero"><span class="trial-card-tag">${p.tag || '新人体验'}</span><p class="trial-card-summary trial-prose">${p.summary}</p><div class="trial-path" aria-hidden="true"><div><strong>RM100</strong><span>免费试玩</span></div><span class="trial-path-arrow"></span><div><strong>RM200</strong><span>达标余额</span></div><span class="trial-path-arrow"></span><div><strong>RM100</strong><span>兑换现金</span></div></div></div><div class="card-footer"><div><div class="card-title">${p.title}</div><div class="card-type">${p.summary}</div></div><span class="card-link">查看详情 ${icon('arrow')}</span></div></button>`;
+    return `<button class="promo-card trial-list-card" data-promo="${p.id}" aria-label="查看${p.title}详情">${banner(p,{lazy:true})}<div class="card-footer"><div><div class="card-title">${p.title}</div><div class="card-type">${p.summary}</div></div><span class="card-link">查看详情 ${icon('arrow')}</span></div></button>`;
   };
   window.trialBalancePanel = function () {
     if (!demo.claimed) return '';

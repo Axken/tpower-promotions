@@ -544,6 +544,13 @@ RM188 现金已到主钱包。本活动仅限领取一次。|RM188 現金已到�
 处理中|處理中|Processing|Sedang diproses|Đang xử lý|กำลังดำเนินการ|Memproses|प्रोसेस हो रहा है
 开奖中|開獎中|Drawing|Sedang cabutan|Đang quay thưởng|กำลังออกรางวัล|Sedang undian|ड्रॉ हो रहा है
 转盘转动中…|轉盤轉動中…|Spinning…|Roda sedang berputar…|Đang quay…|กำลังหมุน…|Roda berputar…|घूम रहा है…
+今日抽奖次数已达上限3次|今日抽獎次數已達上限3次|Today's spin limit of 3 has been reached|Had 3 putaran hari ini telah tercapai|Hôm nay đã đạt giới hạn 3 lượt quay|ครบจำนวน 3 ครั้งวันนี้แล้ว|Batas 3 putaran hari ini tercapai|आज की 3 स्पिन की सीमा पूरी
+新人免费挑战活动图：新会员免费试玩赢RM100|新人免費挑戰活動圖：新會員免費試玩贏RM100|New member free play challenge banner: win RM100|Sepanduk cabaran cubaan percuma ahli baharu: menangi RM100|Ảnh sự kiện thử chơi miễn phí hội viên mới: thắng RM100|แบนเนอร์ทดลองเล่นฟรีสมาชิกใหม่: ลุ้น RM100|Banner tantangan uji coba gratis member baru: menangkan RM100|नए सदस्य मुफ्त खेल बैनर: RM100 जीतें
+每日幸运大转盘活动图：每日3次抽奖机会，赢取RM888|每日幸運大轉盤活動圖：每日3次抽獎機會，贏取RM888|Daily lucky wheel banner: 3 draws a day, win RM888|Sepanduk roda tuah harian: 3 pulangan sehari, menangi RM888|Ảnh vòng quay may mắn hằng ngày: 3 lượt mỗi ngày, thắng RM888|แบนเนอร์วงล้อนำโชครายวัน: 3 สิทธิ์ต่อวัน ลุ้น RM888|Banner roda keberuntungan harian: 3 putaran per hari, menangkan RM888|दैनिक लकी व्हील बैनर: दिन में 3 स्पिन, RM888 जीतें
+VIP会员专属福利活动图|VIP會員專屬福利活動圖|VIP exclusive benefits banner|Sepanduk keistimewaan eksklusif VIP|Ảnh đặc quyền riêng VIP|แบนเนอร์สิทธิพิเศษ VIP|Banner benefit eksklusif VIP|VIP विशेष लाभ बैनर
+老会员回归活动图：免费赢取RM188|老會員回歸活動圖：免費贏取RM188|Returning member banner: win RM188 for free|Sepanduk ahli lama kembali: menangi RM188 percuma|Ảnh hội viên cũ trở lại: thắng RM188 miễn phí|แบนเนอร์สมาชิกเก่ากลับมา: รับ RM188 ฟรี|Banner member lama kembali: menangkan RM188 gratis|वापस आए सदस्य बैनर: मुफ्त RM188 जीतें
+新人首存彩金100%活动图|新人首存彩金100%活動圖|New member first-deposit 100% bonus banner|Sepanduk bonus deposit pertama 100% ahli baharu|Ảnh thưởng nạp lần đầu 100% hội viên mới|แบนเนอร์โบนัสฝากแรก 100% สมาชิกใหม่|Banner bonus deposit pertama 100% member baru|नए सदस्य पहली जमा 100% बोनस बैनर
+每日再存10%彩金活动图|每日再存10%彩金活動圖|Daily reload 10% bonus banner|Sepanduk bonus deposit semula 10% harian|Ảnh thưởng nạp lại 10% hằng ngày|แบนเนอร์โบนัสฝากซ้ำ 10% รายวัน|Banner bonus deposit ulang 10% harian|दैनिक रीलोड 10% बोनस बैनर
 `;
 const UI_DICTIONARIES=Object.fromEntries(UI_LANGUAGES.map(([code])=>[code,{}]));
 for(const row of UI_TRANSLATION_ROWS.trim().split('\n')){const cells=row.split('|');if(cells.length!==8)throw new Error('Invalid locale row: '+cells[0]);UI_LANGUAGES.forEach(([code],i)=>UI_DICTIONARIES[code][cells[0]]=cells[i]);}
