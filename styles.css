@@ -143,6 +143,12 @@ html,body{height:100%;overflow:hidden}
 .eligibility-list li+li,.trial-terms li+li{margin-top:10px}
 .eligibility-mark{width:18px;height:18px;margin-top:3px;border-radius:50%;border:1.5px solid #b81f31;background:#2a151b;flex:none;position:relative}
 .eligibility-mark:before{content:"";position:absolute;left:5px;top:3px;width:5px;height:8px;border-right:1.7px solid #f2b4be;border-bottom:1.7px solid #f2b4be;transform:rotate(40deg)}
+.eligibility-mark.is-fail{border-color:#8a6a72;background:#24191d}
+.eligibility-mark.is-fail:before,.eligibility-mark.is-fail:after{content:"";position:absolute;left:4px;top:8px;width:8px;height:0;border:0;border-bottom:1.7px solid #d7b4bc}
+.eligibility-mark.is-fail:before{transform:rotate(45deg)}
+.eligibility-mark.is-fail:after{transform:rotate(-45deg)}
+.eligibility-list li.is-fail{color:#c4b0b6}
+
 .trial-terms li:before{content:"";width:6px;height:6px;margin-top:8px;border-radius:50%;background:#b81f31;flex:none}
 .trial-steps button.done{color:#e4c4ce}
 .trial-steps button.done b{background:#3a1d24;border-color:#b81f31;color:#f2d7df}
@@ -167,10 +173,6 @@ html,body{height:100%;overflow:hidden}
   .trial-list-card .card-type{display:block;font-size:12px;color:#c9b3bc}
   .trial-card-summary{font-size:13px;margin-bottom:10px}
 }
-@media(max-width:600px){
-  .trial-list-card .card-type{display:none}
-}
-
 /* Demo journey: banner, screens, wallets, KYC, slot, records */
 .demo-banner{display:flex;align-items:center;gap:10px;padding:8px 2px 10px;flex:none}
 .demo-badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;border:1px solid #9a3140;background:#4a1720;color:#ffd0d6;font-size:10px;letter-spacing:.04em;white-space:nowrap;font-weight:600}
@@ -266,7 +268,7 @@ html,body{height:100%;overflow:hidden}
 }
 
 .demo-form label[hidden]{display:none !important}
-.trial-detail #detail-content{padding-bottom:88px}
+
 .demo-status-card.success{background:linear-gradient(160deg,#2a1a20,#171318);border-color:#6a3c48}
 .journey-steps li.done.current b{background:#b81f31;border-color:#f4495e;color:#fff}
 
@@ -294,8 +296,10 @@ html,body{height:100%;overflow:hidden}
 .growth-overview .primary{margin-top:18px}
 .rate-modal h2{font-size:18px;margin:0 0 14px}
 
-.wheel-prize-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.wheel-prize-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:12px}
 .wheel-prize-chips span{background:#2a1d25;border:1px solid #5a3a2a;border-radius:5px;padding:4px 8px;font-size:11px;color:#f1c984;font-variant-numeric:tabular-nums}
+.wheel-prize-chips span{text-align:center}
+@media(min-width:600px){.wheel-prize-chips{grid-template-columns:repeat(6,minmax(0,1fr))}}
 .wheel-hero .stat-row{border-top-color:#5e2b3d}
 .wheel-stage{position:relative;width:min(280px,72vw);aspect-ratio:1;margin:10px auto 20px}
 .wheel-pointer{position:absolute;top:-4px;left:50%;z-index:3;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:20px solid #f1c984;transform:translateX(-50%);filter:drop-shadow(0 2px 3px #0009)}
@@ -672,7 +676,7 @@ button:disabled,button:disabled:hover,button:disabled:active,button:disabled:foc
 .how-to-steps{gap:4px}
 .how-to-steps li{font-size:12px;line-height:1.45;gap:8px}
 .how-to-steps b{width:18px;height:18px;font-size:10px;margin-top:0}
-.trial-detail #detail-content{padding-bottom:136px}
+.trial-detail.has-sticky-cta #detail-content{padding-bottom:136px}
 .trial-cta-slot{padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px))}
 @media(max-width:600px){
   .trial-cta-slot{padding:12px 0 calc(8px + env(safe-area-inset-bottom, 0px))}
@@ -868,5 +872,24 @@ html[data-skip-motion="1"] .fd-option-card.is-selected:after{animation:none!impo
   .has-photo-banner #detail-content .reward-feature{order:2}
   .has-photo-banner #detail-content .journey-steps{order:3;margin:8px 0 10px}
   .has-photo-banner #detail-content .how-to-join{order:4}
-  .has-photo-banner.trial-detail #detail-content{padding-bottom:136px}
+  .has-photo-banner.trial-detail.has-sticky-cta #detail-content{padding-bottom:136px}
+}
+
+
+/* fix12: official VIP table, eligibility fail already above, compact wheel stats */
+.vip-level-table{font-size:11px}
+.vip-level-table th,.vip-level-table td{white-space:nowrap;vertical-align:top}
+.vip-level-table th small{display:block;font-weight:400;color:#a09b9d;margin-top:2px}
+@media(max-width:600px){
+  .has-photo-banner .wheel-hero .stat-row{margin-top:6px}
+  .has-photo-banner .wheel-hero .unit-note{margin-top:0}
+  .has-photo-banner .wheel-hero .wheel-prize-chips{margin-top:8px}
+}
+
+.wheel-live-line{margin:6px 0 0;color:#c9b3bc;font-size:12px;line-height:1.4;font-variant-numeric:tabular-nums}
+@media(max-width:600px){
+  .has-photo-banner .wheel-hero{padding-top:6px;padding-bottom:6px;margin-bottom:8px}
+  .has-photo-banner .wheel-hero .amount{font-size:36px;margin-top:0}
+  .has-photo-banner .wheel-live-line{margin-top:2px}
+  .has-photo-banner .next-guide{margin:2px 0 4px;padding:4px 8px}
 }

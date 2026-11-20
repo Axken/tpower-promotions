@@ -43,7 +43,10 @@
     return store().demoPage(title, body, backHash);
   }
   function checks(items) {
-    return `<ul class="eligibility-list trial-prose">${items.map(item => `<li><span class="eligibility-mark" aria-hidden="true"></span><span>${item}</span></li>`).join('')}</ul>`;
+    return `<ul class="eligibility-list trial-prose">${items.map(item => {
+      const fail = /不符资格|未满/.test(String(item));
+      return `<li${fail ? ' class="is-fail"' : ''}><span class="eligibility-mark${fail ? ' is-fail"' : '"'} aria-hidden="true"></span><span>${item}</span></li>`;
+    }).join('')}</ul>`;
   }
   function termsList(items) {
     return `<ul class="trial-terms trial-prose">${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
@@ -119,15 +122,47 @@
     const rightAfter = r2((rightBefore || 0) + amt);
     const leftAfter = r2(Math.max(0, (leftBefore || 0) - amt));
     return `<div class="wallet-pair">
-          <div class="wallet-card trial"><span>${leftLabel}（转换后）</span><strong>RM ${money(leftAfter)}</strong><small>转换前 RM ${money(leftBefore)}</small></div>
-          <div class="wallet-card main"><span>${rightLabel}（转换后）</span><strong>RM ${money(rightAfter)}</strong><small>转换前 RM ${money(rightBefore)}</small></div>
+          <div class="wallet-card trial"><span>${leftLabel}（转换后）</span><strong>MYR ${money(leftAfter)}</strong><small>转换前 MYR ${money(leftBefore)}</small></div>
+          <div class="wallet-card main"><span>${rightLabel}（转换后）</span><strong>MYR ${money(rightAfter)}</strong><small>转换前 MYR ${money(rightBefore)}</small></div>
         </div>`;
   }
   const OVERLAP_MSG = '当前有其他充值活动进行中（演示设定）。此活动不能与其他充值活动重叠，暂不可参与。';
   function sticky(triple) {
-    if (typeof window.DemoMode !== 'undefined' && !window.DemoMode.isOn()) return '';
+    if (!triple) return '';
     const [label, name, disabled, reason] = triple;
     return `<div class="trial-cta-slot">${action(label, name, disabled)}${disabled && reason ? `<p class="cta-reason">${reason}</p>` : ''}</div>`;
+  }
+  function publicSticky(id) {
+    const map = {
+      'newcomer-free-challenge': ['领取MYR100试玩额度', 'need-demo', false],
+      'daily-wheel': ['去充值获得抽奖次数', 'need-demo', false],
+      'returning-member': ['领取MYR100试玩额度', 'need-demo', false],
+      'first-deposit-bonus': ['选择优惠并充值', 'need-demo', false],
+      'daily-reload': ['选择优惠并再存', 'need-demo', false],
+      newcomer: ['立即领取活动金', 'need-demo', false],
+      referral: ['邀请好友', 'need-demo', false],
+      growth: ['去完成首次充值', 'need-demo', false],
+      anniversary: ['去累计有效流水', 'need-demo', false],
+      maintenance: ['参加并领取100活动分', 'need-demo', false]
+    };
+    return map[id] ? sticky(map[id]) : '';
+  }
+  function showNeedDemoPrompt() {
+    const html = `<div class="need-demo-prompt">
+      <h2>请先打开演示模式</h2>
+      <p class="trial-prose">请先打开顶部的演示模式，即可体验下一步。</p>
+      <button type="button" class="primary" data-action="enable-demo">打开演示并继续</button>
+      <button type="button" class="outline-wide" data-close>取消</button>
+    </div>`;
+    if (typeof openModal === 'function') openModal(html);
+    else if (typeof simpleModal === 'function') simpleModal('请先打开演示模式', '<p class="trial-prose">请先打开顶部的演示模式，即可体验下一步。</p>');
+  }
+  function detailClassFor(p, stickyHtml) {
+    const ids = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'returning-member', 'first-deposit-bonus', 'daily-reload', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'];
+    let cls = ids.includes(p.id) ? 'trial-detail promo-detail' : '';
+    if (p.banner === 'photo') cls += (cls ? ' ' : '') + 'has-photo-banner';
+    if (stickyHtml && String(stickyHtml).trim()) cls += (cls ? ' ' : '') + 'has-sticky-cta';
+    return cls;
   }
   function pathRow(items) {
     return `<div class="trial-path" aria-hidden="true">${items.map((it, i) => `${i ? '<span class="trial-path-arrow"></span>' : ''}<div><strong>${it[0]}</strong><span>${it[1]}</span></div>`).join('')}</div>`;
@@ -192,7 +227,7 @@
   };
 
 
-  /* ------------ 新人免费挑战赢取RM100 ------------ */
+  /* ------------ 新人免费挑战赢取MYR100 ------------ */
   const NFC_JOURNEY = ['领取', '试玩', '达标', '兑换', '到账'];
   const NFC_WIN = [
     { delta: 20, symbols: ['7', '7', '7'] },
@@ -227,21 +262,21 @@
     return 1;
   }
   function nfcGuide(c) {
-    if (c.redeemed) return { step: 4, total: 4, done: true, text: 'RM100 现金已到主钱包。本活动终身限领一次。', endTitle: '已兑换 RM100 现金', endDetail: '奖励已进入主钱包，试玩额度已清零。', endNext: '本活动终身限领一次。' };
+    if (c.redeemed) return { step: 4, total: 4, done: true, text: 'MYR100 现金已到主钱包。本活动终身限领一次。', endTitle: '已兑换 MYR100 现金', endDetail: '奖励已进入主钱包，试玩额度已清零。', endNext: '本活动终身限领一次。' };
     if (!c.claimed && retTrialTaken()) return { step: 2, total: 4, text: '已领取「老会员回归」，本活动不可领取（互斥）。' };
-    if (!c.claimed) return { step: 2, total: 4, text: '先领取 RM100 试玩额度。' };
-    if (c.trialEnded) return { step: 3, total: 4, text: '试玩已结束，未达到 RM200，不可兑换。' };
-    if (c.reachedTarget) return { step: 4, total: 4, text: '已达到 RM200，兑换 RM100 现金到主钱包。' };
+    if (!c.claimed) return { step: 2, total: 4, text: '先领取 MYR100 试玩额度。' };
+    if (c.trialEnded) return { step: 3, total: 4, text: '试玩已结束，未达到 MYR200，不可兑换。' };
+    if (c.reachedTarget) return { step: 4, total: 4, text: '已达到 MYR200，兑换 MYR100 现金到主钱包。' };
     const left = r2(Math.max(0, 200 - (c.trialBalance || 0)));
-    return { step: 3, total: 4, text: '去指定游戏试玩。还差 RM ' + money(left) + ' 即可兑换。' };
+    return { step: 3, total: 4, text: '去指定游戏试玩。还差 MYR ' + money(left) + ' 即可兑换。' };
   }
   function nfcCta(c) {
     const g = nfcGuide(c);
     if (c.redeemed) return ['查看到账', 'go-records', false];
     if (!c.claimed && retTrialTaken()) return ['不可领取（互斥）', 'nfc-blocked', true, g.text];
-    if (!c.claimed) return ['领取RM100试玩额度', 'nfc-go-claim', false];
-    if (c.trialEnded) return ['未达RM200，不可兑换', 'demo-done', true, g.text];
-    if (c.reachedTarget) return ['兑换RM100到主钱包', 'nfc-go-redeem', false];
+    if (!c.claimed) return ['领取MYR100试玩额度', 'nfc-go-claim', false];
+    if (c.trialEnded) return ['未达MYR200，不可兑换', 'demo-done', true, g.text];
+    if (c.reachedTarget) return ['兑换MYR100到主钱包', 'nfc-go-redeem', false];
     return ['去试玩', 'nfc-go-play', false];
   }
   function nfcStatus(c) {
@@ -255,11 +290,11 @@
   function nfcBalancePanel(c) {
     if (!c.claimed) return '';
     return `<div class="wallet-pair" id="nfc-balance">
-      <div class="wallet-card trial"><span>试玩钱包</span><strong>RM ${money(c.trialBalance)}</strong><small>${c.redeemed ? '已清零' : c.trialEnded ? '试玩已结束' : '不可充值、转账或提款'}</small></div>
-      <div class="wallet-card main ${demoOf().mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>RM ${money(demoOf().mainWallet)}</strong><small>${c.redeemed ? 'RM100 现金已到账' : '兑换现金将进入此钱包'}</small></div>
+      <div class="wallet-card trial"><span>试玩钱包</span><strong>MYR ${money(c.trialBalance)}</strong><small>${c.redeemed ? '已清零' : c.trialEnded ? '试玩已结束' : '不可充值、转账或提款'}</small></div>
+      <div class="wallet-card main ${demoOf().mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>MYR ${money(demoOf().mainWallet)}</strong><small>${c.redeemed ? 'MYR100 现金已到账' : '兑换现金将进入此钱包'}</small></div>
     </div>
-    <div class="trial-balance">${c.claimed && !c.redeemed && !c.trialEnded ? `<div class="bar-label"><span>试玩余额</span><span>RM ${money(c.trialBalance)} / RM 200.00</span></div><progress max="200" value="${Math.min(200, c.trialBalance)}" aria-label="试玩余额进度"></progress>` : ''}
-    <p class="fine-print trial-prose">${c.redeemed ? '达标兑换后，试玩额度及剩余试玩余额自动清零。' : c.trialEnded ? '未达RM200目标，不可兑换部分奖励。' : '试玩余额达到RM200，即可兑换RM100现金奖励。未达RM200目标，不可兑换部分奖励。'}</p></div>`;
+    <div class="trial-balance">${c.claimed && !c.redeemed && !c.trialEnded ? `<div class="bar-label"><span>试玩余额</span><span>MYR ${money(c.trialBalance)} / MYR 200.00</span></div><progress max="200" value="${Math.min(200, c.trialBalance)}" aria-label="试玩余额进度"></progress>` : ''}
+    <p class="fine-print trial-prose">${c.redeemed ? '达标兑换后，试玩额度及剩余试玩余额自动清零。' : c.trialEnded ? '未达MYR200目标，不可兑换部分奖励。' : '试玩余额达到MYR200，即可兑换MYR100现金奖励。未达MYR200目标，不可兑换部分奖励。'}</p></div>`;
   }
   window.renderFreeChallengeDemo = function () {
     store().ensureBanner();
@@ -269,23 +304,23 @@
     const auto = viewMap[nfcIndex(c)] ?? 1;
     const viewStep = inspect('newcomer-free-challenge', 3, auto);
     const s = CHALLENGE_SOURCE.steps[viewStep];
-    const path = pathRow([['RM100', '免费试玩'], ['RM200', '达标余额'], ['RM100', '兑换现金']]);
+    const path = pathRow([['MYR100', '免费试玩'], ['MYR200', '达标余额'], ['MYR100', '兑换现金']]);
     const guide = nfcGuide(c);
-    return `${store().journeyBar()}${leadBlock(guide)}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div><div class="amount"><small>RM</small>100<span>.00</span></div><p class="trial-prose">${CHALLENGE_SOURCE.reward}</p>${path}</section>${howToJoin(['免费领取 RM100 试玩额度', '在指定游戏把试玩余额玩到 RM200', '兑换 RM100 现金到主钱包'])}${nfcBalancePanel(c)}${nfcExclusionPanel(c)}${demoTools(retTrialTaken() && !c.claimed ? '' : '<button type="button" class="outline-wide" data-action="nfc-toggle-ret">演示已领取「老会员回归，免费赢取RM188」（互斥）</button>')}<button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>`;
+    return `${store().journeyBar()}${leadBlock(guide)}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div><div class="amount"><small>MYR</small>100<span>.00</span></div>${path}</section>${howToJoin(['免费领取 MYR100 试玩额度', '在指定游戏把试玩余额玩到 MYR200', '兑换 MYR100 现金到主钱包'])}${nfcBalancePanel(c)}${nfcExclusionPanel(c)}${demoTools(retTrialTaken() && !c.claimed ? '' : '<button type="button" class="outline-wide" data-action="nfc-toggle-ret">演示已领取「老会员回归，免费赢取MYR188」（互斥）</button>')}<button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>`;
   };
   function renderNfcClaim() {
     $('#app').innerHTML = page('领取试玩额度', `
       <section class="reward-feature trial-hero">
         <div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge">待领取</span></div>
-        <div class="amount"><small>RM</small>100<span>.00</span></div>
-        <p class="trial-prose">免费领取RM100试玩额度。</p>
+        <div class="amount"><small>MYR</small>100<span>.00</span></div>
+        <p class="trial-prose">免费领取MYR100试玩额度。</p>
       </section>
       <section class="section-panel">
         <div class="section-header"><h3>领取前请确认</h3></div>
         ${termsList([
           '试玩额度不可直接充值、转账或提款。',
           '每位符合资格的会员终身限领一次。',
-          '试玩余额达到RM200，即可兑换RM100现金奖励。'
+          '试玩余额达到MYR200，即可兑换MYR100现金奖励。'
         ])}
       </section>
       <button type="button" class="primary" data-action="nfc-claim-confirm">确认领取</button>
@@ -296,8 +331,8 @@
     const c = nfcOf();
     $('#app').innerHTML = page('指定游戏', `
       <div class="wallet-pair compact">
-        <div class="wallet-card trial"><span>试玩钱包</span><strong>RM ${money(c.trialBalance)}</strong></div>
-        <div class="wallet-card"><span>达标目标</span><strong>RM 200.00</strong></div>
+        <div class="wallet-card trial"><span>试玩钱包</span><strong>MYR ${money(c.trialBalance)}</strong></div>
+        <div class="wallet-card"><span>达标目标</span><strong>MYR 200.00</strong></div>
       </div>
       <p class="demo-lead trial-prose">在指定游戏中进行试玩。试玩额度不可直接充值、转账或提款。</p>
       <div class="game-grid">${NFC_GAMES.map(g => `<button type="button" class="game-tile" data-action="nfc-open-game" data-nfc-game="${g.id}"><span class="game-icon">${icon(g.icon)}</span><strong>${g.name}</strong><small>${g.tag}</small></button>`).join('')}</div>
@@ -313,16 +348,16 @@
     const symbols = (c.lastSymbols || ['7', '星', '铃']).map(s => `<span>${s}</span>`).join('');
     $('#app').innerHTML = page(game.name, `
       <div class="play-wallet">
-        <div><span>试玩钱包</span><strong id="nfc-play-balance">RM ${money(c.trialBalance)}</strong></div>
-        <div class="play-progress"><div class="bar-label"><span>达标进度</span><span>RM ${money(c.trialBalance)} / RM 200.00</span></div><progress max="200" value="${Math.min(200, c.trialBalance)}" aria-label="试玩余额进度"></progress></div>
+        <div><span>试玩钱包</span><strong id="nfc-play-balance">MYR ${money(c.trialBalance)}</strong></div>
+        <div class="play-progress"><div class="bar-label"><span>达标进度</span><span>MYR ${money(c.trialBalance)} / MYR 200.00</span></div><progress max="200" value="${Math.min(200, c.trialBalance)}" aria-label="试玩余额进度"></progress></div>
       </div>
       <section class="slot-machine" aria-label="演示老虎机">
         <div class="slot-window" id="nfc-slot-window">${symbols}</div>
-        <p class="slot-result" id="nfc-slot-result" aria-live="polite">${over ? '试玩已结束' : ready ? '已达到 RM200' : '按下开始，演示一局试玩'}</p>
+        <p class="slot-result" id="nfc-slot-result" aria-live="polite">${over ? '试玩已结束' : ready ? '已达到 MYR200' : '按下开始，演示一局试玩'}</p>
         <button type="button" class="primary" id="nfc-spin-btn" data-action="nfc-spin" ${canSpin ? '' : 'disabled'}>${canSpin ? '开始旋转' : '暂停试玩'}</button>
       </section>
-      ${ready ? '<button type="button" class="primary" data-action="nfc-go-redeem">兑换RM100现金</button>' : ''}
-      ${over ? `<section class="section-panel"><h3>试玩已结束</h3><p class="trial-prose">未达RM200目标，不可兑换部分奖励。</p><p class="fine-print">试玩额度已用尽。每位符合资格的会员终身限领一次，演示中可重置后重新体验。</p></section>` : ''}
+      ${ready ? '<button type="button" class="primary" data-action="nfc-go-redeem">兑换MYR100现金</button>' : ''}
+      ${over ? `<section class="section-panel"><h3>试玩已结束</h3><p class="trial-prose">未达MYR200目标，不可兑换部分奖励。</p><p class="fine-print">试玩额度已用尽。每位符合资格的会员终身限领一次，演示中可重置后重新体验。</p></section>` : ''}
       ${demoTools((over ? '<button type="button" class="outline-wide" data-action="demo-reset">重置演示</button>' : '') + (canSpin ? '<button type="button" class="text-button trial-reset" data-action="nfc-fail-path">演示未达标（余额归零）</button>' : ''))}
     `, 'demo=nfc-games');
     document.title = game.name + ' · TPOWER';
@@ -333,19 +368,19 @@
     $('#app').innerHTML = page('兑换现金', `
       <section class="reward-feature trial-hero">
         <div class="panel-top"><span class="eyebrow">可兑换现金</span><span class="status-badge">已达标</span></div>
-        <div class="amount"><small>RM</small>100<span>.00</span></div>
-        <p class="trial-prose">试玩余额达到RM200，即可兑换RM100现金奖励。</p>
+        <div class="amount"><small>MYR</small>100<span>.00</span></div>
+        <p class="trial-prose">试玩余额达到MYR200，即可兑换MYR100现金奖励。</p>
       </section>
       <section class="section-panel">
         <div class="section-header"><h3>兑换说明</h3></div>
         ${termsList([
           '达标兑换后，试玩额度及剩余试玩余额自动清零。',
-          '兑换的 RM100 现金将转入主钱包。',
+          '兑换的 MYR100 现金将转入主钱包。',
           '每位符合资格的会员终身限领一次。'
         ])}
         <div class="wallet-pair">
-          <div class="wallet-card trial"><span>试玩钱包（兑换后清零）</span><strong>RM ${money(c.trialBalance)}</strong></div>
-          <div class="wallet-card main"><span>主钱包（到账后）</span><strong>RM ${money(demo.mainWallet + 100)}</strong></div>
+          <div class="wallet-card trial"><span>试玩钱包（兑换后清零）</span><strong>MYR ${money(c.trialBalance)}</strong></div>
+          <div class="wallet-card main"><span>主钱包（到账后）</span><strong>MYR ${money(demo.mainWallet + 100)}</strong></div>
         </div>
       </section>
       <button type="button" class="primary" data-action="nfc-redeem-confirm">确认兑换</button>
@@ -357,7 +392,7 @@
       <section class="demo-status-card">
         <div class="demo-spinner" aria-hidden="true"></div>
         <h3>正在兑换</h3>
-        <p>正在将 RM100 现金转入主钱包。</p>
+        <p>正在将 MYR100 现金转入主钱包。</p>
       </section>
     `, 'activity=newcomer-free-challenge');
     document.title = '兑换中 · TPOWER';
@@ -368,7 +403,7 @@
       c.redeemed = true;
       c.trialBalance = 0;
       demo.mainWallet = r2((demo.mainWallet || 0) + 100);
-      record('新人免费挑战赢取RM100', 100, '已到账');
+      record('新人免费挑战赢取MYR100', 100, '已到账');
       store().save();
       navigate('demo=nfc-redeem-success');
     }, 1400);
@@ -381,8 +416,8 @@
         <h3>兑换成功</h3>
         <p class="trial-prose">达标兑换后，试玩额度及剩余试玩余额自动清零。</p>
         <div class="wallet-pair">
-          <div class="wallet-card main highlight"><span>主钱包</span><strong>RM ${money(demo.mainWallet)}</strong><small>RM100 现金已到账</small></div>
-          <div class="wallet-card trial"><span>试玩钱包</span><strong>RM 0.00</strong><small>已清零</small></div>
+          <div class="wallet-card main highlight"><span>主钱包</span><strong>MYR ${money(demo.mainWallet)}</strong><small>MYR100 现金已到账</small></div>
+          <div class="wallet-card trial"><span>试玩钱包</span><strong>MYR 0.00</strong><small>已清零</small></div>
         </div>
         <button type="button" class="primary" data-demo-nav="demo=records">查看领奖记录</button>
         <button type="button" class="outline-wide" data-demo-nav="activity=newcomer-free-challenge">返回活动</button>
@@ -423,16 +458,16 @@
       const nfcWin = document.getElementById('nfc-slot-window');
       if (nfcWin && step.delta > 0) nfcWin.classList.add('is-win');
       if (c.reachedTarget) {
-        toast('试玩余额已达到 RM200');
-        store().later(() => openModal(`<div class="goal-celebration"><div class="goal-burst" aria-hidden="true"></div><h2>恭喜达标</h2><p class="trial-prose">试玩余额达到RM200，即可兑换RM100现金奖励。</p><button type="button" class="primary" data-action="nfc-go-redeem">兑换RM100现金</button></div>`), 400);
+        toast('试玩余额已达到 MYR200');
+        store().later(() => openModal(`<div class="goal-celebration"><div class="goal-burst" aria-hidden="true"></div><h2>恭喜达标</h2><p class="trial-prose">试玩余额达到MYR200，即可兑换MYR100现金奖励。</p><button type="button" class="primary" data-action="nfc-go-redeem">兑换MYR100现金</button></div>`), 400);
       } else if (c.trialEnded) {
-        toast('未达RM200目标，不可兑换部分奖励。');
+        toast('未达MYR200目标，不可兑换部分奖励。');
       }
     }, 900);
   }
 
 
-  /* ------------ 每日幸运大转盘RM888 ------------ */
+  /* ------------ 每日幸运大转盘MYR888 ------------ */
   const DW_JOURNEY = ['获得次数', '抽奖', '彩金钱包', '完成流水', '转现金'];
   const DW_DEMO_PRIZES = [188, 58, 18];
   const DW_SPIN_MS = 2600;
@@ -455,11 +490,11 @@
     const pending = r2(Math.max(0, (w.turnoverNeed || 0) - (w.turnover || 0)));
     const left = dwSpinsLeft(w);
     if ((w.bonusWallet || 0) > 0 && w.turnoverNeed > 0 && (w.turnover || 0) >= w.turnoverNeed) return { step: 4, total: 4, text: '流水已完成，把活动彩金转换为现金。' };
-    if ((w.bonusWallet || 0) > 0 && pending > 0) return { step: 4, total: 4, text: '在指定游戏商投注。还差 RM ' + money(pending) + ' 有效流水即可兑换。' };
+    if ((w.bonusWallet || 0) > 0 && pending > 0) return { step: 4, total: 4, text: '在指定游戏商投注。还差 MYR ' + money(pending) + ' 有效流水即可兑换。' };
     if (left > 0) return { step: 3, total: 4, text: '还有 ' + left + ' 次抽奖，去转动转盘。' };
     if ((w.earnedToday || 0) >= 3 && !(w.bonusWallet > 0)) return { step: 2, total: 4, done: true, text: '今日 3 次已用完。明天 00:00 会更新次数，未使用次数不保留。', endTitle: '今日抽奖次数已用完', endDetail: '每天最多 3 次免费抽奖。', endNext: '明天可再领次数。' };
-    if ((w.converted || 0) > 0 && left <= 0) return { step: 4, total: 4, done: true, text: '已转换的现金在现金钱包里。单笔充值满 RM100 或以上可再获次数（每天最多 3 次）。', endTitle: '彩金已转换为现金', endDetail: '金额已进入现金钱包。', endNext: '明天可再通过充值获得抽奖次数。' };
-    return { step: 1, total: 4, text: '单笔充值满 RM100 或以上，即可获得 1 次抽奖。' };
+    if ((w.converted || 0) > 0 && left <= 0) return { step: 4, total: 4, done: true, text: '已转换的现金在现金钱包里。单笔充值满 MYR100 或以上可再获次数（每天最多 3 次）。', endTitle: '彩金已转换为现金', endDetail: '金额已进入现金钱包。', endNext: '明天可再通过充值获得抽奖次数。' };
+    return { step: 1, total: 4, text: '单笔充值满 MYR100 或以上，即可获得 1 次抽奖。' };
   }
   function dwCta(w) {
     const g = dwGuide(w);
@@ -480,12 +515,12 @@
     return ['已认证 · 待充值', ''];
   }
   function dwPrizeTable() {
-    return `<div class="table-wrap"><table class="prize-table"><thead><tr><th>转盘奖金</th><th>3倍流水要求</th></tr></thead><tbody>${WHEEL_SOURCE.prizes.map(n => `<tr${n === 888 ? ' class="first-prize"' : ''}><td>RM ${money(n)}</td><td>RM ${money(n * WHEEL_SOURCE.wagerMult)}</td></tr>`).join('')}</tbody></table></div>`;
+    return `<div class="table-wrap"><table class="prize-table"><thead><tr><th>转盘奖金</th><th>3倍流水要求</th></tr></thead><tbody>${WHEEL_SOURCE.prizes.map(n => `<tr${n === 888 ? ' class="first-prize"' : ''}><td>MYR ${money(n)}</td><td>MYR ${money(n * WHEEL_SOURCE.wagerMult)}</td></tr>`).join('')}</tbody></table></div>`;
   }
   function dwWheelMarkup(w, rotating, landedIndex) {
     const prizes = WHEEL_SOURCE.prizes;
     const angle = w.lastAngle || 0;
-    const labels = prizes.map((n, i) => `<div class="wheel-label${landedIndex === i ? ' is-winner' : ''}" data-prize-index="${i}" style="--i:${i}"><b>RM${n}</b></div>`).join('');
+    const labels = prizes.map((n, i) => `<div class="wheel-label${landedIndex === i ? ' is-winner' : ''}" data-prize-index="${i}" style="--i:${i}"><b>MYR${n}</b></div>`).join('');
     return `<div class="wheel-stage"><div class="wheel-pointer" id="wheel-pointer" aria-hidden="true"></div><div class="lucky-wheel${rotating ? ' is-spinning' : ''}${!rotating && landedIndex >= 0 ? ' is-landed' : ''}" id="lucky-wheel" data-angle="${angle}" style="transform:rotate(${angle}deg)">${labels}</div></div>`;
   }
   window.renderDailyWheelDemo = function () {
@@ -498,14 +533,14 @@
     const left = dwSpinsLeft(w);
     const pending = Math.max(0, (w.turnoverNeed || 0) - (w.turnover || 0));
     const guide = dwGuide(w);
-    return `${store().journeyBar()}${leadBlock(guide)}<section class="reward-feature trial-hero wheel-hero"><div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div><div class="amount"><small>最高 RM</small>888</div><p class="trial-prose">${WHEEL_SOURCE.reward}</p>${statRow([['今日已获次数', String(w.earnedToday || 0) + ' / 3'], ['剩余抽奖', String(left)], ['活动彩金', money(w.bonusWallet || 0)]])}<span class="unit-note">金额单位：MYR</span></section>${howToJoin(['单笔充值满 RM100 或以上，获得 1 次抽奖（每天最多 3 次）', '转动转盘，奖金进入活动彩金钱包', '完成 3 倍有效流水后，转换为现金'])}
-      ${demoTools(`<p class="fine-print">第 ${w.day || 1} 个演示日。单笔充值满 RM100 或以上获 1 次，不可合并；未使用次数不结转。</p>
+    return `${store().journeyBar()}${leadBlock(guide)}<section class="reward-feature trial-hero wheel-hero"><div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div><div class="amount"><small>最高 MYR</small>888</div><p class="wheel-live-line">今日 ${w.earnedToday || 0}/3 · 剩余 ${left} · 彩金 MYR ${money(w.bonusWallet || 0)}</p></section>${howToJoin(['单笔充值满 MYR100 或以上，获得 1 次抽奖', '转动转盘，奖金进入活动彩金钱包', '完成 3 倍有效流水后，转换为现金'])}
+      ${demoTools(`<p class="fine-print">第 ${w.day || 1} 个演示日。单笔充值满 MYR100 或以上获 1 次，不可合并；未使用次数不结转。</p>
         <div class="rate-actions">
-          <button type="button" class="outline-wide" data-action="dw-deposit-ok">演示充值 RM150（满RM100或以上，获得1次）</button>
-          <button type="button" class="outline-wide" data-action="dw-deposit-100">演示充值 RM100（满RM100，获得1次）</button>
-          <button type="button" class="outline-wide" data-action="dw-deposit-50">演示充值 RM50（未满RM100，不获得次数）</button>
-          <button type="button" class="outline-wide" data-action="dw-deposit-merge">演示两笔各 RM80（不可合并，不获得次数）</button>
-          <button type="button" class="outline-wide" data-action="dw-deposit-void">演示取消或退款充值 RM200（不产生抽奖机会）</button>
+          <button type="button" class="outline-wide" data-action="dw-deposit-ok">演示充值 MYR150（满MYR100或以上，获得1次）</button>
+          <button type="button" class="outline-wide" data-action="dw-deposit-100">演示充值 MYR100（满MYR100，获得1次）</button>
+          <button type="button" class="outline-wide" data-action="dw-deposit-50">演示充值 MYR50（未满MYR100，不获得次数）</button>
+          <button type="button" class="outline-wide" data-action="dw-deposit-merge">演示两笔各 MYR80（不可合并，不获得次数）</button>
+          <button type="button" class="outline-wide" data-action="dw-deposit-void">演示取消或退款充值 MYR200（不产生抽奖机会）</button>
         </div>
         <button type="button" class="text-button" data-action="dw-next-day">模拟次日</button>`, 'dw-deposit')}
       <section class="section-panel"><div class="section-header"><h3>转盘奖金</h3><span>共6档 · 每次必中一档</span></div>${dwPrizeTable()}<p class="fine-print trial-prose">每次抽奖必定获得以上其中一档奖金。抽中的奖金进入活动彩金钱包。</p></section>
@@ -529,9 +564,9 @@
       ${dwWheelMarkup(w, rotating, landedIndex)}
       <div class="play-wallet">
         <div><span>剩余抽奖</span><strong class="fx-spin-count" data-spins="${left}">${left} / 3</strong></div>
-        <div><span>活动彩金钱包</span><strong>RM ${money(w.bonusWallet || 0)}</strong></div>
+        <div><span>活动彩金钱包</span><strong>MYR ${money(w.bonusWallet || 0)}</strong></div>
       </div>
-      ${w.lastPrize ? `<p class="fine-print center trial-prose">演示结果：RM ${money(w.lastPrize)}，非正式开奖，仅用于预览兑奖流程。</p>` : '<p class="fine-print center trial-prose">每次抽奖必定获得其中一档奖金。以下为演示结果，非正式开奖。</p>'}
+      ${w.lastPrize ? `<p class="fine-print center trial-prose">演示结果：MYR ${money(w.lastPrize)}，非正式开奖，仅用于预览兑奖流程。</p>` : '<p class="fine-print center trial-prose">每次抽奖必定获得其中一档奖金。以下为演示结果，非正式开奖。</p>'}
       <button type="button" class="primary" id="dw-spin-btn" data-action="dw-spin" ${rotating || left <= 0 ? 'disabled' : ''}>${rotating ? '转盘转动中…' : left > 0 ? '开始抽奖' : '暂无抽奖次数'}</button>
       ${left <= 0 ? '<button type="button" class="outline-wide" data-demo-nav="activity=daily-wheel">返回活动充值</button>' : ''}
       ${(w.bonusWallet || 0) > 0 && !rotating ? '<button type="button" class="outline-wide" data-action="dw-go-turnover">查看彩金流水</button>' : ''}
@@ -546,17 +581,17 @@
     const pending = Math.max(0, need - done);
     $('#app').innerHTML = page('完成有效流水', `
       <div class="play-wallet">
-        <div><span>活动彩金钱包</span><strong>RM ${money(w.bonusWallet || 0)}</strong></div>
-        <div class="play-progress"><div class="bar-label"><span>3倍有效流水</span><span>RM ${money(done)} / ${money(need)}</span></div><progress max="${Math.max(need, 1)}" value="${Math.min(need, done)}" aria-label="流水进度"></progress></div>
+        <div><span>活动彩金钱包</span><strong>MYR ${money(w.bonusWallet || 0)}</strong></div>
+        <div class="play-progress"><div class="bar-label"><span>3倍有效流水</span><span>MYR ${money(done)} / ${money(need)}</span></div><progress max="${Math.max(need, 1)}" value="${Math.min(need, done)}" aria-label="流水进度"></progress></div>
       </div>
-      <p class="trial-prose">彩金必须完成3倍有效流水后才可转换为现金。例如：抽中RM188，需要完成RM564有效流水。流水仅限指定游戏商：FUMA、WUDI、BWG。</p>
-      <div class="rate-actions">${WHEEL_SOURCE.providers.map(name => `<button type="button" class="outline-wide" data-action="dw-bet-valid" data-provider="${name}" ${ready || (w.bonusWallet || 0) <= 0 ? 'disabled' : ''}>演示${name}投注 RM 188.00（计入流水）</button>`).join('')}
-        <button type="button" class="outline-wide" data-action="dw-bet-other" ${ready || (w.bonusWallet || 0) <= 0 ? 'disabled' : ''}>演示其他游戏商投注 RM 188.00（不计入）</button>
+      <p class="trial-prose">彩金必须完成3倍有效流水后才可转换为现金。例如：抽中MYR188，需要完成MYR564有效流水。流水仅限指定游戏商：FUMA、WUDI、BWG。</p>
+      <div class="rate-actions">${WHEEL_SOURCE.providers.map(name => `<button type="button" class="outline-wide" data-action="dw-bet-valid" data-provider="${name}" ${ready || (w.bonusWallet || 0) <= 0 ? 'disabled' : ''}>演示${name}投注 MYR 188.00（计入流水）</button>`).join('')}
+        <button type="button" class="outline-wide" data-action="dw-bet-other" ${ready || (w.bonusWallet || 0) <= 0 ? 'disabled' : ''}>演示其他游戏商投注 MYR 188.00（不计入）</button>
       </div>
       <button type="button" class="primary" data-action="dw-accelerate" ${ready || (w.bonusWallet || 0) <= 0 || pending <= 0 ? 'disabled' : ''}>演示加速完成流水</button>
       <p class="fine-print trial-prose">「演示加速完成流水」仅用于预览转换流程，不是官方投注要求。</p>
       ${ready ? '<button type="button" class="primary" data-action="dw-go-convert">转换为现金</button>' : ''}
-      ${pending > 0 && (w.bonusWallet || 0) > 0 ? `<p class="fine-print trial-prose">还需完成 RM ${money(pending)} 有效流水。</p>` : ''}
+      ${pending > 0 && (w.bonusWallet || 0) > 0 ? `<p class="fine-print trial-prose">还需完成 MYR ${money(pending)} 有效流水。</p>` : ''}
     `, 'activity=daily-wheel');
     document.title = '完成有效流水 · TPOWER';
   }
@@ -566,7 +601,7 @@
     $('#app').innerHTML = page('转换为现金', `
       <section class="reward-feature trial-hero">
         <div class="panel-top"><span class="eyebrow">本次转出金额</span><span class="status-badge">流水已完成</span></div>
-        <div class="amount"><small>RM</small>${money(amt).split('.')[0]}<span>.${money(amt).split('.')[1] || '00'}</span></div>
+        <div class="amount"><small>MYR</small>${money(amt).split('.')[0]}<span>.${money(amt).split('.')[1] || '00'}</span></div>
         <p class="trial-prose">彩金已完成3倍有效流水，可转换为现金并转入现金钱包。本次按活动彩金钱包当前余额转出。</p>
       </section>
       ${amt > 0 ? walletPairBeforeAfter('活动彩金钱包', amt, '现金钱包', demoOf().mainWallet || 0, amt) : ''}
@@ -580,7 +615,7 @@
     if (n.abandoned) return { step: 1, total: 4, text: '已放弃，不能再次参加本活动。' };
     if (n.completed) return { step: 4, total: 4, done: true, text: '解锁彩金已进入真钱钱包，本金流水也已完成。', endTitle: '新人专享挑战已完成', endDetail: '解锁彩金已发放至真钱钱包。', endNext: '本金完成 1 倍流水后，可按平台规则申请提款。' };
     if (n.expired) return { step: 3, total: 4, text: '解锁资格已失效，不能再充值解锁。' };
-    if (!n.claimed) return { step: 1, total: 4, text: '先领取 RM88 活动金。' };
+    if (!n.claimed) return { step: 1, total: 4, text: '先领取 MYR88 活动金。' };
     if (!n.challengeDone) return { step: 2, total: 4, text: '先在指定游戏完成活动金流水。' };
     if (!n.deposited) return { step: 3, total: 4, text: '在时限内充值，按 1:1 解锁彩金。' };
     if (!n.bonusReleased) return { step: 4, total: 4, text: '完成钱包总额 12 倍有效流水后，解锁彩金会进入真钱钱包。' };
@@ -591,7 +626,7 @@
     if (n.abandoned) return ['已放弃，不能再次参加', 'demo-done', true, g.text];
     if (n.completed) return ['查看到账', 'go-records', false];
     if (n.expired) return ['解锁资格已失效', 'demo-done', true, g.text];
-    if (!n.claimed) return ['领取RM88活动金', 'nc-go-claim', false];
+    if (!n.claimed) return ['领取MYR88活动金', 'nc-go-claim', false];
     if (!n.challengeDone) return ['去完成流水', 'nc-go-play', false];
     if (!n.deposited) return ['去充值解锁', 'nc-go-unlock', false];
     if (!n.bonusReleased) return ['去完成12倍流水', 'nc-go-wager', false];
@@ -612,18 +647,18 @@
     if (!n.claimed) return '';
     if (!n.deposited) {
       return `<div class="wallet-pair" id="nc-balance">
-        <div class="wallet-card trial"><span>活动余额</span><strong>RM ${money(n.bonus)}</strong><small>只能用于指定游戏</small></div>
-        <div class="wallet-card"><span>有效流水</span><strong>RM ${money(n.turnover)} / 440.00</strong><small>${n.challengeDone ? '已完成 RM440' : 'RM88 × 5 = RM440'}</small></div>
+        <div class="wallet-card trial"><span>活动余额</span><strong>MYR ${money(n.bonus)}</strong><small>只能用于指定游戏</small></div>
+        <div class="wallet-card"><span>有效流水</span><strong>MYR ${money(n.turnover)} / 440.00</strong><small>${n.challengeDone ? '已完成 MYR440' : 'MYR88 × 5 = MYR440'}</small></div>
       </div>
-      ${n.challengeDone ? '' : `<div class="trial-balance"><div class="bar-label"><span>流水进度</span><span>RM ${money(n.turnover)} / RM 440.00</span></div><progress max="440" value="${Math.min(440, n.turnover)}" aria-label="有效流水进度"></progress></div>`}`;
+      ${n.challengeDone ? '' : `<div class="trial-balance"><div class="bar-label"><span>流水进度</span><span>MYR ${money(n.turnover)} / MYR 440.00</span></div><progress max="440" value="${Math.min(440, n.turnover)}" aria-label="有效流水进度"></progress></div>`}`;
     }
     return `<div class="wallet-pair" id="nc-balance">
-      <div class="wallet-card"><span>钱包总额</span><strong>RM ${money(n.walletTotal)}</strong><small>剩余余额 + 本次充值 + 解锁彩金</small></div>
-      <div class="wallet-card main ${demoOf().mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>RM ${money(demoOf().mainWallet)}</strong><small>${n.bonusReleased ? '解锁彩金已发放' : '彩金完成后发放'}</small></div>
+      <div class="wallet-card"><span>钱包总额</span><strong>MYR ${money(n.walletTotal)}</strong><small>剩余余额 + 本次充值 + 解锁彩金</small></div>
+      <div class="wallet-card main ${demoOf().mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>MYR ${money(demoOf().mainWallet)}</strong><small>${n.bonusReleased ? '解锁彩金已发放' : '彩金完成后发放'}</small></div>
     </div>
     <div class="trial-balance">${n.bonusReleased
-      ? (n.completed ? '<p class="fine-print trial-prose">充值彩金完成12倍流水后，发放至真钱钱包。本金再完成1倍流水后，按 Tpower 提款规则申请提款。</p>' : `<div class="bar-label"><span>本金1倍流水</span><span>RM ${money(n.principalWager)} / RM ${money(n.principalNeed)}</span></div><progress max="${n.principalNeed || 1}" value="${Math.min(n.principalNeed, n.principalWager)}" aria-label="本金流水进度"></progress>`)
-      : `<div class="bar-label"><span>12倍有效流水</span><span>RM ${money(n.wager12)} / RM ${money(n.wager12Need)}</span></div><progress max="${n.wager12Need || 1}" value="${Math.min(n.wager12Need, n.wager12)}" aria-label="12倍流水进度"></progress>`}</div>`;
+      ? (n.completed ? '<p class="fine-print trial-prose">充值彩金完成12倍流水后，发放至真钱钱包。本金再完成1倍流水后，按 Tpower 提款规则申请提款。</p>' : `<div class="bar-label"><span>本金1倍流水</span><span>MYR ${money(n.principalWager)} / MYR ${money(n.principalNeed)}</span></div><progress max="${n.principalNeed || 1}" value="${Math.min(n.principalNeed, n.principalWager)}" aria-label="本金流水进度"></progress>`)
+      : `<div class="bar-label"><span>12倍有效流水</span><span>MYR ${money(n.wager12)} / MYR ${money(n.wager12Need)}</span></div><progress max="${n.wager12Need || 1}" value="${Math.min(n.wager12Need, n.wager12)}" aria-label="12倍流水进度"></progress>`}</div>`;
   }
   window.renderNewcomerDemo = function () {
     store().ensureBanner();
@@ -634,21 +669,21 @@
     const viewStep = inspect('newcomer', 4, Math.min(4, auto));
     const s = NEWCOMER_SOURCE.steps[viewStep];
     const guide = ncGuide(n);
-    return `${store().journeyBar()}${leadBlock(guide)}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${cls}">${status}</span></div><div class="amount"><small>RM</small>88<span>.00</span></div><p class="trial-prose">${NEWCOMER_SOURCE.reward}</p><p class="trial-prose">${NEWCOMER_SOURCE.summary}</p>${pathRow([['RM88', '活动金'], ['RM440', '有效流水'], ['RM1,888', '解锁上限']])}</section>${howToJoin(['领取 RM88 活动金并完成指定流水', '在时限内充值，按 1:1 解锁彩金', '完成流水后，解锁彩金进入真钱钱包'])}${ncPanel(n)}<section class="section-panel"><div class="section-header"><h3>充值解锁示例</h3><span>1:1 · 最高 RM1,888</span></div><div class="table-wrap"><table><thead><tr><th>活动余额</th><th>充值金额</th><th>可解锁彩金</th></tr></thead><tbody><tr><td>RM500</td><td>RM500</td><td>RM500</td></tr><tr><td>RM1,000</td><td>RM600</td><td>RM600</td></tr><tr><td>RM2,000</td><td>RM2,000</td><td>RM1,888</td></tr></tbody></table></div></section><button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>`;
+    return `${store().journeyBar()}${leadBlock(guide)}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${cls}">${status}</span></div><div class="amount"><small>MYR</small>88<span>.00</span></div><p class="trial-prose">${NEWCOMER_SOURCE.reward}</p><p class="trial-prose">${NEWCOMER_SOURCE.summary}</p>${pathRow([['MYR88', '活动金'], ['MYR440', '有效流水'], ['MYR1,888', '解锁上限']])}</section>${howToJoin(['领取 MYR88 活动金并完成指定流水', '在时限内充值，按 1:1 解锁彩金', '完成流水后，解锁彩金进入真钱钱包'])}${ncPanel(n)}<section class="section-panel"><div class="section-header"><h3>充值解锁示例</h3><span>1:1 · 最高 MYR1,888</span></div><div class="table-wrap"><table><thead><tr><th>活动余额</th><th>充值金额</th><th>可解锁彩金</th></tr></thead><tbody><tr><td>MYR500</td><td>MYR500</td><td>MYR500</td></tr><tr><td>MYR1,000</td><td>MYR600</td><td>MYR600</td></tr><tr><td>MYR2,000</td><td>MYR2,000</td><td>MYR1,888</td></tr></tbody></table></div></section><button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>`;
   };
   function renderNcClaim() {
     const n = demoOf().newcomer;
     $('#app').innerHTML = page('领取活动金', `
       <section class="reward-feature trial-hero">
         <div class="panel-top"><span class="eyebrow">新人活动金</span><span class="status-badge">待领取</span></div>
-        <div class="amount"><small>RM</small>88<span>.00</span></div>
-        <p class="trial-prose">完成 KYC 实名认证后，可领取 RM88 活动金；活动金只能用于指定游戏。</p>
+        <div class="amount"><small>MYR</small>88<span>.00</span></div>
+        <p class="trial-prose">完成 KYC 实名认证后，可领取 MYR88 活动金；活动金只能用于指定游戏。</p>
       </section>
       <section class="section-panel"><div class="section-header"><h3>领取前请确认</h3></div>
         <ul class="trial-terms trial-prose">
           <li>每位新会员只能参加一次。</li>
           <li>活动期间不能提款、不能转账。</li>
-          <li>只计算指定游戏商的有效投注。RM88 × 5 = RM440，完成后进入充值解锁阶段。</li>
+          <li>只计算指定游戏商的有效投注。MYR88 × 5 = MYR440，完成后进入充值解锁阶段。</li>
         </ul>
       </section>
       <button type="button" class="primary" data-action="nc-claim-confirm">确认领取</button>
@@ -662,13 +697,13 @@
     const symbols = (n.lastSymbols || ['7', '星', '铃']).map(s => `<span>${s}</span>`).join('');
     $('#app').innerHTML = page(game.name, `
       <div class="play-wallet">
-        <div><span>活动余额</span><strong id="play-balance">RM ${money(n.bonus)}</strong></div>
-        <div class="play-progress"><div class="bar-label"><span>有效流水</span><span>RM ${money(n.turnover)} / RM 440.00</span></div><progress max="440" value="${Math.min(440, n.turnover)}" aria-label="有效流水进度"></progress></div>
+        <div><span>活动余额</span><strong id="play-balance">MYR ${money(n.bonus)}</strong></div>
+        <div class="play-progress"><div class="bar-label"><span>有效流水</span><span>MYR ${money(n.turnover)} / MYR 440.00</span></div><progress max="440" value="${Math.min(440, n.turnover)}" aria-label="有效流水进度"></progress></div>
       </div>
       <p class="fine-print trial-prose">只计算指定游戏商的有效投注。本活动只能在指定的真人现场游戏和老虎机中进行。截图未列出具体游戏商名单。</p>
       <section class="slot-machine" aria-label="演示老虎机">
         <div class="slot-window" id="slot-window">${symbols}</div>
-        <p class="slot-result" id="slot-result" aria-live="polite">${n.challengeDone ? '已完成 RM440 有效流水' : '按下开始，演示一局投注'}</p>
+        <p class="slot-result" id="slot-result" aria-live="polite">${n.challengeDone ? '已完成 MYR440 有效流水' : '按下开始，演示一局投注'}</p>
         <button type="button" class="primary" id="spin-btn" data-action="nc-spin" ${canSpin ? '' : 'disabled'}>${canSpin ? '开始旋转' : '暂停投注'}</button>
       </section>
       ${n.challengeDone ? '<button type="button" class="primary" data-action="nc-go-unlock">去充值解锁</button>' : ''}
@@ -683,14 +718,14 @@
     $('#app').innerHTML = page('充值解锁', `
       <section class="reward-feature trial-hero">
         <div class="panel-top"><span class="eyebrow">可解锁彩金</span><span class="status-badge">待充值 · 48小时</span></div>
-        <div class="amount"><small>RM</small>${money(remaining).split('.')[0]}<span>.${money(remaining).split('.')[1]}</span></div>
-        <p class="trial-prose">完成 RM440 流水后，以剩余余额作为可解锁彩金。充值对应金额，按1:1解锁，最高 RM1,888；最低充值 RM10，只有一次充值解锁机会。</p>
+        <div class="amount"><small>MYR</small>${money(remaining).split('.')[0]}<span>.${money(remaining).split('.')[1]}</span></div>
+        <p class="trial-prose">完成 MYR440 流水后，以剩余余额作为可解锁彩金。充值对应金额，按1:1解锁，最高 MYR1,888；最低充值 MYR10，只有一次充值解锁机会。</p>
       </section>
       <section class="section-panel">
         <div class="section-header"><h3>确认充值金额</h3></div>
-        <p class="trial-prose">活动剩余余额 RM ${money(remaining)}。演示按1:1充值对应金额，不连接真实支付。</p>
+        <p class="trial-prose">活动剩余余额 MYR ${money(remaining)}。演示按1:1充值对应金额，不连接真实支付。</p>
         <p class="fine-print trial-prose">此充值会同时激活成长彩金计划奖励。48小时内未充值，解锁资格自动失效。</p>
-        <button type="button" class="primary" data-action="nc-unlock-confirm" data-deposit="${suggested}">确认充值 RM ${money(suggested)} 并解锁</button>
+        <button type="button" class="primary" data-action="nc-unlock-confirm" data-deposit="${suggested}">确认充值 MYR ${money(suggested)} 并解锁</button>
         <button type="button" class="outline-wide" data-action="nc-expire">演示48小时未充值</button>
       </section>
     `, 'activity=newcomer');
@@ -703,13 +738,13 @@
     const have = done12 ? n.principalWager : n.wager12;
     $('#app').innerHTML = page(done12 ? '本金流水' : '12倍流水', `
       <div class="play-wallet">
-        <div><span>钱包总额</span><strong>RM ${money(n.walletTotal)}</strong></div>
-        <div class="play-progress"><div class="bar-label"><span>${done12 ? '本金1倍流水' : '12倍有效流水'}</span><span>RM ${money(have)} / RM ${money(need)}</span></div><progress max="${need || 1}" value="${Math.min(need, have)}" aria-label="流水进度"></progress></div>
+        <div><span>钱包总额</span><strong>MYR ${money(n.walletTotal)}</strong></div>
+        <div class="play-progress"><div class="bar-label"><span>${done12 ? '本金1倍流水' : '12倍有效流水'}</span><span>MYR ${money(have)} / MYR ${money(need)}</span></div><progress max="${need || 1}" value="${Math.min(need, have)}" aria-label="流水进度"></progress></div>
       </div>
       <p class="trial-prose">${done12
         ? '充值彩金完成12倍流水后，发放至真钱钱包。本金再完成1倍流水后，按 Tpower 提款规则申请提款。'
         : '解锁充值彩金后，继续在指定游戏商投注。钱包总金额须完成12倍有效流水。'}</p>
-      <p class="fine-print trial-prose">规则示例：钱包原余额 RM50 + RM100 充值彩金 = RM150；所需有效流水 RM150 × 12 = RM1,800。本次演示钱包总额为剩余余额 RM ${money(n.remaining)} + 本次充值 RM ${money(n.depositAmount)} + 解锁彩金 RM ${money(n.unlockedBonus)} = RM ${money(n.walletTotal)}。</p>
+      <p class="fine-print trial-prose">规则示例：钱包原余额 MYR50 + MYR100 充值彩金 = MYR150；所需有效流水 MYR150 × 12 = MYR1,800。本次演示钱包总额为剩余余额 MYR ${money(n.remaining)} + 本次充值 MYR ${money(n.depositAmount)} + 解锁彩金 MYR ${money(n.unlockedBonus)} = MYR ${money(n.walletTotal)}。</p>
       <button type="button" class="primary" data-action="${done12 ? 'nc-principal-accelerate' : 'nc-wager-accelerate'}">演示加速完成流水</button>
     `, 'activity=newcomer');
     document.title = (done12 ? '本金流水' : '12倍流水') + ' · TPOWER';
@@ -722,7 +757,7 @@
         <div class="demo-success-mark" aria-hidden="true">${icon('cash')}</div>
         <h3>${n.expired ? '解锁资格已失效' : n.abandoned ? '已放弃活动' : '挑战完成'}</h3>
         <p class="trial-prose">${n.expired ? '48小时内未充值，解锁资格自动失效。' : n.abandoned ? '可主动放弃活动，但不能再次参加。' : '充值彩金完成12倍流水后，发放至真钱钱包。本金再完成1倍流水后，按 Tpower 提款规则申请提款。'}</p>
-        <div class="wallet-pair"><div class="wallet-card main highlight"><span>主钱包</span><strong>RM ${money(demo.mainWallet)}</strong></div></div>
+        <div class="wallet-pair"><div class="wallet-card main highlight"><span>主钱包</span><strong>MYR ${money(demo.mainWallet)}</strong></div></div>
         <button type="button" class="primary" data-demo-nav="demo=records">查看领奖记录</button>
         <button type="button" class="outline-wide" data-demo-nav="activity=newcomer">返回活动</button>
       </section>
@@ -745,30 +780,30 @@
     const cap = REFERRAL_SOURCE.cap;
     const pct = Math.min(100, (f.unlocked / cap) * 100);
     if (f.disqualified) {
-      return `<article class="friend-card is-void"><div class="section-header"><h3>${f.name}</h3><span class="status-badge muted">已取消资格</span></div><p class="trial-prose">${f.reason}</p><p class="fine-print">已解锁 RM 0.00</p></article>`;
+      return `<article class="friend-card is-void"><div class="section-header"><h3>${f.name}</h3><span class="status-badge muted">已取消资格</span></div><p class="trial-prose">${f.reason}</p><p class="fine-print">已解锁 MYR 0.00</p></article>`;
     }
-    const kyc = f.kyc ? '已完成 · +RM2.00' : '未完成';
-    const dep = f.deposited ? '已完成 · +RM3.00' : (f.kyc ? '待完成' : '需先完成实名认证');
-    const bet = `已累计 ${f.betUnits || 0} 次 × RM1,000 · +RM ${money((f.betUnits || 0) * 0.5)}`;
+    const kyc = f.kyc ? '已完成 · +MYR2.00' : '未完成';
+    const dep = f.deposited ? '已完成 · +MYR3.00' : (f.kyc ? '待完成' : '需先完成实名认证');
+    const bet = `已累计 ${f.betUnits || 0} 次 × MYR1,000 · +MYR ${money((f.betUnits || 0) * 0.5)}`;
     return `<article class="friend-card ${f.kyc ? '' : 'is-pending'}" data-friend="${i}">
       <div class="section-header"><h3>${f.name}</h3><span class="status-badge">${f.kyc ? '合格好友' : '仅注册未认证'}</span></div>
       <p class="fine-print">${f.account}</p>
       <ul class="task-list trial-prose">
         <li><span>完成实名认证（KYC）</span><strong>${kyc}</strong></li>
-        <li><span>累计成功充值RM100</span><strong>${dep}</strong></li>
-        <li><span>每累计有效投注RM1,000</span><strong>${bet}</strong></li>
+        <li><span>累计成功充值MYR100</span><strong>${dep}</strong></li>
+        <li><span>每累计有效投注MYR1,000</span><strong>${bet}</strong></li>
       </ul>
-      <div class="bar-label"><span>本好友已解锁</span><span>RM ${money(f.unlocked)} / RM ${money(cap)}</span></div>
+      <div class="bar-label"><span>本好友已解锁</span><span>MYR ${money(f.unlocked)} / MYR ${money(cap)}</span></div>
       <progress max="${cap}" value="${Math.min(cap, f.unlocked)}" aria-label="好友奖励上限"></progress>
-      ${f.kyc ? demoTools(`${f.deposited ? '' : `<button type="button" class="outline-wide" data-action="ref-friend-deposit" data-friend="${i}">演示好友累计充值 RM100</button>`}
-        <button type="button" class="outline-wide" data-action="ref-friend-bet" data-friend="${i}">演示好友有效投注 RM1,000（+RM0.50）</button>
-        <button type="button" class="text-button" data-action="ref-friend-cap" data-friend="${i}">演示累计投注至本好友上限</button>`) : '<p class="fine-print trial-prose">未完成实名认证，邀请奖励为 RM0.00。</p>'}
+      ${f.kyc ? demoTools(`${f.deposited ? '' : `<button type="button" class="outline-wide" data-action="ref-friend-deposit" data-friend="${i}">演示好友累计充值 MYR100</button>`}
+        <button type="button" class="outline-wide" data-action="ref-friend-bet" data-friend="${i}">演示好友有效投注 MYR1,000（+MYR0.50）</button>
+        <button type="button" class="text-button" data-action="ref-friend-cap" data-friend="${i}">演示累计投注至本好友上限</button>`) : '<p class="fine-print trial-prose">未完成实名认证，邀请奖励为 MYR0.00。</p>'}
     </article>`;
   }
   function rfGuide(r) {
     const n = (r.friends || []).length;
     const total = r2(rfUnlockedTotal(r) || 0);
-    if (n && total > 0) return { step: 4, total: 4, text: '已有奖励自动进入主钱包。可继续邀请好友，单名好友最高 RM1,000。' };
+    if (n && total > 0) return { step: 4, total: 4, text: '已有奖励自动进入主钱包。可继续邀请好友，单名好友最高 MYR1,000。' };
     if (n) return { step: 3, total: 4, text: '好友完成实名认证、充值和有效投注后，奖励会自动到账。' };
     return { step: 1, total: 4, text: '先分享你的邀请码或链接给好友。' };
   }
@@ -786,7 +821,7 @@
     const s = REFERRAL_SOURCE.steps[viewStep];
     const cards = r.friends.length ? r.friends.map(friendCard).join('') : `<div class="compact-empty">${icon('friends')}<h4>暂无邀请好友</h4><p>好友任务进度将显示在这里</p></div>`;
     const guide = rfGuide(r);
-    return `${store().journeyBar()}${leadBlock(guide)}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">每成功邀请一名好友</span><span class="status-badge">${total > 0 ? '已自动解锁' : r.friends.length ? '进行中' : '未参加'}</span></div><div class="amount"><small>最高累计 RM</small>1,000</div><p class="trial-prose">${REFERRAL_SOURCE.reward}</p></section>${howToJoin(['分享你的邀请码或链接给好友', '好友完成实名认证、充值和有效投注', '对应奖励自动进入你的主钱包'])}<section class="section-panel"><div class="section-header"><h3>好友任务与奖励</h3></div><div class="table-wrap"><table><thead><tr><th>好友完成条件</th><th>邀请人获得</th></tr></thead><tbody><tr><td>完成实名认证（KYC）</td><td>RM2</td></tr><tr><td>累计成功充值RM100</td><td>RM3</td></tr><tr><td>每累计有效投注RM1,000</td><td>RM0.50</td></tr></tbody></table></div></section><section class="section-panel"><div class="section-header"><h3>已解锁奖励</h3><span>自动到账</span></div>${statRow([['已邀请好友', r.friends.length + '<span> 位</span>'], ['已自动解锁', money(total)], ['主钱包', money(demo.mainWallet)]], 'four-stats')}<span class="unit-note">金额单位：MYR · 系统自动解锁对应邀请奖励</span></section><section class="section-panel"><div class="section-header"><h3>好友奖励进度</h3><span>${r.friends.length} 位好友</span></div>${cards}</section><button type="button" class="outline-wide" data-tab="1">查看活动说明 ${icon('arrow')}</button>`;
+    return `${store().journeyBar()}${leadBlock(guide)}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">每成功邀请一名好友</span><span class="status-badge">${total > 0 ? '已自动解锁' : r.friends.length ? '进行中' : '未参加'}</span></div><div class="amount"><small>最高累计 MYR</small>1,000</div><p class="trial-prose">${REFERRAL_SOURCE.reward}</p></section>${howToJoin(['分享你的邀请码或链接给好友', '好友完成实名认证、充值和有效投注', '对应奖励自动进入你的主钱包'])}<section class="section-panel"><div class="section-header"><h3>好友任务与奖励</h3></div><div class="table-wrap"><table><thead><tr><th>好友完成条件</th><th>邀请人获得</th></tr></thead><tbody><tr><td>完成实名认证（KYC）</td><td>MYR2</td></tr><tr><td>累计成功充值MYR100</td><td>MYR3</td></tr><tr><td>每累计有效投注MYR1,000</td><td>MYR0.50</td></tr></tbody></table></div></section><section class="section-panel"><div class="section-header"><h3>已解锁奖励</h3><span>自动到账</span></div>${statRow([['已邀请好友', r.friends.length + '<span> 位</span>'], ['已自动解锁', money(total)], ['主钱包', money(demo.mainWallet)]], 'four-stats')}<span class="unit-note">金额单位：MYR · 系统自动解锁对应邀请奖励</span></section><section class="section-panel"><div class="section-header"><h3>好友奖励进度</h3><span>${r.friends.length} 位好友</span></div>${cards}</section><button type="button" class="outline-wide" data-tab="1">查看活动说明 ${icon('arrow')}</button>`;
   };
   function renderRefInvite() {
     const r = demoOf().referral;
@@ -956,15 +991,15 @@
     if (a.expired) return { step: 4, total: 4, text: '中奖奖金超过 48 小时未领取，已作废。' };
     if (a.claimed) return { step: 4, total: 4, done: true, text: '奖金已进入现金钱包。', endTitle: '抽奖奖金已到账', endDetail: '金额已进入现金钱包。', endNext: '中奖后须在 48 小时内领取，逾期作废。' };
     if (a.drawDone && a.winAmount > 0) return { step: 4, total: 4, text: '已中奖，请在 48 小时内领取奖金。' };
-    if (a.drawDone && a.winAmount <= 0) return { step: 3, total: 4, done: true, text: '本次演示号码未中奖。有效流水每满 RM200 可再获得抽奖券。', endTitle: '本次未中奖', endDetail: '可继续累计有效流水获得抽奖券。', endNext: '以官方开奖结果为准。' };
+    if (a.drawDone && a.winAmount <= 0) return { step: 3, total: 4, done: true, text: '本次演示号码未中奖。有效流水每满 MYR200 可再获得抽奖券。', endTitle: '本次未中奖', endDetail: '可继续累计有效流水获得抽奖券。', endNext: '以官方开奖结果为准。' };
     if (a.tickets.length) return { step: 3, total: 4, text: '已有 ' + a.tickets.length + ' 张抽奖券。演示中可预览开奖兑奖。' };
-    return { step: 1, total: 4, text: '有效流水每满 RM200，获得 1 张抽奖券。' };
+    return { step: 1, total: 4, text: '有效流水每满 MYR200，获得 1 张抽奖券。' };
   }
   function anCta(a) {
     const g = anGuide(a);
     if (a.expired) return ['奖金已作废', 'demo-done', true, g.text];
     if (a.claimed) return ['查看到账', 'go-records', false];
-    if (a.drawDone && a.winAmount > 0) return ['领取 RM ' + money(a.winAmount) + ' 奖金', 'an-go-claim', false];
+    if (a.drawDone && a.winAmount > 0) return ['领取 MYR ' + money(a.winAmount) + ' 奖金', 'an-go-claim', false];
     if (a.drawDone && a.winAmount <= 0) return ['未中奖', 'demo-done', true, g.text];
     if (a.tickets.length) return ['预览开奖', 'an-go-draw', false];
     return ['去累计有效流水', 'an-go-play', false];
@@ -980,7 +1015,7 @@
       ? a.drawNumber.split('').map(d => `<span>${d}</span>`).join('')
       : Array(6).fill('<span>—</span>').join('');
     const guide = anGuide(a);
-    return `${store().journeyBar()}${leadBlock(guide)}<section class="reward-feature draw-hero trial-hero"><div class="panel-top"><span class="eyebrow">3周年幸运大抽奖</span><span class="status-badge ${cls}">${status}</span></div><div class="amount"><small>头奖 RM</small>100,000</div><p class="trial-prose">有效流水累计每满 RM200，获得1张抽奖券。</p><div class="period-dates"><div><span>活动开始</span><b>2026.11.15 <small>19:00:00</small></b></div><div><span>活动结束</span><b>2026.11.22 <small>18:59:59</small></b></div></div></section>${howToJoin(['有效流水每满 RM200，获得 1 张抽奖券', '按开奖号码核对是否中奖', '中奖后在 48 小时内手动领取'])}<section class="section-panel"><div class="section-header"><h3>开奖参考</h3><span>TOTO 6D</span></div><div class="draw-reference"><div><b>2026年11月22日</b><p>根据当周星期日 TOTO 6D 开奖号码兑奖</p></div></div><div class="number-balls" aria-label="${a.drawDone ? '演示开奖号码' : '尚未开奖'}">${balls}</div><p class="fine-print center trial-prose">${a.drawDone ? '以上为演示开奖号码，非官方 TOTO 6D 结果，仅用于预览兑奖流程。' : '官方开奖以当周星期日 TOTO 6D 为准。演示中可使用「演示开奖」预览兑奖。'}</p></section><button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button><button type="button" class="text-button" data-tab="2">我的抽奖券 ${icon('arrow')}</button>`;
+    return `${store().journeyBar()}${leadBlock(guide)}<section class="reward-feature draw-hero trial-hero"><div class="panel-top"><span class="eyebrow">3周年幸运大抽奖</span><span class="status-badge ${cls}">${status}</span></div><div class="amount"><small>头奖 MYR</small>100,000</div><p class="trial-prose">有效流水累计每满 MYR200，获得1张抽奖券。</p><div class="period-dates"><div><span>活动开始</span><b>2026.11.15 <small>19:00:00</small></b></div><div><span>活动结束</span><b>2026.11.22 <small>18:59:59</small></b></div></div></section>${howToJoin(['有效流水每满 MYR200，获得 1 张抽奖券', '按开奖号码核对是否中奖', '中奖后在 48 小时内手动领取'])}<section class="section-panel"><div class="section-header"><h3>开奖参考</h3><span>TOTO 6D</span></div><div class="draw-reference"><div><b>2026年11月22日</b><p>根据当周星期日 TOTO 6D 开奖号码兑奖</p></div></div><div class="number-balls" aria-label="${a.drawDone ? '演示开奖号码' : '尚未开奖'}">${balls}</div><p class="fine-print center trial-prose">${a.drawDone ? '以上为演示开奖号码，非官方 TOTO 6D 结果，仅用于预览兑奖流程。' : '官方开奖以当周星期日 TOTO 6D 为准。演示中可使用「演示开奖」预览兑奖。'}</p></section><button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button><button type="button" class="text-button" data-tab="2">我的抽奖券 ${icon('arrow')}</button>`;
   };
   window.renderAnniversaryTickets = function () {
     store().ensureBanner();
@@ -993,7 +1028,7 @@
       ? `<ul class="record-list ticket-list">${a.tickets.map((no, i) => {
           const hit = a.drawDone ? prizeMatch(no, a.drawNumber) : null;
           const st = !a.drawDone ? '待开奖' : a.expired && hit ? '已作废' : hit ? hit[0] : '未中奖';
-          return `<li><div><strong>抽奖券 ${i + 1}</strong><small>号码 ${no}</small></div><div class="record-right"><b>${hit ? 'RM ' + money(hit[1]) : '—'}</b><span class="status-badge">${st}</span></div></li>`;
+          return `<li><div><strong>抽奖券 ${i + 1}</strong><small>号码 ${no}</small></div><div class="record-right"><b>${hit ? 'MYR ' + money(hit[1]) : '—'}</b><span class="status-badge">${st}</span></div></li>`;
         }).join('')}</ul>`
       : '';
     return `${store().journeyBar()}<section class="section-panel tickets-panel"><div class="section-header"><h3>我的抽奖券</h3></div><div class="period-tabs" aria-label="抽奖期数">${[3, 2, 1].map(n => `<button data-period="${n}" aria-pressed="${n === period}" class="${n === period ? 'active' : ''}">第${n}期<small>11月${{ 3: '22', 2: '15', 1: '08' }[n]}日</small></button>`).join('')}</div><div class="ticket-period"><b>第${period}期 · 2026年11月${day}日</b>${current ? '<p>2026.11.15 19:00:00 — 2026.11.22 18:59:59</p>' : '<p>仅提供了该期期数与开奖参考日期。</p>'}</div>${current ? `${a.drawDone ? `<div class="number-balls small-balls">${a.drawNumber.split('').map(d => `<span>${d}</span>`).join('')}</div><p class="fine-print center trial-prose">演示开奖号码 ${a.drawNumber}，非官方结果。</p>` : `<div class="number-balls small-balls">${Array(6).fill('<span>—</span>').join('')}</div><p class="fine-print center">尚未开奖</p>`}${statRow([['抽奖券数', String(a.tickets.length)], ['中奖总额', a.drawDone ? money(a.winAmount) : '—'], ['未领取奖额', a.drawDone && !a.claimed && !a.expired ? money(a.winAmount) : money(0)]])}${list}` : `<p class="fine-print center">该期开奖号码未提供</p>${action('该期领奖数据未提供', 'ticket-claim', true)}`}</section>${note('奖金须在48小时内点击领取，逾期作废。')}`;
@@ -1004,11 +1039,11 @@
     const remainToTicket = a.turnover % 200 === 0 ? (a.tickets.length >= 3 && a.turnover >= 600 ? 0 : 200) : 200 - (a.turnover % 200);
     $('#app').innerHTML = page('累计有效流水', `
       <div class="play-wallet">
-        <div><span>有效流水</span><strong>RM ${money(a.turnover)}</strong></div>
-        <div class="play-progress"><div class="bar-label"><span>已获抽奖券</span><span>${a.tickets.length} 张 · 每满 RM200 得1张</span></div><progress max="600" value="${Math.min(600, a.turnover)}" aria-label="流水进度"></progress></div>
+        <div><span>有效流水</span><strong>MYR ${money(a.turnover)}</strong></div>
+        <div class="play-progress"><div class="bar-label"><span>已获抽奖券</span><span>${a.tickets.length} 张 · 每满 MYR200 得1张</span></div><progress max="600" value="${Math.min(600, a.turnover)}" aria-label="流水进度"></progress></div>
       </div>
-      <p class="trial-prose">活动期间，有效投注流水每累计满 RM200 获得1张抽奖券。除4D及平台指定的特殊游戏外，其他游戏的有效投注均计入活动流水。</p>
-      <button type="button" class="primary" data-action="an-add-turnover" ${a.tickets.length >= 3 ? 'disabled' : ''}>演示累计 RM200 有效流水</button>
+      <p class="trial-prose">活动期间，有效投注流水每累计满 MYR200 获得1张抽奖券。除4D及平台指定的特殊游戏外，其他游戏的有效投注均计入活动流水。</p>
+      <button type="button" class="primary" data-action="an-add-turnover" ${a.tickets.length >= 3 ? 'disabled' : ''}>演示累计 MYR200 有效流水</button>
       ${a.tickets.length ? '<button type="button" class="outline-wide" data-demo-nav="activity=anniversary&tab=2">查看我的抽奖券</button>' : ''}
       ${a.tickets.length >= 3 ? '<button type="button" class="primary" data-action="an-go-draw">演示开奖</button>' : ''}
     `, 'activity=anniversary');
@@ -1083,7 +1118,7 @@
     $('#app').innerHTML = page('开奖核对', `
       <p class="demo-lead trial-prose">每张抽奖券包含一组6位数号码，以当周星期日 TOTO 6D 开奖号码为兑奖依据。号码和顺序必须一致；二至五奖按前段或后段号码匹配。以下开奖号码为演示示例，非官方结果。</p>
       <div class="number-balls" id="an-draw-balls">${balls}</div>
-      ${a.drawDone ? `<p class="fine-print center trial-prose">演示开奖号码 ${a.drawNumber}</p><ul class="record-list">${hits.map(h => `<li><div><strong>${h.no}</strong></div><div class="record-right"><b>${h.hit ? 'RM ' + money(h.hit[1]) : '—'}</b><span class="status-badge">${h.hit ? h.hit[0] : '未中奖'}</span></div></li>`).join('')}</ul>${a.winAmount > 0 && !a.claimed && !a.expired ? '<button type="button" class="primary" data-action="an-go-claim">领取奖金</button><button type="button" class="outline-wide" data-action="an-expire">演示超过48小时未领取</button>' : ''}` : '<button type="button" class="primary" data-action="an-draw-confirm">开始演示开奖</button>'}
+      ${a.drawDone ? `<p class="fine-print center trial-prose">演示开奖号码 ${a.drawNumber}</p><ul class="record-list">${hits.map(h => `<li><div><strong>${h.no}</strong></div><div class="record-right"><b>${h.hit ? 'MYR ' + money(h.hit[1]) : '—'}</b><span class="status-badge">${h.hit ? h.hit[0] : '未中奖'}</span></div></li>`).join('')}</ul>${a.winAmount > 0 && !a.claimed && !a.expired ? '<button type="button" class="primary" data-action="an-go-claim">领取奖金</button><button type="button" class="outline-wide" data-action="an-expire">演示超过48小时未领取</button>' : ''}` : '<button type="button" class="primary" data-action="an-draw-confirm">开始演示开奖</button>'}
     `, 'activity=anniversary&tab=2');
     document.title = '开奖核对 · TPOWER';
   }
@@ -1092,7 +1127,7 @@
     $('#app').innerHTML = page('领取奖金', `
       <section class="reward-feature trial-hero">
         <div class="panel-top"><span class="eyebrow">${a.prizeName || '中奖奖金'}</span><span class="status-badge">待领取 · 48小时</span></div>
-        <div class="amount"><small>RM</small>${money(a.winAmount).split('.')[0]}<span>.${money(a.winAmount).split('.')[1]}</span></div>
+        <div class="amount"><small>MYR</small>${money(a.winAmount).split('.')[0]}<span>.${money(a.winAmount).split('.')[1]}</span></div>
         <p class="trial-prose">奖金必须在48小时内点击领取；超过指定时间，奖金将自动作废。</p>
       </section>
       <button type="button" class="primary" data-action="an-claim-confirm">确认领取</button>
@@ -1105,9 +1140,9 @@
   /* ------------ 维护补偿 ------------ */
   function mtGuide(m) {
     if (!m.eligible) return { step: 1, total: 4, text: '当前演示账户不符合参与资格，每人、每设备、每 IP 限参加一次。' };
-    if (m.completed) return { step: 4, total: 4, done: true, text: 'RM100 现金已到主钱包，剩余活动分已清零。', endTitle: '已领取 RM100 现金', endDetail: '奖励已进入主钱包，可用于投注或申请取款。', endNext: '每人限参加一次。' };
+    if (m.completed) return { step: 4, total: 4, done: true, text: 'MYR100 现金已到主钱包，剩余活动分已清零。', endTitle: '已领取 MYR100 现金', endDetail: '奖励已进入主钱包，可用于投注或申请取款。', endNext: '每人限参加一次。' };
     if (m.ended) return { step: 3, total: 4, text: '活动分未达到 200 分，不能完成任务。' };
-    if (m.reached) return { step: 4, total: 4, text: '活动分已达到 200 分，完成任务即可领取 RM100 现金。' };
+    if (m.reached) return { step: 4, total: 4, text: '活动分已达到 200 分，完成任务即可领取 MYR100 现金。' };
     if (m.joined) {
       const left = Math.max(0, 200 - (m.points || 0));
       return { step: 2, total: 4, text: '去指定游戏使用活动分。还差 ' + left + ' 分即可领取。' };
@@ -1119,7 +1154,7 @@
     if (!m.eligible) return ['不符资格', 'mt-eligibility', true, g.text];
     if (m.completed) return ['查看到账', 'go-records', false];
     if (m.ended) return ['未达200分，不能完成任务', 'demo-done', true, g.text];
-    if (m.reached) return ['领取RM100现金', 'mt-go-finish', false];
+    if (m.reached) return ['领取MYR100现金', 'mt-go-finish', false];
     if (m.joined) return ['去指定游戏', 'mt-go-play', false];
     return ['参加并领取100活动分', 'mt-join', false];
   }
@@ -1130,9 +1165,9 @@
     const status = !m.eligible ? ['不符资格', 'muted'] : m.completed ? ['已领取', 'muted'] : m.ended ? ['未达标', 'muted'] : m.reached ? ['已达标 · 待完成任务', ''] : m.joined ? ['已参加 · 挑战中', ''] : ['已认证 · 待参与', ''];
     const viewStep = inspect('maintenance', 3, Math.min(3, mtIndex(m) === 4 ? 3 : mtIndex(m)));
     const s = MAINT_SOURCE.steps[viewStep];
-    const points = m.joined ? `<div class="wallet-pair" id="mt-balance"><div class="wallet-card trial"><span>活动分</span><strong>${money(m.points)}</strong><small>只能用于指定游戏，不能提现</small></div><div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>RM ${money(demo.mainWallet)}</strong><small>${m.completed ? 'RM100 现金已到账' : '完成任务后领取 RM100'}</small></div></div>${!m.completed && !m.ended ? `<div class="trial-balance"><div class="bar-label"><span>达标进度</span><span>${money(m.points)} / 200.00</span></div><progress max="200" value="${Math.min(200, m.points)}" aria-label="活动分进度"></progress></div>` : ''}` : '';
+    const points = m.joined ? `<div class="wallet-pair" id="mt-balance"><div class="wallet-card trial"><span>活动分</span><strong>${money(m.points)}</strong><small>只能用于指定游戏，不能提现</small></div><div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>MYR ${money(demo.mainWallet)}</strong><small>${m.completed ? 'MYR100 现金已到账' : '完成任务后领取 MYR100'}</small></div></div>${!m.completed && !m.ended ? `<div class="trial-balance"><div class="bar-label"><span>达标进度</span><span>${money(m.points)} / 200.00</span></div><progress max="200" value="${Math.min(200, m.points)}" aria-label="活动分进度"></progress></div>` : ''}` : '';
     const guide = mtGuide(m);
-    return `${store().journeyBar()}${leadBlock(guide)}${points}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">维护补偿 · 限参加1次</span><span class="status-badge ${status[1]}">${status[0]}</span></div><div class="amount"><small>现金 RM</small>100</div><p class="trial-prose">领取100活动分，达到200分后手动完成任务。</p></section>${howToJoin(['符合资格后参加，领取 100 活动分', '在指定游戏把活动分打到 200 分', '手动完成任务，领取 RM100 现金'])}${m.eligible ? '' : '<section class="section-panel"><div class="section-header"><h3>当前状态</h3></div><p class="fine-print trial-prose">当前演示为不符资格：不在 2024年1月1日至2026年10月31日期间有成功充值。</p></section>'}<section class="section-panel"><div class="section-header"><h3>可玩游戏</h3><span>仅限活动分</span></div><div class="locked-games">${icon('shield')}<div><b>${m.joined ? '已开放指定游戏' : '参加活动后开放'}</b><p class="trial-prose">截图未显示具体游戏名单。名单待确认。</p></div></div></section>${demoTools(m.eligible && !m.joined ? '<button type="button" class="text-button trial-reset" data-action="mt-make-ineligible">演示不符资格</button>' : '')}<button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>`;
+    return `${store().journeyBar()}${leadBlock(guide)}${points}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">维护补偿 · 限参加1次</span><span class="status-badge ${status[1]}">${status[0]}</span></div><div class="amount"><small>现金 MYR</small>100</div><p class="trial-prose">领取100活动分，达到200分后手动完成任务。</p></section>${howToJoin(['符合资格后参加，领取 100 活动分', '在指定游戏把活动分打到 200 分', '手动完成任务，领取 MYR100 现金'])}${m.eligible ? '' : '<section class="section-panel"><div class="section-header"><h3>当前状态</h3></div><p class="fine-print trial-prose">当前演示为不符资格：不在 2024年1月1日至2026年10月31日期间有成功充值。</p></section>'}<section class="section-panel"><div class="section-header"><h3>可玩游戏</h3><span>仅限活动分</span></div><div class="locked-games">${icon('shield')}<div><b>${m.joined ? '已开放指定游戏' : '参加活动后开放'}</b><p class="trial-prose">截图未显示具体游戏名单。名单待确认。</p></div></div></section>${demoTools(m.eligible && !m.joined ? '<button type="button" class="text-button trial-reset" data-action="mt-make-ineligible">演示不符资格</button>' : '')}<button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>`;
   };
   function renderMtPlay() {
     const m = demoOf().maintenance;
@@ -1151,7 +1186,7 @@
         <button type="button" class="primary" id="spin-btn" data-action="mt-spin" ${canSpin ? '' : 'disabled'}>${canSpin ? '开始旋转' : '暂停游戏'}</button>
       </section>
       ${m.reached ? '<button type="button" class="primary" data-action="mt-go-finish">返回完成任务</button>' : ''}
-      ${m.ended ? '<section class="section-panel"><h3>未完成任务</h3><p class="trial-prose">活动分已用尽且未达到200分，不能领取 RM100 现金。每人限参加一次，演示中可重置后重新体验。</p></section>' : ''}
+      ${m.ended ? '<section class="section-panel"><h3>未完成任务</h3><p class="trial-prose">活动分已用尽且未达到200分，不能领取 MYR100 现金。每人限参加一次，演示中可重置后重新体验。</p></section>' : ''}
       ${canSpin ? '<button type="button" class="text-button trial-reset" data-action="mt-fail-path">演示未达200分（分数归零）</button>' : ''}
     `, 'activity=maintenance');
     document.title = game.name + ' · TPOWER';
@@ -1161,32 +1196,52 @@
     $('#app').innerHTML = page('完成任务', `
       <section class="reward-feature trial-hero">
         <div class="panel-top"><span class="eyebrow">现金奖励</span><span class="status-badge">已达标</span></div>
-        <div class="amount"><small>RM</small>100<span>.00</span></div>
-        <p class="trial-prose">返回活动页面，手动点击「完成任务」，领取 RM100 现金到本人的账户。领取现金后，剩余活动分清零。</p>
+        <div class="amount"><small>MYR</small>100<span>.00</span></div>
+        <p class="trial-prose">返回活动页面，手动点击「完成任务」，领取 MYR100 现金到本人的账户。领取现金后，剩余活动分清零。</p>
       </section>
-      <button type="button" class="primary" data-action="mt-finish-confirm">完成任务并领取 RM100</button>
+      <button type="button" class="primary" data-action="mt-finish-confirm">完成任务并领取 MYR100</button>
     `, 'activity=maintenance');
     document.title = '完成任务 · TPOWER';
   }
 
   /* ------------ VIP会员专属福利 ------------ */
-  const VB_JOURNEY = ['当前等级', '领取福利', '查询记录'];
-  const VB_EXAMPLE = '示例 · 以统一等级表为准';
+  const VB_JOURNEY = ['当前等级', '查看福利', '查询记录'];
+  const VB_EXAMPLE = '';
 
   function vbOf() {
     return demoOf().vipBenefits;
   }
   function vbRow(level) {
-    return VIP_SOURCE.exampleLevels.find(l => l.level === level) || VIP_SOURCE.exampleLevels[0];
+    const list = VIP_SOURCE.levels || [];
+    return list.find(l => l.level === level) || list[1] || list[0];
   }
   function vbName(level) {
     return vbRow(level).name;
   }
   function vbPct(rate) {
-    return (Math.round(rate * 10000) / 100).toFixed(2) + '%';
+    if (rate == null) return '—';
+    const s = (rate * 100).toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+    return s + '%';
+  }
+  function vbDashAmt(n) {
+    return n == null ? '—' : vbAmt(n);
+  }
+  function vbWeeklyLabel(l) {
+    if (l.weeklyPct == null) return '—';
+    return vbPct(l.weeklyPct) + ' / ' + vbAmt(l.weeklyCap);
+  }
+  function vbRebateRate(v) {
+    const row = vbRow(v.level);
+    return (v.rebateGame === 'slots' ? row.rebateSlots : row.rebateLive) || 0;
+  }
+  function vbWeeklyAmount(v) {
+    const row = vbRow(v.level);
+    if (!row.weeklyPct) return 0;
+    return r2(Math.min(Number(v.weeklyLoss || 0) * row.weeklyPct, row.weeklyCap || 0));
   }
   function vbNext(v) {
-    return VIP_SOURCE.exampleLevels.find(l => l.level === (v.pendingUpgrade || v.level) + 1) || null;
+    const list = VIP_SOURCE.levels || [];
+    return list.find(l => l.level === (v.pendingUpgrade || v.level) + 1) || null;
   }
   function vbCanClaimUpgrade(v) {
     return v.pendingUpgrade > 0 && !(v.claimedUpgrades || []).includes(v.pendingUpgrade);
@@ -1195,10 +1250,10 @@
     return v.retentionResult === 'retained' && v.claimedRetentionCycle !== v.cycle;
   }
   function vbOutstandingRebate(v) {
-    return r2((v.unsettledBets || 0) * vbRow(v.level).rebate);
+    return r2((v.unsettledBets || 0) * vbRebateRate(v));
   }
   function vbCanClaimWeekly(v) {
-    return v.claimedWeek !== v.week;
+    return (v.level || 0) >= 3 && v.claimedWeek !== v.week && vbWeeklyAmount(v) > 0;
   }
   function vbCanClaimFestival(v) {
     return !!v.festivalActive && !(v.claimedFestivals || []).includes(v.festival);
@@ -1213,19 +1268,19 @@
     return 0;
   }
   function vbGuide(v) {
-    if (vbCanClaimUpgrade(v)) return { step: 2, total: 3, text: '有升级礼金可领，点下方按钮领取到主钱包。金额为示例，以统一等级表为准。' };
-    if (vbCanClaimRetention(v)) return { step: 2, total: 3, text: '本周期已达保级条件，可领取保级礼金。金额为示例，以统一等级表为准。' };
-    if (vbOutstandingRebate(v) > 0) return { step: 2, total: 3, text: '有专属返水可领取到主钱包。' };
-    if (vbCanClaimWeekly(v)) return { step: 2, total: 3, text: '本周关怀礼金可领取，每周限领一次。' };
-    if (vbCanClaimFestival(v)) return { step: 2, total: 3, text: '节日礼金可领取，每个节日限领一次。' };
-    return { step: 3, total: 3, done: true, text: '暂时没有待领的 VIP 礼金。可在记录里查看已领取的项目。', endTitle: '暂无待领礼金', endDetail: '已领取的奖励在主钱包中。', endNext: '可随时查看我的 VIP 记录。' };
+    if (vbCanClaimUpgrade(v)) return { step: 2, total: 3, text: '有升级奖金可预览领取到主钱包。' };
+    if (vbCanClaimRetention(v)) return { step: 2, total: 3, text: '本周期已达保级条件，可预览领取季度等级奖金。' };
+    if (vbOutstandingRebate(v) > 0) return { step: 2, total: 3, text: '有专属返水可预览领取到主钱包。' };
+    if (vbCanClaimWeekly(v)) return { step: 2, total: 3, text: '本周救援金可预览领取，每周限领一次。' };
+    if (vbCanClaimFestival(v)) return { step: 2, total: 3, text: '纪念奖金可预览领取，每个注册周年限领一次。' };
+    return { step: 3, total: 3, done: true, text: '暂时没有待领的 VIP 奖励。可在记录里查看已发放的项目。', endTitle: '暂无待领奖励', endDetail: '已发放的奖励在主钱包中。', endNext: '可随时查看我的 VIP 记录。' };
   }
   function vbCta(v) {
-    if (vbCanClaimUpgrade(v)) return ['领取升级礼金', 'vb-claim-upgrade', false];
-    if (vbCanClaimRetention(v)) return ['领取保级礼金', 'vb-claim-retention', false];
+    if (vbCanClaimUpgrade(v)) return ['领取升级奖金', 'vb-claim-upgrade', false];
+    if (vbCanClaimRetention(v)) return ['领取季度等级奖金', 'vb-claim-retention', false];
     if (vbOutstandingRebate(v) > 0) return ['领取返水', 'vb-claim-rebate', false];
-    if (vbCanClaimWeekly(v)) return ['领取每周关怀礼金', 'vb-claim-weekly', false];
-    if (vbCanClaimFestival(v)) return ['领取节日礼金', 'vb-claim-festival', false];
+    if (vbCanClaimWeekly(v)) return ['领取每周救援金', 'vb-claim-weekly', false];
+    if (vbCanClaimFestival(v)) return ['领取纪念奖金', 'vb-claim-festival', false];
     return ['查看我的VIP记录', 'vb-go-records', false];
   }
   function vbStatus(v) {
@@ -1235,13 +1290,13 @@
     return ['已认证 · ' + vbName(v.level), ''];
   }
   function vbExampleTag() {
-    return `<span class="example-tag">${VB_EXAMPLE}</span>`;
+    return '';
   }
   function vbAmt(n) {
-    return `RM ${money(n)}`;
+    return `MYR ${money(n)}`;
   }
   function vbCredit(demo, v, title, amount, status, note) {
-    const row = { title, amount, status, time: new Date().toISOString(), note: note || VB_EXAMPLE };
+    const row = { title, amount, status, time: new Date().toISOString(), note: note || '' };
     v.history = v.history || [];
     v.history.unshift(row);
     if (amount > 0) demo.mainWallet = r2((demo.mainWallet || 0) + amount);
@@ -1249,7 +1304,7 @@
     store().save();
   }
   function vbReward(kicker, amt, before, demo, fallback) {
-    if (window.lxReward && amt > 0) lxReward({ kicker: 'VIP会员专属福利 · ' + kicker, title: '奖励已发放', amount: amt, dest: '主钱包', rows: [['主钱包', before, demo.mainWallet]], note: '金额为示例，以统一等级表为准。' });
+    if (window.lxReward && amt > 0) lxReward({ kicker: 'VIP会员专属福利 · ' + kicker, title: '奖励已发放', amount: amt, dest: '主钱包', rows: [['主钱包', before, demo.mainWallet]] });
     else toast(fallback);
   }
   function vbRefresh() {
@@ -1260,16 +1315,18 @@
     }
     refreshPromo();
   }
-  function vbExampleTable() {
-    return `<section class="section-panel vip-example-panel">
-      <div class="section-header"><h3>示例等级表</h3><span>演示用 · VIP1–VIP3</span></div>
-      <p class="fine-print trial-prose">${VIP_SOURCE.exampleNote}</p>
-      <div class="table-wrap"><table class="prize-table vip-example-table">
-        <thead><tr><th>等级</th><th>升级礼金</th><th>保级礼金</th><th>返水比例</th><th>每周关怀</th><th>节日礼金</th></tr></thead>
-        <tbody>${VIP_SOURCE.exampleLevels.map(l => `<tr${l.level === (vbOf().level) ? ' class="current-level"' : ''}><td>${l.name}</td><td>${vbAmt(l.upgrade)}</td><td>${vbAmt(l.retention)}</td><td>${vbPct(l.rebate)}</td><td>${vbAmt(l.weekly)}</td><td>${vbAmt(l.festival)}</td></tr>`).join('')}</tbody>
+  function vbOfficialTable(currentLevel) {
+    const lv = arguments.length ? currentLevel : (isDemoOn() ? (vbOf() && vbOf().level) : null);
+    return `<section class="section-panel vip-level-panel">
+      <div class="section-header"><h3>等级表</h3><span>连续 3 个月累计「存款 + 1倍流水」</span></div>
+      <div class="table-wrap"><table class="prize-table vip-level-table">
+        <thead><tr><th>等级</th><th>升级门槛<small>（3个月一次）</small></th><th>季度保级标准</th><th>季度等级奖金</th><th>升级奖金</th><th>纪念奖金</th><th>返水比例<small>现场游戏 / 老虎机</small></th><th>每周救援金<small>比例 / 上限</small></th></tr></thead>
+        <tbody>${VIP_SOURCE.levels.map(l => `<tr${l.level === lv ? ' class="current-level"' : ''}><td>${l.name}</td><td>${l.threshold}</td><td>${vbDashAmt(l.retention)}</td><td>${vbDashAmt(l.quarterly)}</td><td>${vbDashAmt(l.upgrade)}</td><td>${vbDashAmt(l.memorial)}</td><td>${l.rebateLive == null ? '—' : vbPct(l.rebateLive) + ' / ' + vbPct(l.rebateSlots)}</td><td>${vbWeeklyLabel(l)}</td></tr>`).join('')}</tbody>
       </table></div>
-      ${vbExampleTag()}
     </section>`;
+  }
+  function vbExampleTable() {
+    return vbOfficialTable();
   }
   function vbBenefitState(v, id) {
     if (id === 'upgrade') {
@@ -1291,13 +1348,15 @@
       return ['待有效投注', ''];
     }
     if (id === 'weekly') {
+      if ((v.level || 0) < 3) return ['LV3 起可享', 'muted'];
       if (vbCanClaimWeekly(v)) return ['本周可领取', ''];
-      return ['本周已领取', 'muted'];
+      if (v.claimedWeek === v.week) return ['本周已领取', 'muted'];
+      return ['暂无本周救援金', 'muted'];
     }
     if (id === 'festival') {
-      if (!v.festivalActive) return ['不在节日期间', 'muted'];
-      if (vbCanClaimFestival(v)) return ['节日期间可领取', ''];
-      return ['本节日已领取', 'muted'];
+      if (!v.festivalActive) return ['不在注册周年期间', 'muted'];
+      if (vbCanClaimFestival(v)) return ['可领取', ''];
+      return ['本年已领取', 'muted'];
     }
     return ['', ''];
   }
@@ -1307,7 +1366,7 @@
       return `<button type="button" class="vip-benefit-card" data-demo-nav="demo=${b.screen}" aria-label="查看${b.title}">
         <div class="panel-top"><span class="eyebrow">${b.title}</span><span class="status-badge ${cls}">${st}</span></div>
         <p class="trial-prose">${b.text}</p>
-        <span class="card-link">进入演示 ${icon('arrow')}</span>
+        <span class="card-link">点击查看详情 ${icon('arrow')}</span>
       </button>`;
     }).join('')}</div>`;
   }
@@ -1315,23 +1374,23 @@
     const demo = demoOf();
     return `<div class="wallet-pair vip-member-bar">
       <div class="wallet-card"><span>当前等级</span><strong>${vbName(v.level)}</strong><small>演示等级 · 已登录已认证</small></div>
-      <div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>RM ${money(demo.mainWallet)}</strong><small>权益领取后进入此钱包</small></div>
+      <div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>MYR ${money(demo.mainWallet)}</strong><small>权益领取后进入此钱包</small></div>
     </div>`;
   }
   function vbRecordsMarkup(v, compact) {
     const rows = (v.history || []).length
       ? `<ul class="record-list">${v.history.map(r => `<li><div><strong>${r.title}</strong><small>${store().formatRecordTime(r.time)}${r.note ? ' · ' + r.note : ''}</small></div><div class="record-right"><b>${vbAmt(r.amount)}</b><span class="status-badge">${r.status}</span></div></li>`).join('')}</ul>`
-      : `<div class="compact-empty">${icon('receipt')}<h4>暂无奖励记录</h4><p class="trial-prose">领取升级礼金、保级礼金、返水、每周关怀或节日礼金后，记录将显示在这里。</p></div>`;
+      : `<div class="compact-empty">${icon('receipt')}<h4>暂无奖励记录</h4><p class="trial-prose">升级奖金、季度等级奖金、返水、每周救援金或纪念奖金发放后，记录将显示在这里。</p></div>`;
     return `${compact ? '' : vbMemberBar(v)}
       <section class="section-panel">
         <div class="section-header"><h3>可查询资料</h3><span>会员等级 · 有效投注 · 奖励记录</span></div>
         <ul class="kyc-summary">
           <li><span>会员等级</span><strong>${vbName(v.level)}（演示）</strong></li>
-          <li><span>有效投注</span><strong>RM ${money(v.qualifyingBets || 0)}</strong></li>
-          <li><span>不计入投注</span><strong>RM ${money(v.nonQualifyingBets || 0)}</strong></li>
-          <li><span>已领返水</span><strong>RM ${money(v.rebateClaimed || 0)}</strong></li>
+          <li><span>有效投注</span><strong>MYR ${money(v.qualifyingBets || 0)}</strong></li>
+          <li><span>不计入投注</span><strong>MYR ${money(v.nonQualifyingBets || 0)}</strong></li>
+          <li><span>已领返水</span><strong>MYR ${money(v.rebateClaimed || 0)}</strong></li>
           <li><span>当前周期</span><strong>第 ${v.cycle} 个保级周期 · 第 ${v.week} 周</strong></li>
-          <li><span>当前节日</span><strong>${v.festival}（示例）${v.festivalActive ? ' · 节日期间' : ' · 已结束'}</strong></li>
+          <li><span>纪念奖金</span><strong>${v.festival}${v.festivalActive ? ' · 可领取期间' : ' · 已结束'}</strong></li>
         </ul>
         ${vbExampleTag()}
       </section>
@@ -1347,15 +1406,13 @@
     const guide = vbGuide(v);
     return `${store().journeyBar()}${leadBlock(guide)}
       <section class="reward-feature trial-hero vip-hero">
-        <div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div>
-        <p class="trial-prose">${VIP_SOURCE.reward}</p>
-        <p class="trial-prose">${VIP_SOURCE.summary}</p>
-      </section>${howToJoin(['按你的 VIP 等级查看可领的礼金（金额为示例）', '点对应项目领取', '奖励发放到主钱包'])}${vbMemberBar(v)}
+        <div class="panel-top"><span class="eyebrow">VIP 详情</span><span class="status-badge ${statusCls}">${status}</span></div>
+      </section>${vbMemberBar(v)}
+      ${vbOfficialTable(v.level)}
       <section class="section-panel">
-        <div class="section-header"><h3>五大专属福利</h3><span>点击卡片进入演示</span></div>
+        <div class="section-header"><h3>五大专属福利</h3><span>点击查看详情</span></div>
         ${vbBenefitCards(v)}
       </section>
-      ${vbExampleTable()}
       <button type="button" class="outline-wide" data-tab="2">查看我的VIP记录 ${icon('arrow')}</button>
       <button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>
       ${demoTools('<button type="button" class="text-button trial-reset" data-action="demo-reset">重置演示</button>')} `;
@@ -1372,11 +1429,11 @@
     const canClaim = vbCanClaimUpgrade(v);
     const target = canClaim ? vbRow(v.pendingUpgrade) : null;
     const already = (v.claimedUpgrades || []).map(vbName).join('、');
-    $('#app').innerHTML = page('VIP升级礼金', `
+    $('#app').innerHTML = page('VIP升级奖金', `
       ${vbMemberBar(v)}
       <section class="section-panel">
         <p class="trial-prose">${VIP_SOURCE.benefits[0].text}</p>
-        <p class="trial-prose">升级礼金每个等级仅能领取一次。</p>
+        <p class="trial-prose">升级奖金每个等级仅能领取一次。</p>
         ${vbExampleTag()}
       </section>
       <section class="section-panel">
@@ -1386,29 +1443,29 @@
           <li><span>待领取等级</span><strong>${canClaim ? vbName(v.pendingUpgrade) + ' · ' + vbAmt(target.upgrade) : '暂无'}</strong></li>
           <li><span>已领取等级</span><strong>${already || '无'}</strong></li>
         </ul>
-        ${canClaim ? `<p class="fine-print trial-prose">已升级至${vbName(v.pendingUpgrade)}，可领取对应升级奖励（示例 ${vbAmt(target.upgrade)}，以统一等级表为准）。</p>` : ''}
-        ${canClaim ? '<button type="button" class="primary" data-action="vb-claim-upgrade">领取升级礼金</button>' : ''}
-        ${!canClaim && (v.claimedUpgrades || []).includes(v.level) && !next ? '<button type="button" class="primary" disabled>该等级升级礼金已领取</button>' : ''}
+        ${canClaim ? `<p class="fine-print trial-prose">已升级至${vbName(v.pendingUpgrade)}，可领取对应升级奖金 ${vbAmt(target.upgrade || 0)}。</p>` : ''}
+        ${canClaim ? '<button type="button" class="primary" data-action="vb-claim-upgrade">领取升级奖金</button>' : ''}
+        ${!canClaim && (v.claimedUpgrades || []).includes(v.level) && !next ? '<button type="button" class="primary" disabled>该等级升级奖金已领取</button>' : ''}
         ${!canClaim && next ? `<button type="button" class="${canClaim ? 'outline-wide' : 'primary'}" data-action="vb-simulate-upgrade">模拟升级至 ${next.name}</button>` : ''}
         ${!canClaim && !next ? '<button type="button" class="outline-wide" disabled>已达演示最高等级</button>' : ''}
         ${canClaim ? '<button type="button" class="outline-wide" data-action="vb-claim-upgrade-again">再次领取（将提示不可重复）</button>' : (v.claimedUpgrades || []).includes(v.level) ? '<button type="button" class="outline-wide" data-action="vb-claim-upgrade">再次领取（将提示不可重复）</button>' : ''}
       </section>
       ${vbExampleTable()}
     `, 'activity=vip-benefits');
-    document.title = 'VIP升级礼金 · TPOWER';
+    document.title = 'VIP升级奖金 · TPOWER';
   }
   function renderVbRetention() {
     const v = vbOf();
-    const amt = vbRow(v.level).retention;
+    const amt = vbRow(v.level).quarterly || 0;
     const canClaim = vbCanClaimRetention(v);
     const failed = v.retentionResult === 'failed';
     const claimed = v.claimedRetentionCycle === v.cycle;
     const resultLabel = v.retentionResult === 'retained' ? '已达保级条件' : failed ? '未达保级条件' : '尚未产生结果';
-    $('#app').innerHTML = page('VIP保级礼金', `
+    $('#app').innerHTML = page('VIP季度等级奖金', `
       ${vbMemberBar(v)}
       <section class="section-panel">
         <p class="trial-prose">${VIP_SOURCE.benefits[1].text}</p>
-        <p class="trial-prose">保级礼金依实际保级结果发放，每周期限领一次。</p>
+        <p class="trial-prose">季度等级奖金依实际保级结果发放，每周期限领一次。</p>
         ${vbExampleTag()}
       </section>
       <section class="section-panel">
@@ -1416,18 +1473,18 @@
         <ul class="kyc-summary">
           <li><span>当前等级</span><strong>${vbName(v.level)}（演示）</strong></li>
           <li><span>保级结果</span><strong>${resultLabel}</strong></li>
-          <li><span>示例保级礼金</span><strong>${vbAmt(amt)}</strong></li>
+          <li><span>季度等级奖金</span><strong>${vbAmt(amt)}</strong></li>
         </ul>
-        ${canClaim ? `<p class="fine-print trial-prose">本周期已达到保级条件，可领取保级奖励（示例 ${vbAmt(amt)}，以统一等级表为准）。</p>` : ''}
-        ${failed ? '<p class="fine-print trial-prose">本周期未达到保级条件，无保级礼金。</p>' : ''}
-        ${canClaim ? '<button type="button" class="primary" data-action="vb-claim-retention">领取保级礼金</button>' : ''}
-        ${claimed ? '<button type="button" class="primary" disabled>本周期保级礼金已领取</button><button type="button" class="outline-wide" data-action="vb-claim-retention">再次领取（将提示不可重复）</button>' : ''}
+        ${canClaim ? `<p class="fine-print trial-prose">本周期已达到保级条件，可领取季度等级奖金 ${vbAmt(amt)}。</p>` : ''}
+        ${failed ? '<p class="fine-print trial-prose">本周期未达到保级条件，无季度等级奖金。</p>' : ''}
+        ${canClaim ? '<button type="button" class="primary" data-action="vb-claim-retention">领取季度等级奖金</button>' : ''}
+        ${claimed ? '<button type="button" class="primary" disabled>本周期季度等级奖金已领取</button><button type="button" class="outline-wide" data-action="vb-claim-retention">再次领取（将提示不可重复）</button>' : ''}
         ${failed && !claimed ? '<button type="button" class="primary" disabled>本周期未达保级，无奖励</button>' : ''}
         ${!claimed ? '<button type="button" class="outline-wide" data-action="vb-simulate-retain">模拟保级成功</button><button type="button" class="outline-wide" data-action="vb-simulate-fail">模拟未达保级</button>' : ''}
         <button type="button" class="text-button" data-action="vb-next-cycle">模拟下一周期</button>
       </section>
     `, 'activity=vip-benefits');
-    document.title = 'VIP保级礼金 · TPOWER';
+    document.title = 'VIP季度等级奖金 · TPOWER';
   }
   function renderVbRebate() {
     const v = vbOf();
@@ -1441,18 +1498,18 @@
         ${vbExampleTag()}
       </section>
       <section class="section-panel">
-        <div class="section-header"><h3>返水试算</h3><span>${vbName(v.level)} · 示例比例 ${vbPct(row.rebate)}</span></div>
+        <div class="section-header"><h3>返水试算</h3><span>${vbName(v.level)} · ${v.rebateGame === 'slots' ? '老虎机' : '现场游戏'} ${vbPct(vbRebateRate(v))}</span></div>
         <ul class="kyc-summary">
-          <li><span>有效投注</span><strong>RM ${money(v.qualifyingBets || 0)}</strong></li>
-          <li><span>不计入投注</span><strong>RM ${money(v.nonQualifyingBets || 0)}</strong></li>
-          <li><span>待结算有效投注</span><strong>RM ${money(v.unsettledBets || 0)}</strong></li>
+          <li><span>有效投注</span><strong>MYR ${money(v.qualifyingBets || 0)}</strong></li>
+          <li><span>不计入投注</span><strong>MYR ${money(v.nonQualifyingBets || 0)}</strong></li>
+          <li><span>待结算有效投注</span><strong>MYR ${money(v.unsettledBets || 0)}</strong></li>
           <li><span>待领取返水</span><strong>${vbAmt(outstanding)}</strong></li>
           <li><span>已领返水</span><strong>${vbAmt(v.rebateClaimed || 0)}</strong></li>
         </ul>
-        <p class="fine-print trial-prose">演示按当前等级的示例返水比例计算：待结算有效投注 × ${vbPct(row.rebate)}。实际返水比例以统一等级表为准。</p>
+        <p class="fine-print trial-prose">演示按当前等级返水比例计算：待结算有效投注 × ${vbPct(vbRebateRate(v))}（现场游戏 ${vbPct(row.rebateLive)} / 老虎机 ${vbPct(row.rebateSlots)}）。</p>
         <div class="vip-bet-actions">
-          <button type="button" class="outline-wide" data-action="vb-bet-valid">演示有效投注 RM100</button>
-          <button type="button" class="outline-wide" data-action="vb-bet-other">演示无效投注 RM100</button>
+          <button type="button" class="outline-wide" data-action="vb-bet-valid">演示有效投注 MYR100</button>
+          <button type="button" class="outline-wide" data-action="vb-bet-other">演示无效投注 MYR100</button>
         </div>
         ${outstanding > 0 ? '<button type="button" class="primary" data-action="vb-claim-rebate">领取返水</button>' : '<button type="button" class="primary" disabled>暂无可领返水</button>'}
       </section>
@@ -1461,56 +1518,58 @@
   }
   function renderVbWeekly() {
     const v = vbOf();
-    const amt = vbRow(v.level).weekly;
+    const amt = vbWeeklyAmount(v);
     const can = vbCanClaimWeekly(v);
-    $('#app').innerHTML = page('VIP每周关怀礼金', `
+    $('#app').innerHTML = page('VIP每周救援金', `
       ${vbMemberBar(v)}
       <section class="section-panel">
         <p class="trial-prose">${VIP_SOURCE.benefits[3].text}</p>
-        <p class="trial-prose">每周关怀礼金每人每周期限领一次。</p>
+        <p class="trial-prose">每周救援金每人每周期限领一次。</p>
         ${vbExampleTag()}
       </section>
       <section class="section-panel">
-        <div class="section-header"><h3>本周关怀</h3><span>第 ${v.week} 个演示周</span></div>
+        <div class="section-header"><h3>本周救援金</h3><span>第 ${v.week} 个演示周</span></div>
         <ul class="kyc-summary">
           <li><span>当前等级</span><strong>${vbName(v.level)}（演示）</strong></li>
           <li><span>领取条件</span><strong>已符合指定等级（演示）</strong></li>
-          <li><span>示例关怀礼金</span><strong>${vbAmt(amt)}</strong></li>
+          <li><span>本周亏损（演示）</span><strong>${vbAmt(v.weeklyLoss || 0)}</strong></li>
+          <li><span>救援比例 / 上限</span><strong>${vbWeeklyLabel(vbRow(v.level))}</strong></li>
+          <li><span>本周救援金</span><strong>${vbAmt(amt)}</strong></li>
         </ul>
-        ${can ? `<button type="button" class="primary" data-action="vb-claim-weekly">领取每周关怀礼金</button>` : `<button type="button" class="primary" disabled>本周关怀礼金已领取</button><button type="button" class="outline-wide" data-action="vb-claim-weekly">再次领取（将提示不可重复）</button>`}
+        ${can ? `<button type="button" class="primary" data-action="vb-claim-weekly">领取每周救援金</button>` : `<button type="button" class="primary" disabled>本周救援金已领取</button><button type="button" class="outline-wide" data-action="vb-claim-weekly">再次领取（将提示不可重复）</button>`}
         <button type="button" class="text-button" data-action="vb-next-week">模拟下周</button>
       </section>
     `, 'activity=vip-benefits');
-    document.title = 'VIP每周关怀礼金 · TPOWER';
+    document.title = 'VIP每周救援金 · TPOWER';
   }
   function renderVbFestival() {
     const v = vbOf();
-    const amt = vbRow(v.level).festival;
+    const amt = vbRow(v.level).memorial || 0;
     const can = vbCanClaimFestival(v);
     const claimed = (v.claimedFestivals || []).includes(v.festival);
-    $('#app').innerHTML = page('VIP节日礼金', `
+    $('#app').innerHTML = page('VIP纪念奖金', `
       ${vbMemberBar(v)}
       <section class="section-panel">
         <p class="trial-prose">${VIP_SOURCE.benefits[4].text}</p>
-        <p class="trial-prose">节日礼金每名符合资格的会员每个节日限领一次。</p>
+        <p class="trial-prose">纪念奖金每名符合资格的会员每个注册周年限领一次。</p>
         ${vbExampleTag()}
       </section>
       <section class="section-panel">
-        <div class="section-header"><h3>示例节日</h3><span>${v.festival}${v.festivalActive ? ' · 节日期间' : ' · 已结束'}</span></div>
+        <div class="section-header"><h3>纪念奖金</h3><span>${v.festival}${v.festivalActive ? ' · 可领取期间' : ' · 已结束'}</span></div>
         <ul class="kyc-summary">
           <li><span>当前等级</span><strong>${vbName(v.level)}（演示）</strong></li>
-          <li><span>节日名称</span><strong>${v.festival}（示例节日）</strong></li>
-          <li><span>节日期间</span><strong>${v.festivalActive ? '进行中' : '已结束'}</strong></li>
-          <li><span>示例节日礼金</span><strong>${vbAmt(amt)}</strong></li>
+          <li><span>发放时点</span><strong>${v.festival}</strong></li>
+          <li><span>领取期间</span><strong>${v.festivalActive ? '进行中' : '已结束'}</strong></li>
+          <li><span>纪念奖金</span><strong>${vbAmt(amt)}</strong></li>
         </ul>
-        ${can ? `<button type="button" class="primary" data-action="vb-claim-festival">领取节日礼金</button>` : ''}
-        ${!v.festivalActive ? '<button type="button" class="primary" disabled>当前不在节日期间</button>' : ''}
-        ${claimed && v.festivalActive ? '<button type="button" class="primary" disabled>本节日礼金已领取</button><button type="button" class="outline-wide" data-action="vb-claim-festival">再次领取（将提示不可重复）</button>' : ''}
-        ${v.festivalActive ? '<button type="button" class="outline-wide" data-action="vb-end-festival">模拟节日结束</button>' : ''}
-        <button type="button" class="text-button" data-action="vb-next-festival">模拟下一节日</button>
+        ${can ? `<button type="button" class="primary" data-action="vb-claim-festival">领取纪念奖金</button>` : ''}
+        ${!v.festivalActive ? '<button type="button" class="primary" disabled>当前不在注册周年期间</button>' : ''}
+        ${claimed && v.festivalActive ? '<button type="button" class="primary" disabled>本年纪念奖金已领取</button><button type="button" class="outline-wide" data-action="vb-claim-festival">再次领取（将提示不可重复）</button>' : ''}
+        ${v.festivalActive ? '<button type="button" class="outline-wide" data-action="vb-end-festival">模拟领取期间结束</button>' : ''}
+        <button type="button" class="text-button" data-action="vb-next-festival">重新进入注册周年</button>
       </section>
     `, 'activity=vip-benefits');
-    document.title = 'VIP节日礼金 · TPOWER';
+    document.title = 'VIP纪念奖金 · TPOWER';
   }
   function renderVbRecords() {
     const v = vbOf();
@@ -1533,9 +1592,9 @@
     if (name === 'vb-go-festival') { navigate('demo=vb-festival'); return true; }
 
     if (name === 'vb-simulate-upgrade') {
-      if (vbCanClaimUpgrade(v)) { toast('请先领取当前等级的升级礼金'); vbRefresh(); return true; }
+      if (vbCanClaimUpgrade(v)) { toast('请先领取当前等级的升级奖金'); vbRefresh(); return true; }
       const next = vbNext(v);
-      if (!next) { toast('已达演示最高等级（示例 VIP1–VIP3），以统一等级表为准'); vbRefresh(); return true; }
+      if (!next) { toast('已达最高等级'); vbRefresh(); return true; }
       v.level = next.level;
       v.pendingUpgrade = next.level;
       store().save();
@@ -1546,7 +1605,7 @@
     if (name === 'vb-claim-upgrade' || name === 'vb-claim-upgrade-again') {
       if (!vbCanClaimUpgrade(v)) {
         toast((v.claimedUpgrades || []).includes(v.level) || (v.claimedUpgrades || []).includes(v.pendingUpgrade)
-          ? '升级礼金每个等级仅能领取一次。'
+          ? '升级奖金每个等级仅能领取一次。'
           : '请先模拟升级至更高VIP等级');
         vbRefresh();
         return true;
@@ -1557,13 +1616,13 @@
       v.level = v.pendingUpgrade;
       v.pendingUpgrade = 0;
       const before = r2(demo.mainWallet || 0);
-      vbCredit(demo, v, 'VIP升级礼金 · ' + row.name, row.upgrade, '已到账', VB_EXAMPLE);
-      vbReward(row.name + ' 升级礼金', row.upgrade, before, demo, '已领取 ' + row.name + ' 升级礼金（示例）' + vbAmt(row.upgrade) + '，以统一等级表为准');
+      vbCredit(demo, v, 'VIP升级奖金 · ' + row.name, row.upgrade || 0, '已到账', '');
+      vbReward(row.name + ' 升级奖金', row.upgrade || 0, before, demo, '已领取 ' + row.name + ' 升级奖金 ' + vbAmt(row.upgrade || 0));
       vbRefresh();
       return true;
     }
     if (name === 'vb-simulate-retain') {
-      if (v.claimedRetentionCycle === v.cycle) { toast('保级礼金依实际保级结果发放，每周期限领一次。'); vbRefresh(); return true; }
+      if (v.claimedRetentionCycle === v.cycle) { toast('季度等级奖金依实际保级结果发放，每周期限领一次。'); vbRefresh(); return true; }
       v.retentionResult = 'retained';
       store().save();
       toast('本周期已达到保级条件（演示）');
@@ -1571,22 +1630,22 @@
       return true;
     }
     if (name === 'vb-simulate-fail') {
-      if (v.claimedRetentionCycle === v.cycle) { toast('保级礼金依实际保级结果发放，每周期限领一次。'); vbRefresh(); return true; }
+      if (v.claimedRetentionCycle === v.cycle) { toast('季度等级奖金依实际保级结果发放，每周期限领一次。'); vbRefresh(); return true; }
       v.retentionResult = 'failed';
       store().save();
-      toast('本周期未达到保级条件，无保级礼金');
+      toast('本周期未达到保级条件，无季度等级奖金');
       vbRefresh();
       return true;
     }
     if (name === 'vb-claim-retention') {
-      if (v.claimedRetentionCycle === v.cycle) { toast('保级礼金依实际保级结果发放，每周期限领一次。'); vbRefresh(); return true; }
+      if (v.claimedRetentionCycle === v.cycle) { toast('季度等级奖金依实际保级结果发放，每周期限领一次。'); vbRefresh(); return true; }
       if (v.retentionResult === 'failed') { toast('本周期未达保级，无奖励'); vbRefresh(); return true; }
       if (v.retentionResult !== 'retained') { toast('请先模拟本周期保级结果'); vbRefresh(); return true; }
-      const amt = vbRow(v.level).retention;
+      const amt = vbRow(v.level).quarterly || 0;
       v.claimedRetentionCycle = v.cycle;
       const before = r2(demo.mainWallet || 0);
-      vbCredit(demo, v, 'VIP保级礼金 · 第' + v.cycle + '周期 · ' + vbName(v.level), amt, '已到账', VB_EXAMPLE);
-      vbReward('保级礼金', amt, before, demo, '已领取保级礼金（示例）' + vbAmt(amt) + '，以统一等级表为准');
+      vbCredit(demo, v, 'VIP季度等级奖金 · 第' + v.cycle + '周期 · ' + vbName(v.level), amt, '已到账', '');
+      vbReward('季度等级奖金', amt, before, demo, '已领取季度等级奖金 ' + vbAmt(amt));
       vbRefresh();
       return true;
     }
@@ -1621,18 +1680,20 @@
       v.unsettledBets = 0;
       v.rebateClaimed = r2((v.rebateClaimed || 0) + amt);
       const before = r2(demo.mainWallet || 0);
-      vbCredit(demo, v, 'VIP专属返水 · ' + vbName(v.level), amt, '已到账', '按示例返水比例计算，以统一等级表为准');
-      vbReward('专属返水', amt, before, demo, '已领取返水（示例）' + vbAmt(amt) + '，以统一等级表为准');
+      vbCredit(demo, v, 'VIP专属返水 · ' + vbName(v.level), amt, '已到账', v.rebateGame === 'slots' ? '老虎机' : '现场游戏');
+      vbReward('专属返水', amt, before, demo, '已领取返水 ' + vbAmt(amt));
       vbRefresh();
       return true;
     }
     if (name === 'vb-claim-weekly') {
-      if (v.claimedWeek === v.week) { toast('每周关怀礼金每人每周期限领一次。'); vbRefresh(); return true; }
-      const amt = vbRow(v.level).weekly;
+      if ((v.level || 0) < 3) { toast('每周救援金自 LV3 起可享。'); vbRefresh(); return true; }
+      if (v.claimedWeek === v.week) { toast('每周救援金每人每周期限领一次。'); vbRefresh(); return true; }
+      const amt = vbWeeklyAmount(v);
+      if (amt <= 0) { toast('本周暂无可领救援金。'); vbRefresh(); return true; }
       v.claimedWeek = v.week;
       const before = r2(demo.mainWallet || 0);
-      vbCredit(demo, v, 'VIP每周关怀礼金 · 第' + v.week + '周 · ' + vbName(v.level), amt, '已到账', VB_EXAMPLE);
-      vbReward('每周关怀礼金', amt, before, demo, '已领取每周关怀礼金（示例）' + vbAmt(amt) + '，以统一等级表为准');
+      vbCredit(demo, v, 'VIP每周救援金 · 第' + v.week + '周 · ' + vbName(v.level), amt, '已到账', '');
+      vbReward('每周救援金', amt, before, demo, '已领取每周救援金 ' + vbAmt(amt));
       vbRefresh();
       return true;
     }
@@ -1644,21 +1705,21 @@
       return true;
     }
     if (name === 'vb-claim-festival') {
-      if (!v.festivalActive) { toast('当前不在节日期间，无法领取节日礼金。'); vbRefresh(); return true; }
-      if ((v.claimedFestivals || []).includes(v.festival)) { toast('节日礼金每名符合资格的会员每个节日限领一次。'); vbRefresh(); return true; }
-      const amt = vbRow(v.level).festival;
+      if (!v.festivalActive) { toast('当前不在注册周年期间，无法领取纪念奖金。'); vbRefresh(); return true; }
+      if ((v.claimedFestivals || []).includes(v.festival)) { toast('纪念奖金每名符合资格的会员每个注册周年限领一次。'); vbRefresh(); return true; }
+      const amt = vbRow(v.level).memorial || 0;
       v.claimedFestivals = v.claimedFestivals || [];
       v.claimedFestivals.push(v.festival);
       const before = r2(demo.mainWallet || 0);
-      vbCredit(demo, v, 'VIP节日礼金 · ' + v.festival + '（示例节日）', amt, '已到账', VB_EXAMPLE);
-      vbReward(v.festival + ' 节日礼金', amt, before, demo, '已领取 ' + v.festival + ' 节日礼金（示例）' + vbAmt(amt) + '，以统一等级表为准');
+      vbCredit(demo, v, 'VIP纪念奖金 · ' + v.festival, amt, '已到账', '');
+      vbReward(v.festival + ' 纪念奖金', amt, before, demo, '已领取 ' + v.festival + ' 纪念奖金 ' + vbAmt(amt));
       vbRefresh();
       return true;
     }
     if (name === 'vb-end-festival') {
       v.festivalActive = false;
       store().save();
-      toast('演示：' + v.festival + ' 节日期间已结束');
+      toast('演示：' + v.festival + ' 领取期间已结束');
       vbRefresh();
       return true;
     }
@@ -1668,7 +1729,7 @@
       v.festival = list[(i + 1) % list.length];
       v.festivalActive = true;
       store().save();
-      toast('演示进入下一节日：' + v.festival + '（示例节日）');
+      toast('演示进入：' + v.festival);
       vbRefresh();
       return true;
     }
@@ -1676,7 +1737,7 @@
   }
 
 
-  /* ------------ 老会员回归，免费赢取RM188 ------------ */
+  /* ------------ 老会员回归，免费赢取MYR188 ------------ */
   const RET_JOURNEY = ['领取', '试玩', '达标', '兑换', '到账'];
   const RET_WIN = [
     { delta: 20, symbols: ['7', '7', '7'] },
@@ -1712,11 +1773,11 @@
   }
   function retBlockReason(demo) {
     const c = (demo || demoOf()).freeChallenge || {};
-    return '当前账户已领取「新人免费挑战赢取RM100」的免费试玩（' + trialStateLabel(c, 'RM100') + '），因此不能再领取本活动。' + RETURNING_SOURCE.exclusion;
+    return '当前账户已领取「新人免费挑战赢取MYR100」的免费试玩（' + trialStateLabel(c, 'MYR100') + '），因此不能再领取本活动。' + RETURNING_SOURCE.exclusion;
   }
   function nfcBlockReason(demo) {
     const r = (demo || demoOf()).returningMember || {};
-    return '当前账户已领取「老会员回归，免费赢取RM188」的免费试玩（' + trialStateLabel(r, 'RM188') + '），因此不能再领取本活动。' + RETURNING_SOURCE.exclusion;
+    return '当前账户已领取「老会员回归，免费赢取MYR188」的免费试玩（' + trialStateLabel(r, 'MYR188') + '），因此不能再领取本活动。' + RETURNING_SOURCE.exclusion;
   }
   function retEligible(r, demo) {
     demo = demo || demoOf();
@@ -1742,23 +1803,23 @@
     return 1;
   }
   function retGuide(r) {
-    if (r.redeemed) return { step: 5, total: 5, done: true, text: 'RM188 现金已到主钱包。本活动仅限领取一次。', endTitle: '已兑换 RM188 现金', endDetail: '奖励已进入主钱包，试玩额度已清零。', endNext: '本活动仅限领取一次。' };
-    if (nfcTrialTaken()) return { step: 2, total: 5, text: '已领取「新人免费挑战赢取RM100」，本活动不可领取（互斥）。' };
+    if (r.redeemed) return { step: 5, total: 5, done: true, text: 'MYR188 现金已到主钱包。本活动仅限领取一次。', endTitle: '已兑换 MYR188 现金', endDetail: '奖励已进入主钱包，试玩额度已清零。', endNext: '本活动仅限领取一次。' };
+    if (nfcTrialTaken()) return { step: 2, total: 5, text: '已领取「新人免费挑战赢取MYR100」，本活动不可领取（互斥）。' };
     if (!retEligible(r)) return { step: 1, total: 5, text: '须为曾经成功充值、已完成实名认证，且连续 7 天或以上未上线的老会员。' };
-    if (!r.claimed) return { step: 2, total: 5, text: '先领取 RM100 试玩额度。' };
-    if (r.trialEnded) return { step: 4, total: 5, text: '试玩已结束，未达到 RM200，不可兑换。' };
-    if (r.reachedTarget) return { step: 5, total: 5, text: '已达到 RM200，兑换 RM188 现金到主钱包。' };
+    if (!r.claimed) return { step: 2, total: 5, text: '先领取 MYR100 试玩额度。' };
+    if (r.trialEnded) return { step: 4, total: 5, text: '试玩已结束，未达到 MYR200，不可兑换。' };
+    if (r.reachedTarget) return { step: 5, total: 5, text: '已达到 MYR200，兑换 MYR188 现金到主钱包。' };
     const left = r2(Math.max(0, 200 - (r.trialBalance || 0)));
-    return { step: 3, total: 5, text: '去指定游戏试玩。还差 RM ' + money(left) + ' 即可兑换。' };
+    return { step: 3, total: 5, text: '去指定游戏试玩。还差 MYR ' + money(left) + ' 即可兑换。' };
   }
   function retCta(r) {
     const g = retGuide(r);
     if (r.redeemed) return ['查看到账', 'go-records', false];
     if (nfcTrialTaken()) return ['不可领取（互斥）', 'ret-blocked', true, g.text];
-    if (!retEligible(r)) return ['不符资格', 'ret-ineligible', true, g.text];
-    if (!r.claimed) return ['领取RM100试玩额度', 'ret-go-claim', false];
-    if (r.trialEnded) return ['未达到RM200，不可兑换', 'demo-done', true, g.text];
-    if (r.reachedTarget) return ['兑换RM188到主钱包', 'ret-go-redeem', false];
+    if (!retEligible(r)) return ['不符资格', 'ret-ineligible', true];
+    if (!r.claimed) return ['领取MYR100试玩额度', 'ret-go-claim', false];
+    if (r.trialEnded) return ['未达到MYR200，不可兑换', 'demo-done', true, g.text];
+    if (r.reachedTarget) return ['兑换MYR188到主钱包', 'ret-go-redeem', false];
     return ['去试玩', 'ret-go-play', false];
   }
   function retStatus(r) {
@@ -1773,11 +1834,11 @@
   function retBalancePanel(r) {
     if (!r.claimed) return '';
     return `<div class="wallet-pair" id="ret-balance">
-      <div class="wallet-card trial"><span>试玩钱包</span><strong>RM ${money(r.trialBalance)}</strong><small>${r.redeemed ? '已清零' : r.trialEnded ? '试玩已结束' : '不得直接提款、转让或充值'}</small></div>
-      <div class="wallet-card main ${demoOf().mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>RM ${money(demoOf().mainWallet)}</strong><small>${r.redeemed ? 'RM188 现金已到账' : '兑换现金将进入此钱包'}</small></div>
+      <div class="wallet-card trial"><span>试玩钱包</span><strong>MYR ${money(r.trialBalance)}</strong><small>${r.redeemed ? '已清零' : r.trialEnded ? '试玩已结束' : '不得直接提款、转让或充值'}</small></div>
+      <div class="wallet-card main ${demoOf().mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>MYR ${money(demoOf().mainWallet)}</strong><small>${r.redeemed ? 'MYR188 现金已到账' : '兑换现金将进入此钱包'}</small></div>
     </div>
-    <div class="trial-balance">${r.claimed && !r.redeemed && !r.trialEnded ? `<div class="bar-label"><span>试玩余额</span><span>RM ${money(r.trialBalance)} / RM 200.00</span></div><progress max="200" value="${Math.min(200, r.trialBalance)}" aria-label="试玩余额进度"></progress>` : ''}
-    <p class="fine-print trial-prose">${r.redeemed ? '兑换后试玩额度自动清零。' : r.trialEnded ? '未达到RM200不可兑换奖励。' : '试玩余额达到RM200，即可兑换RM188现金奖励。未达到RM200不可兑换奖励。'}</p></div>`;
+    <div class="trial-balance">${r.claimed && !r.redeemed && !r.trialEnded ? `<div class="bar-label"><span>试玩余额</span><span>MYR ${money(r.trialBalance)} / MYR 200.00</span></div><progress max="200" value="${Math.min(200, r.trialBalance)}" aria-label="试玩余额进度"></progress>` : ''}
+    <p class="fine-print trial-prose">${r.redeemed ? '兑换后试玩额度自动清零。' : r.trialEnded ? '未达到MYR200不可兑换奖励。' : '试玩余额达到MYR200，即可兑换MYR188现金奖励。未达到MYR200不可兑换奖励。'}</p></div>`;
   }
   function retExclusionPanel(r) {
     const blocked = nfcTrialTaken() && !r.claimed;
@@ -1786,7 +1847,7 @@
       return demoTools(`<p class="fine-print">当前演示为已登录、已完成实名认证、历史上有成功充值，且上次登录为8天前（已满7天未上线）的老会员。</p>
         <button type="button" class="outline-wide" data-action="ret-toggle-deposit">演示未充值会员（不符资格）</button>
         <button type="button" class="outline-wide" data-action="ret-toggle-login">演示上次登录不足7天（不符资格）</button>
-        <button type="button" class="outline-wide" data-action="ret-toggle-nfc">演示已领取「新人免费挑战赢取RM100」（互斥）</button>`);
+        <button type="button" class="outline-wide" data-action="ret-toggle-nfc">演示已领取「新人免费挑战赢取MYR100」（互斥）</button>`);
     }
     if (ineligible) {
       const noDeposit = !r.deposited;
@@ -1797,16 +1858,15 @@
       if (shortOffline) reasons.push('当前演示上次登录为' + days + '天前，未满连续7天未上线。');
       return `<section class="section-panel">
         <div class="section-header"><h3>不符资格</h3></div>
-        <p class="trial-prose">须为历史上曾经成功充值、已完成实名认证，且连续7天或以上未上线的老会员。每位合格会员仅可领取一次。</p>
-        <p class="fine-print trial-prose">${reasons.join(' ') || '当前演示不符合参与资格。'}</p>
+        <p class="trial-prose">${reasons.join(' ') || '当前演示不符合参与资格。'}</p>
         ${demoTools((noDeposit ? '<button type="button" class="outline-wide" data-action="ret-toggle-deposit">恢复为已充值老会员</button>' : '') + (shortOffline ? '<button type="button" class="outline-wide" data-action="ret-toggle-login">恢复为上次登录：8天前</button>' : ''))}
       </section>`;
     }
     return `<section class="section-panel">
       <div class="section-header"><h3>不可领取</h3><span>互斥规则</span></div>
       <p class="trial-prose">${RETURNING_SOURCE.exclusion}</p>
-      <p class="fine-print trial-prose">当前账户已领取「新人免费挑战赢取RM100」的免费试玩（${trialStateLabel(demoOf().freeChallenge || {}, 'RM100')}），因此不能领取本活动。</p>
-      <button type="button" class="outline-wide" data-demo-nav="activity=newcomer-free-challenge">查看新人免费挑战赢取RM100</button>
+      <p class="fine-print trial-prose">当前账户已领取「新人免费挑战赢取MYR100」的免费试玩（${trialStateLabel(demoOf().freeChallenge || {}, 'MYR100')}），因此不能领取本活动。</p>
+      <button type="button" class="outline-wide" data-demo-nav="activity=newcomer-free-challenge">查看新人免费挑战赢取MYR100</button>
       <button type="button" class="outline-wide" data-action="ret-toggle-nfc">取消互斥演示（清除新人挑战领取状态）</button>
     </section>`;
   }
@@ -1815,7 +1875,7 @@
     return `<section class="section-panel">
       <div class="section-header"><h3>不可领取</h3><span>互斥规则</span></div>
       <p class="trial-prose">${RETURNING_SOURCE.exclusion}</p>
-      <p class="fine-print trial-prose">当前账户已领取「老会员回归，免费赢取RM188」的免费试玩（${trialStateLabel(demoOf().returningMember || {}, 'RM188')}），因此不能领取本活动。</p>
+      <p class="fine-print trial-prose">当前账户已领取「老会员回归，免费赢取MYR188」的免费试玩（${trialStateLabel(demoOf().returningMember || {}, 'MYR188')}），因此不能领取本活动。</p>
       <button type="button" class="outline-wide" data-demo-nav="activity=returning-member">查看老会员回归活动</button>
       <button type="button" class="outline-wide" data-action="nfc-toggle-ret">取消互斥演示（清除老会员回归领取状态）</button>
     </section>`;
@@ -1828,7 +1888,7 @@
     const auto = viewMap[retIndex(r)] ?? 1;
     const viewStep = inspect('returning-member', 4, auto);
     const s = RETURNING_SOURCE.steps[viewStep];
-    const path = pathRow([['RM100', '免费试玩'], ['RM200', '达标余额'], ['RM188', '兑换现金']]);
+    const path = pathRow([['MYR100', '免费试玩'], ['MYR200', '达标余额'], ['MYR188', '兑换现金']]);
     const checksList = [
       '已登录（演示会员陈美玲）',
       '已完成实名认证',
@@ -1837,21 +1897,21 @@
       nfcTrialTaken() && !r.claimed ? '已领取其他免费试玩奖励（互斥）' : '未领取其他免费试玩奖励'
     ];
     const guide = retGuide(r);
-    return `${store().journeyBar()}${leadBlock(guide)}<section class="reward-feature trial-hero return-hero"><div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div><div class="amount"><small>RM</small>188<span>.00</span></div><p class="trial-prose">${RETURNING_SOURCE.reward}</p>${path}</section>${howToJoin(['连续 7 天未上线的老会员，免费领取 RM100 试玩', '在指定游戏把试玩余额玩到 RM200', '兑换 RM188 现金到主钱包'])}${retBalancePanel(r)}<section class="section-panel"><div class="section-header"><h3>当前状态</h3><span>演示账户</span></div>${checks(checksList)}</section>${retExclusionPanel(r)}<button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>${demoTools('<button type="button" class="text-button trial-reset" data-action="demo-reset">重置演示</button>')} `;
+    return `${store().journeyBar()}${leadBlock(guide)}<section class="reward-feature trial-hero return-hero"><div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div><div class="amount"><small>MYR</small>188<span>.00</span></div>${path}</section>${howToJoin(['连续 7 天未上线的老会员，免费领取 MYR100 试玩', '在指定游戏把试玩余额玩到 MYR200', '兑换 MYR188 现金到主钱包'])}${retBalancePanel(r)}<section class="section-panel"><div class="section-header"><h3>当前状态</h3><span>演示账户</span></div>${checks(checksList)}</section>${retExclusionPanel(r)}<button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>${demoTools('<button type="button" class="text-button trial-reset" data-action="demo-reset">重置演示</button>')} `;
   };
   function renderRetClaim() {
     $('#app').innerHTML = page('领取试玩额度', `
       <section class="reward-feature trial-hero return-hero">
         <div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge">待领取</span></div>
-        <div class="amount"><small>RM</small>100<span>.00</span></div>
-        <p class="trial-prose">免费领取RM100试玩额度。</p>
+        <div class="amount"><small>MYR</small>100<span>.00</span></div>
+        <p class="trial-prose">免费领取MYR100试玩额度。</p>
       </section>
       <section class="section-panel">
         <div class="section-header"><h3>领取前请确认</h3></div>
         ${termsList([
           '试玩额度不得直接提款、转让或充值。',
           '每位会员仅限领取一次。',
-          '试玩余额达到RM200，即可兑换RM188现金奖励。',
+          '试玩余额达到MYR200，即可兑换MYR188现金奖励。',
           RETURNING_SOURCE.exclusion
         ])}
       </section>
@@ -1863,8 +1923,8 @@
     const r = retOf();
     $('#app').innerHTML = page('指定游戏', `
       <div class="wallet-pair compact">
-        <div class="wallet-card trial"><span>试玩钱包</span><strong>RM ${money(r.trialBalance)}</strong></div>
-        <div class="wallet-card"><span>达标目标</span><strong>RM 200.00</strong></div>
+        <div class="wallet-card trial"><span>试玩钱包</span><strong>MYR ${money(r.trialBalance)}</strong></div>
+        <div class="wallet-card"><span>达标目标</span><strong>MYR 200.00</strong></div>
       </div>
       <p class="demo-lead trial-prose">在指定游戏内进行试玩。试玩额度不得直接提款、转让或充值。</p>
       <div class="game-grid">${RET_GAMES.map(g => `<button type="button" class="game-tile" data-action="ret-open-game" data-ret-game="${g.id}"><span class="game-icon">${icon(g.icon)}</span><strong>${g.name}</strong><small>${g.tag}</small></button>`).join('')}</div>
@@ -1880,16 +1940,16 @@
     const symbols = (r.lastSymbols || ['7', '星', '铃']).map(s => `<span>${s}</span>`).join('');
     $('#app').innerHTML = page(game.name, `
       <div class="play-wallet">
-        <div><span>试玩钱包</span><strong id="ret-play-balance">RM ${money(r.trialBalance)}</strong></div>
-        <div class="play-progress"><div class="bar-label"><span>达标进度</span><span>RM ${money(r.trialBalance)} / RM 200.00</span></div><progress max="200" value="${Math.min(200, r.trialBalance)}" aria-label="试玩余额进度"></progress></div>
+        <div><span>试玩钱包</span><strong id="ret-play-balance">MYR ${money(r.trialBalance)}</strong></div>
+        <div class="play-progress"><div class="bar-label"><span>达标进度</span><span>MYR ${money(r.trialBalance)} / MYR 200.00</span></div><progress max="200" value="${Math.min(200, r.trialBalance)}" aria-label="试玩余额进度"></progress></div>
       </div>
       <section class="slot-machine" aria-label="演示老虎机">
         <div class="slot-window" id="ret-slot-window">${symbols}</div>
-        <p class="slot-result" id="ret-slot-result" aria-live="polite">${over ? '试玩已结束' : ready ? '已达到 RM200' : '按下开始，演示一局试玩'}</p>
+        <p class="slot-result" id="ret-slot-result" aria-live="polite">${over ? '试玩已结束' : ready ? '已达到 MYR200' : '按下开始，演示一局试玩'}</p>
         <button type="button" class="primary" id="ret-spin-btn" data-action="ret-spin" ${canSpin ? '' : 'disabled'}>${canSpin ? '开始旋转' : '暂停试玩'}</button>
       </section>
-      ${ready ? '<button type="button" class="primary" data-action="ret-go-redeem">兑换RM188现金</button>' : ''}
-      ${over ? `<section class="section-panel"><h3>试玩已结束</h3><p class="trial-prose">未达到RM200不可兑换奖励。</p><p class="fine-print">试玩额度已用尽。每位会员仅限领取一次，演示中可重置后重新体验。</p></section>` : ''}
+      ${ready ? '<button type="button" class="primary" data-action="ret-go-redeem">兑换MYR188现金</button>' : ''}
+      ${over ? `<section class="section-panel"><h3>试玩已结束</h3><p class="trial-prose">未达到MYR200不可兑换奖励。</p><p class="fine-print">试玩额度已用尽。每位会员仅限领取一次，演示中可重置后重新体验。</p></section>` : ''}
       ${demoTools((over ? '<button type="button" class="outline-wide" data-action="demo-reset">重置演示</button>' : '') + (canSpin ? '<button type="button" class="text-button trial-reset" data-action="ret-fail-path">演示未达标（余额归零）</button>' : ''))}
     `, 'demo=ret-games');
     document.title = game.name + ' · TPOWER';
@@ -1900,19 +1960,19 @@
     $('#app').innerHTML = page('兑换现金', `
       <section class="reward-feature trial-hero return-hero">
         <div class="panel-top"><span class="eyebrow">可兑换现金</span><span class="status-badge">已达标</span></div>
-        <div class="amount"><small>RM</small>188<span>.00</span></div>
-        <p class="trial-prose">成功达标后，兑换RM188现金奖励。</p>
+        <div class="amount"><small>MYR</small>188<span>.00</span></div>
+        <p class="trial-prose">成功达标后，兑换MYR188现金奖励。</p>
       </section>
       <section class="section-panel">
         <div class="section-header"><h3>兑换说明</h3></div>
         ${termsList([
           '兑换后试玩额度自动清零。',
-          '兑换的 RM188 现金将转入主钱包。',
+          '兑换的 MYR188 现金将转入主钱包。',
           '每位会员仅限领取一次。'
         ])}
         <div class="wallet-pair">
-          <div class="wallet-card trial"><span>试玩钱包（兑换后清零）</span><strong>RM ${money(r.trialBalance)}</strong></div>
-          <div class="wallet-card main"><span>主钱包（到账后）</span><strong>RM ${money((demo.mainWallet || 0) + 188)}</strong></div>
+          <div class="wallet-card trial"><span>试玩钱包（兑换后清零）</span><strong>MYR ${money(r.trialBalance)}</strong></div>
+          <div class="wallet-card main"><span>主钱包（到账后）</span><strong>MYR ${money((demo.mainWallet || 0) + 188)}</strong></div>
         </div>
       </section>
       <button type="button" class="primary" data-action="ret-redeem-confirm">确认兑换</button>
@@ -1924,7 +1984,7 @@
       <section class="demo-status-card">
         <div class="demo-spinner" aria-hidden="true"></div>
         <h3>正在兑换</h3>
-        <p>正在将 RM188 现金转入主钱包。</p>
+        <p>正在将 MYR188 现金转入主钱包。</p>
       </section>
     `, 'activity=returning-member');
     document.title = '兑换中 · TPOWER';
@@ -1935,7 +1995,7 @@
       r.redeemed = true;
       r.trialBalance = 0;
       demo.mainWallet = r2((demo.mainWallet || 0) + 188);
-      record('老会员回归，免费赢取RM188', 188, '已到账');
+      record('老会员回归，免费赢取MYR188', 188, '已到账');
       store().save();
       navigate('demo=ret-redeem-success');
     }, 1400);
@@ -1948,8 +2008,8 @@
         <h3>兑换成功</h3>
         <p class="trial-prose">兑换后试玩额度自动清零。</p>
         <div class="wallet-pair">
-          <div class="wallet-card main highlight"><span>主钱包</span><strong>RM ${money(demo.mainWallet)}</strong><small>RM188 现金已到账</small></div>
-          <div class="wallet-card trial"><span>试玩钱包</span><strong>RM 0.00</strong><small>已清零</small></div>
+          <div class="wallet-card main highlight"><span>主钱包</span><strong>MYR ${money(demo.mainWallet)}</strong><small>MYR188 现金已到账</small></div>
+          <div class="wallet-card trial"><span>试玩钱包</span><strong>MYR 0.00</strong><small>已清零</small></div>
         </div>
         <button type="button" class="primary" data-demo-nav="demo=records">查看领奖记录</button>
         <button type="button" class="outline-wide" data-demo-nav="activity=returning-member">返回活动</button>
@@ -1991,10 +2051,10 @@
       const retWin = document.getElementById('ret-slot-window');
       if (retWin && step.delta > 0) retWin.classList.add('is-win');
       if (r.reachedTarget) {
-        toast('试玩余额已达到 RM200');
-        store().later(() => openModal(`<div class="goal-celebration"><div class="goal-burst" aria-hidden="true"></div><h2>恭喜达标</h2><p class="trial-prose">试玩余额达到RM200，即可兑换RM188现金奖励。</p><button type="button" class="primary" data-action="ret-go-redeem">兑换RM188现金</button></div>`), 400);
+        toast('试玩余额已达到 MYR200');
+        store().later(() => openModal(`<div class="goal-celebration"><div class="goal-burst" aria-hidden="true"></div><h2>恭喜达标</h2><p class="trial-prose">试玩余额达到MYR200，即可兑换MYR188现金奖励。</p><button type="button" class="primary" data-action="ret-go-redeem">兑换MYR188现金</button></div>`), 400);
       } else if (r.trialEnded) {
-        toast('未达到RM200不可兑换奖励。');
+        toast('未达到MYR200不可兑换奖励。');
       }
     }, 900);
   }
@@ -2046,7 +2106,7 @@
         c.reachedTarget = true;
         c.trialEnded = false;
         store().save();
-        toast('已演示领取「新人免费挑战赢取RM100」，本活动不可领取');
+        toast('已演示领取「新人免费挑战赢取MYR100」，本活动不可领取');
       }
       refreshPromo();
       return true;
@@ -2066,7 +2126,7 @@
         r.reachedTarget = true;
         r.trialEnded = false;
         store().save();
-        toast('已演示领取「老会员回归，免费赢取RM188」，本活动不可领取');
+        toast('已演示领取「老会员回归，免费赢取MYR188」，本活动不可领取');
       }
       refreshPromo();
       return true;
@@ -2084,7 +2144,7 @@
       if (!retEligible(r, demo)) { toast('须为历史上曾经成功充值、已完成实名认证，且连续7天或以上未上线的老会员。'); navigate('activity=returning-member'); return true; }
       r.claimed = true; r.trialBalance = 100; r.spinIndex = 0; r.playMode = 'win';
       r.trialEnded = false; r.reachedTarget = false;
-      store().save(); toast('已领取 RM100 试玩额度'); navigate('activity=returning-member'); return true;
+      store().save(); toast('已领取 MYR100 试玩额度'); navigate('activity=returning-member'); return true;
     }
     if (name === 'ret-go-play') {
       if (!r.claimed || r.redeemed) return true;
@@ -2139,7 +2199,7 @@
     if (f.deposited && f.turnoverNeed > 0 && (f.turnover || 0) >= f.turnoverNeed) return { step: 3, total: 3, text: '流水已完成，把活动钱包转换到可提款余额。' };
     if (f.deposited) {
       const left = r2(Math.max(0, (f.turnoverNeed || 0) - (f.turnover || 0)));
-      return { step: 3, total: 3, text: '在所选游戏类别投注。还差 RM ' + money(left) + ' 有效流水即可转换。' };
+      return { step: 3, total: 3, text: '在所选游戏类别投注。还差 MYR ' + money(left) + ' 有效流水即可转换。' };
     }
     if (f.option) return { step: 2, total: 3, text: '已选好优惠，去完成首次充值。入账后就不能再换类别了。' };
     return { step: 1, total: 3, text: '先选择老虎机或真人其中一种首存优惠。' };
@@ -2165,8 +2225,8 @@
     const demo = demoOf();
     const locked = fdWalletBal(f);
     return `<div class="wallet-pair">
-      <div class="wallet-card ${locked ? 'trial' : ''}"><span>活动钱包（本金+彩金）</span><strong>RM ${money(locked)}</strong><small>${f.converted ? '已转换至可提款余额' : f.deposited ? '完成流水后方可转换' : '首次充值后入账'}</small></div>
-      <div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>可提款余额</span><strong>RM ${money(demo.mainWallet)}</strong><small>${f.converted ? '本金与彩金已转入' : '完成流水后转换入此余额'}</small></div>
+      <div class="wallet-card ${locked ? 'trial' : ''}"><span>活动钱包（本金+彩金）</span><strong>MYR ${money(locked)}</strong><small>${f.converted ? '已转换至可提款余额' : f.deposited ? '完成流水后方可转换' : '首次充值后入账'}</small></div>
+      <div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>可提款余额</span><strong>MYR ${money(demo.mainWallet)}</strong><small>${f.converted ? '本金与彩金已转入' : '完成流水后转换入此余额'}</small></div>
     </div>`;
   }
   function fdOptionCards(f) {
@@ -2178,7 +2238,7 @@
         <div class="panel-top"><span class="eyebrow">${o.title}</span><span class="status-badge ${selected ? '' : locked ? 'muted' : ''}">${selected ? '已选择' : locked ? '不可选择' : '可选'}</span></div>
         <div class="fd-option-rate">${o.rateLabel}</div>
         <ul class="kyc-summary">
-          <li><span>最高彩金</span><strong>RM ${money(o.cap)}</strong></li>
+          <li><span>最高彩金</span><strong>MYR ${money(o.cap)}</strong></li>
           <li><span>流水倍数</span><strong>${o.wagerText}</strong></li>
         </ul>
         <p class="fine-print trial-prose">${locked ? '首次充值已成功，已锁定另一种优惠。每个会员只能选择一种首存彩金。' : selected ? (fixed ? '首次充值已成功，已锁定该优惠。' : '已选择。完成首次充值前仍可切换。') : '完成首次充值前可切换；充值成功后锁定，不能再领取另一种优惠。'}</p>
@@ -2189,18 +2249,18 @@
     if (!f.option) return '';
     const opt = fdOpt(f.option);
     return `<section class="section-panel" id="fd-deposit">
-      <div class="section-header"><h3>演示首次充值</h3><span>${opt.title} · ${opt.rateLabel} · 最高 RM${opt.cap}</span></div>
-      <p class="fine-print trial-prose">彩金根据实际充值金额及活动比例计算：彩金 = 充值金额 × ${opt.rateLabel}，最高 RM ${money(opt.cap)}。所需有效流水 =（本金 + 彩金）× ${opt.wagerMult}。</p>
+      <div class="section-header"><h3>演示首次充值</h3><span>${opt.title} · ${opt.rateLabel} · 最高 MYR${opt.cap}</span></div>
+      <p class="fine-print trial-prose">彩金根据实际充值金额及活动比例计算：彩金 = 充值金额 × ${opt.rateLabel}，最高 MYR ${money(opt.cap)}。所需有效流水 =（本金 + 彩金）× ${opt.wagerMult}。</p>
       <div class="table-wrap"><table class="prize-table fd-calc-table">
         <thead><tr><th>充值金额</th><th>可得彩金</th><th>所需有效流水</th></tr></thead>
         <tbody>${FIRST_DEPOSIT_SOURCE.amounts.map(n => {
           const c = fdCalc(f.option, n);
           const current = f.deposited && f.depositAmount === n;
-          return `<tr${current ? ' class="current-level"' : ''}><td>RM ${money(n)}</td><td>RM ${money(c.bonus)}</td><td>RM ${money(c.need)}</td></tr>`;
+          return `<tr${current ? ' class="current-level"' : ''}><td>MYR ${money(n)}</td><td>MYR ${money(c.bonus)}</td><td>MYR ${money(c.need)}</td></tr>`;
         }).join('')}</tbody>
       </table></div>
-      ${f.deposited ? `<p class="trial-prose">已完成首次充值 RM ${money(f.depositAmount)}，获得彩金 RM ${money(f.bonus)}，所需有效流水 RM ${money(f.turnoverNeed)}。</p>` : ''}
-      ${demoTools(`<div class="fd-bet-actions">${FIRST_DEPOSIT_SOURCE.amounts.map(n => `<button type="button" class="outline-wide" data-action="fd-deposit-${n}">${f.deposited ? '演示再次充值 RM' + n + '（不发放彩金）' : '演示首次充值 RM' + n}</button>`).join('')}</div>`)}
+      ${f.deposited ? `<p class="trial-prose">已完成首次充值 MYR ${money(f.depositAmount)}，获得彩金 MYR ${money(f.bonus)}，所需有效流水 MYR ${money(f.turnoverNeed)}。</p>` : ''}
+      ${demoTools(`<div class="fd-bet-actions">${FIRST_DEPOSIT_SOURCE.amounts.map(n => `<button type="button" class="outline-wide" data-action="fd-deposit-${n}">${f.deposited ? '演示再次充值 MYR' + n + '（不发放彩金）' : '演示首次充值 MYR' + n}</button>`).join('')}</div>`)}
     </section>`;
   }
   window.renderFirstDepositDemo = function () {
@@ -2218,22 +2278,22 @@
     const fdOptNow = fdOpt(f.option);
     const fdLeft = r2(Math.max(0, (f.turnoverNeed || 0) - (f.turnover || 0)));
     const fdTotal = r2(f.convertedAmount || ((f.depositAmount || 0) + (f.bonus || 0)));
-    const heroAmount = f.converted ? amountHtml('已到账彩金 RM', f.bonus) : f.deposited ? amountHtml('本次彩金 RM', f.bonus) : '<div class="amount"><small>最高 RM</small>300<span>.00</span></div>';
+    const heroAmount = f.converted ? amountHtml('已到账彩金 MYR', f.bonus) : f.deposited ? amountHtml('本次彩金 MYR', f.bonus) : '<div class="amount"><small>最高 MYR</small>300<span>.00</span></div>';
     const heroText = f.converted
-      ? `本金 RM ${money(f.depositAmount)} + 彩金 RM ${money(f.bonus)}，共 RM ${money(fdTotal)} 已转入可提款余额。${f.convertedAt ? '到账时间：' + mytTime(f.convertedAt) + '。' : ''}可在右上角「领奖记录」查看。`
+      ? `本金 MYR ${money(f.depositAmount)} + 彩金 MYR ${money(f.bonus)}，共 MYR ${money(fdTotal)} 已转入可提款余额。${f.convertedAt ? '到账时间：' + mytTime(f.convertedAt) + '。' : ''}可在右上角「领奖记录」查看。`
       : f.deposited && fdOptNow
-        ? `${fdOptNow.title} ${fdOptNow.rateLabel}：首次充值 RM ${money(f.depositAmount)}，获得彩金 RM ${money(f.bonus)}。有效流水 RM ${money(f.turnover || 0)} / RM ${money(f.turnoverNeed)}${fdLeft > 0 ? '，还差 RM ' + money(fdLeft) : '，已完成'}。`
-        : FIRST_DEPOSIT_SOURCE.reward;
+        ? `${fdOptNow.title} ${fdOptNow.rateLabel}：首次充值 MYR ${money(f.depositAmount)}，获得彩金 MYR ${money(f.bonus)}。有效流水 MYR ${money(f.turnover || 0)} / MYR ${money(f.turnoverNeed)}${fdLeft > 0 ? '，还差 MYR ' + money(fdLeft) : '，已完成'}。`
+        : '';
     const fdFinishedView = f.converted && !inspected('first-deposit-bonus');
     const fdExplain = fdFinishedView
-      ? `<div class="step-heading"><span class="step-kicker">活动已完成</span><h4>已转换至可提款余额</h4></div><p>本金 RM ${money(f.depositAmount)} + 彩金 RM ${money(f.bonus)}，共 RM ${money(fdTotal)} 已到账${f.convertedAt ? '（' + mytTime(f.convertedAt) + '）' : ''}。每位会员只能领取一次首存彩金。</p>`
+      ? `<div class="step-heading"><span class="step-kicker">活动已完成</span><h4>已转换至可提款余额</h4></div><p>本金 MYR ${money(f.depositAmount)} + 彩金 MYR ${money(f.bonus)}，共 MYR ${money(fdTotal)} 已到账${f.convertedAt ? '（' + mytTime(f.convertedAt) + '）' : ''}。每位会员只能领取一次首存彩金。</p>`
       : stepExplain(s, viewStep, 4);
     const guide = fdGuide(f);
     return `${store().journeyBar()}${leadBlock(guide)}
       <section class="reward-feature trial-hero fd-hero">
         <div class="panel-top"><span class="eyebrow">活动奖励</span><span class="status-badge ${statusCls}">${status}</span></div>
         ${heroAmount}
-        <p class="trial-prose">${heroText}</p>
+        ${heroText ? `<p class="trial-prose">${heroText}</p>` : ''}
       </section>${howToJoin(['先选一种首存优惠（入账前可换）', '完成首次充值，得到对应彩金', '打完指定流水后，转换到可提款余额'])}${fdWallets(f)}
       
       <section class="section-panel">
@@ -2246,7 +2306,7 @@
       </section>
       ${fdCalcTable(f)}
       ${f.deposited && !f.converted ? `<section class="section-panel"><div class="section-header"><h3>流水进度</h3><span>${(f.turnoverNeed || 0) > 0 ? money(f.turnover || 0) + ' / ' + money(f.turnoverNeed) : ''}</span></div>
-        <div class="bar-label"><span>有效流水（仅计${fdOpt(f.option).title}）</span><span>RM ${money(f.turnover || 0)} / RM ${money(f.turnoverNeed)}</span></div>
+        <div class="bar-label"><span>有效流水（仅计${fdOpt(f.option).title}）</span><span>MYR ${money(f.turnover || 0)} / MYR ${money(f.turnoverNeed)}</span></div>
         <progress max="${Math.max(1, f.turnoverNeed)}" value="${Math.min(f.turnoverNeed || 0, f.turnover || 0)}" aria-label="有效流水进度"></progress>
         <p class="fine-print trial-prose">活动流水仅计算所选游戏类别的合格投注。</p>
         <button type="button" class="outline-wide" data-action="fd-go-turnover">去完成有效流水</button>
@@ -2266,19 +2326,19 @@
       <section class="section-panel">
         <div class="section-header"><h3>所选优惠</h3><span>${opt.title}</span></div>
         <ul class="kyc-summary">
-          <li><span>首次充值</span><strong>RM ${money(f.depositAmount)}</strong></li>
-          <li><span>彩金</span><strong>RM ${money(f.bonus)}</strong></li>
+          <li><span>首次充值</span><strong>MYR ${money(f.depositAmount)}</strong></li>
+          <li><span>彩金</span><strong>MYR ${money(f.bonus)}</strong></li>
           <li><span>流水倍数</span><strong>${opt.wagerText}</strong></li>
         </ul>
-        <div class="bar-label"><span>有效流水（仅计${opt.title}）</span><span>RM ${money(f.turnover || 0)} / RM ${money(f.turnoverNeed)}</span></div>
+        <div class="bar-label"><span>有效流水（仅计${opt.title}）</span><span>MYR ${money(f.turnover || 0)} / MYR ${money(f.turnoverNeed)}</span></div>
         <progress max="${Math.max(1, f.turnoverNeed)}" value="${Math.min(f.turnoverNeed || 0, f.turnover || 0)}" aria-label="有效流水进度"></progress>
         <p class="fine-print trial-prose">活动流水仅计算所选游戏类别的合格投注。</p>
       </section>
       <section class="section-panel">
         <div class="section-header"><h3>演示投注</h3></div>
         <div class="fd-bet-actions">
-          <button type="button" class="outline-wide" data-action="fd-bet-slots">演示老虎机投注 RM${FD_BET}</button>
-          <button type="button" class="outline-wide" data-action="fd-bet-live">演示真人投注 RM${FD_BET}</button>
+          <button type="button" class="outline-wide" data-action="fd-bet-slots">演示老虎机投注 MYR${FD_BET}</button>
+          <button type="button" class="outline-wide" data-action="fd-bet-live">演示真人投注 MYR${FD_BET}</button>
         </div>
         <button type="button" class="text-button" data-action="fd-accelerate">演示加速完成流水（演示用）</button>
       </section>
@@ -2293,8 +2353,8 @@
     $('#app').innerHTML = page('转换至可提款余额', `
       <section class="reward-feature trial-hero fd-hero">
         <div class="panel-top"><span class="eyebrow">本次转出金额</span><span class="status-badge">流水已完成</span></div>
-        ${amountHtml('RM', total)}
-        <p class="trial-prose">完成对应有效流水后，方可转换至可提款余额。本次按活动钱包当前可转余额转出，其中本金 RM ${money(f.depositAmount)}，彩金 RM ${money(f.bonus)}。</p>
+        ${amountHtml('MYR', total)}
+        <p class="trial-prose">完成对应有效流水后，方可转换至可提款余额。本次按活动钱包当前可转余额转出，其中本金 MYR ${money(f.depositAmount)}，彩金 MYR ${money(f.bonus)}。</p>
       </section>
       <section class="section-panel">
         ${termsList(['每位会员只能领取一次首存彩金。', '首存优惠不得重复领取。', '转换后本金与彩金进入可提款余额。'])}
@@ -2375,14 +2435,14 @@
       openModal(`<div class="dialog-illustration">${icon('cash')}</div><h2>确认参与首存优惠</h2>
         <ul class="kyc-summary">
           <li><span>所选优惠</span><strong>${opt.title} ${opt.rateLabel}</strong></li>
-          <li><span>首次充值</span><strong>RM ${money(amount)}</strong></li>
-          <li><span>可得彩金</span><strong>RM ${money(c.bonus)}</strong></li>
-          <li><span>所需有效流水</span><strong>RM ${money(c.need)}</strong></li>
+          <li><span>首次充值</span><strong>MYR ${money(amount)}</strong></li>
+          <li><span>可得彩金</span><strong>MYR ${money(c.bonus)}</strong></li>
+          <li><span>所需有效流水</span><strong>MYR ${money(c.need)}</strong></li>
         </ul>
-        <p class="trial-prose">（本金 RM ${money(amount)} + 彩金 RM ${money(c.bonus)}）× ${opt.wagerMult} = RM ${money(c.need)}，仅计算${opt.title}的合格投注。最高彩金 RM ${money(opt.cap)}。</p>
+        <p class="trial-prose">（本金 MYR ${money(amount)} + 彩金 MYR ${money(c.bonus)}）× ${opt.wagerMult} = MYR ${money(c.need)}，仅计算${opt.title}的合格投注。最高彩金 MYR ${money(opt.cap)}。</p>
         ${termsList(['仅限会员首次成功充值，每位会员只能领取一次。', '同一充值不可同时领取老虎机及真人两种优惠。', '此活动不能与其他充值活动重叠。'])}
         <p class="subnote">演示充值，不会产生真实扣款。充值成功后锁定所选优惠，不能再切换。</p>
-        <button type="button" class="primary" data-action="fd-deposit-confirm-${amount}">确认充值 RM ${money(amount)}</button>
+        <button type="button" class="primary" data-action="fd-deposit-confirm-${amount}">确认充值 MYR ${money(amount)}</button>
         <button type="button" class="outline-wide" data-close>取消</button>`);
       return true;
     }
@@ -2400,7 +2460,7 @@
       f.turnover = 0;
       f.turnoverNeed = c.need;
       store().save();
-      toast('首次充值 RM ' + money(amount) + ' 成功，获得彩金 RM ' + money(c.bonus) + '，需完成有效流水 RM ' + money(c.need));
+      toast('首次充值 MYR ' + money(amount) + ' 成功，获得彩金 MYR ' + money(c.bonus) + '，需完成有效流水 MYR ' + money(c.need));
       refresh();
       return true;
     }
@@ -2420,7 +2480,7 @@
       const add = r2(Math.min(FD_BET, Math.max(0, f.turnoverNeed - (f.turnover || 0))));
       f.turnover = r2((f.turnover || 0) + add);
       store().save();
-      toast('演示' + fdOpt(cat).title + '有效投注 RM ' + money(FD_BET) + '，计入流水 RM ' + money(add));
+      toast('演示' + fdOpt(cat).title + '有效投注 MYR ' + money(FD_BET) + '，计入流水 MYR ' + money(add));
       refresh();
       return true;
     }
@@ -2453,7 +2513,7 @@
       record('新人首存彩金100%', bonus, '已到账');
       store().save();
       if (window.lxReward) lxReward({ kicker: '新人首存彩金 · 转换成功', title: '已转换至可提款余额', amount: total, dest: '可提款余额', rows: [['活动钱包', total, 0], ['可提款余额', before, demo.mainWallet]] });
-      else toast('已转出 RM ' + money(total) + '：活动钱包 RM ' + money(total) + ' → RM 0.00，可提款余额 RM ' + money(before) + ' → RM ' + money(demo.mainWallet) + '。');
+      else toast('已转出 MYR ' + money(total) + '：活动钱包 MYR ' + money(total) + ' → MYR 0.00，可提款余额 MYR ' + money(before) + ' → MYR ' + money(demo.mainWallet) + '。');
       navigate('activity=first-deposit-bonus');
       return true;
     }
@@ -2494,7 +2554,7 @@
     if (r.deposited && r.turnoverNeed > 0 && (r.turnover || 0) >= r.turnoverNeed) return { step: 4, total: 4, text: '流水已完成，把活动钱包转换到可提款余额。' };
     if (r.deposited) {
       const left = r2(Math.max(0, (r.turnoverNeed || 0) - (r.turnover || 0)));
-      return { step: 3, total: 4, text: '在所选游戏类别投注。还差 RM ' + money(left) + ' 有效流水即可转换。' };
+      return { step: 3, total: 4, text: '在所选游戏类别投注。还差 MYR ' + money(left) + ' 有效流水即可转换。' };
     }
     if (r.option) return { step: 2, total: 4, text: '已选好优惠，去完成再存充值。入账后就不能再换类别了。' };
     if ((r.historyCount || 0) > 0) return { step: 1, total: 4, done: true, text: '上一笔已到可提款余额。当天还可以再选优惠、再存一笔。', endTitle: '再存彩金已转换', endDetail: '上一笔本金和彩金已进入可提款余额。', endNext: '每日不限次数，今天还可以再领。' };
@@ -2523,8 +2583,8 @@
     const demo = demoOf();
     const locked = drWalletBal(r);
     return `<div class="wallet-pair">
-      <div class="wallet-card ${locked ? 'trial' : ''}"><span>活动钱包（本金+彩金）</span><strong>RM ${money(locked)}</strong><small>${r.deposited ? '完成流水后才可转换' : '符合资格的再存入账后显示'}</small></div>
-      <div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>可提款余额</span><strong>RM ${money(demo.mainWallet)}</strong><small>${(r.claimedTotal || 0) > 0 ? '累计已领再存彩金 RM ' + money(r.claimedTotal) : '完成流水后转换入此余额'}</small></div>
+      <div class="wallet-card ${locked ? 'trial' : ''}"><span>活动钱包（本金+彩金）</span><strong>MYR ${money(locked)}</strong><small>${r.deposited ? '完成流水后才可转换' : '符合资格的再存入账后显示'}</small></div>
+      <div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>可提款余额</span><strong>MYR ${money(demo.mainWallet)}</strong><small>${(r.claimedTotal || 0) > 0 ? '累计已领再存彩金 MYR ' + money(r.claimedTotal) : '完成流水后转换入此余额'}</small></div>
     </div>`;
   }
   function drOptionCards(r) {
@@ -2536,7 +2596,7 @@
         <div class="panel-top"><span class="eyebrow">${o.title}</span><span class="status-badge ${selected ? '' : (locked || disabled) ? 'muted' : ''}">${selected ? '已选择' : locked ? '不可选择' : disabled ? '暂不可选' : '可选'}</span></div>
         <div class="fd-option-rate">${o.rateLabel}</div>
         <ul class="kyc-summary">
-          <li><span>最高彩金</span><strong>RM ${money(o.cap)}</strong></li>
+          <li><span>最高彩金</span><strong>MYR ${money(o.cap)}</strong></li>
           <li><span>流水倍数</span><strong>${o.wagerText}</strong></li>
         </ul>
         <p class="fine-print trial-prose">${locked ? '同一笔充值只能选择一种再存优惠。本笔已入账，已锁定。' : selected ? (r.deposited ? '本笔再存已入账，已锁定该优惠。' : '已选择。再存入账前仍可切换。') : '为本次再存选择一种优惠，入账前可切换。'}</p>
@@ -2547,20 +2607,20 @@
     if (!r.option) return '';
     const opt = drOpt(r.option);
     return `<section class="section-panel" id="dr-deposit">
-      <div class="section-header"><h3>演示再存充值</h3><span>${opt.title} · ${opt.rateLabel} · 最高 RM${opt.cap}</span></div>
-      <p class="fine-print trial-prose">彩金按照实际充值金额计算：彩金 = 充值金额 × 10%，不超过 ${opt.title} 上限 RM ${money(opt.cap)}。所需有效流水 =（本金 + 彩金）× ${opt.wagerMult}。</p>
+      <div class="section-header"><h3>演示再存充值</h3><span>${opt.title} · ${opt.rateLabel} · 最高 MYR${opt.cap}</span></div>
+      <p class="fine-print trial-prose">彩金按照实际充值金额计算：彩金 = 充值金额 × 10%，不超过 ${opt.title} 上限 MYR ${money(opt.cap)}。所需有效流水 =（本金 + 彩金）× ${opt.wagerMult}。</p>
       <div class="table-wrap"><table class="prize-table fd-calc-table">
         <thead><tr><th>再存金额</th><th>可得彩金</th><th>所需有效流水</th></tr></thead>
         <tbody>${DAILY_RELOAD_SOURCE.amounts.map(n => {
           const c = drCalc(r.option, n);
           const current = r.deposited && r.depositAmount === n;
-          return `<tr${current ? ' class="current-level"' : ''}><td>RM ${money(n)}</td><td>RM ${money(c.bonus)}</td><td>RM ${money(c.need)}</td></tr>`;
+          return `<tr${current ? ' class="current-level"' : ''}><td>MYR ${money(n)}</td><td>MYR ${money(c.bonus)}</td><td>MYR ${money(c.need)}</td></tr>`;
         }).join('')}</tbody>
       </table></div>
-      ${r.deposited ? `<p class="trial-prose">本笔再存 RM ${money(r.depositAmount)} 已入账，获得彩金 RM ${money(r.bonus)}，所需有效流水 RM ${money(r.turnoverNeed)}。</p>` : ''}
-      ${demoTools(`<div class="fd-bet-actions">${DAILY_RELOAD_SOURCE.amounts.map(n => `<button type="button" class="outline-wide" data-action="dr-deposit-${n}">${r.deposited ? '演示再存 RM' + n + '（不可合并）' : '演示再存 RM' + n}</button>`).join('')}</div>
-      <button type="button" class="outline-wide" data-action="dr-deposit-merge">演示两笔各 RM500 合并领取（不可）</button>
-      <button type="button" class="outline-wide" data-action="dr-deposit-void">演示取消或退款充值 RM1,000（不计入）</button>`)}
+      ${r.deposited ? `<p class="trial-prose">本笔再存 MYR ${money(r.depositAmount)} 已入账，获得彩金 MYR ${money(r.bonus)}，所需有效流水 MYR ${money(r.turnoverNeed)}。</p>` : ''}
+      ${demoTools(`<div class="fd-bet-actions">${DAILY_RELOAD_SOURCE.amounts.map(n => `<button type="button" class="outline-wide" data-action="dr-deposit-${n}">${r.deposited ? '演示再存 MYR' + n + '（不可合并）' : '演示再存 MYR' + n}</button>`).join('')}</div>
+      <button type="button" class="outline-wide" data-action="dr-deposit-merge">演示两笔各 MYR500 合并领取（不可）</button>
+      <button type="button" class="outline-wide" data-action="dr-deposit-void">演示取消或退款充值 MYR1,000（不计入）</button>`)}
     </section>`;
   }
   window.renderDailyReloadDemo = function () {
@@ -2579,22 +2639,22 @@
     const drLeft = r2(Math.max(0, (r.turnoverNeed || 0) - (r.turnover || 0)));
     const drIdleDone = !r.deposited && !r.option && (r.historyCount || 0) > 0;
     const drShowLast = drIdleDone && (r.lastBonus || 0) > 0;
-    const heroAmount = r.deposited ? amountHtml('本笔彩金 RM', r.bonus) : drShowLast ? amountHtml('上一笔已到账彩金 RM', r.lastBonus) : '<div class="amount"><small>最高 RM</small>300<span>.00</span></div>';
+    const heroAmount = r.deposited ? amountHtml('本笔彩金 MYR', r.bonus) : drShowLast ? amountHtml('上一笔已到账彩金 MYR', r.lastBonus) : '<div class="amount"><small>最高 MYR</small>300<span>.00</span></div>';
     const heroText = r.deposited && drOptNow
-      ? `${drOptNow.title} ${drOptNow.rateLabel}：本笔再存 RM ${money(r.depositAmount)}，获得彩金 RM ${money(r.bonus)}。有效流水 RM ${money(r.turnover || 0)} / RM ${money(r.turnoverNeed)}${drLeft > 0 ? '，还差 RM ' + money(drLeft) : '，已完成'}。`
+      ? `${drOptNow.title} ${drOptNow.rateLabel}：本笔再存 MYR ${money(r.depositAmount)}，获得彩金 MYR ${money(r.bonus)}。有效流水 MYR ${money(r.turnover || 0)} / MYR ${money(r.turnoverNeed)}${drLeft > 0 ? '，还差 MYR ' + money(drLeft) : '，已完成'}。`
       : drShowLast
-        ? `本金 RM ${money(r.lastDeposit)} + 彩金 RM ${money(r.lastBonus)}，共 RM ${money(r.lastAmount)} 已转入可提款余额。${r.lastAt ? '到账时间：' + mytTime(r.lastAt) + '。' : ''}累计已领 ${r.historyCount} 笔。每日不限次数，同一演示日可继续再存。`
-        : DAILY_RELOAD_SOURCE.reward;
+        ? `本金 MYR ${money(r.lastDeposit)} + 彩金 MYR ${money(r.lastBonus)}，共 MYR ${money(r.lastAmount)} 已转入可提款余额。${r.lastAt ? '到账时间：' + mytTime(r.lastAt) + '。' : ''}累计已领 ${r.historyCount} 笔。每日不限次数，同一演示日可继续再存。`
+        : '';
     const drFinishedView = drIdleDone && !inspected('daily-reload');
     const drExplain = drFinishedView
-      ? `<div class="step-heading"><span class="step-kicker">本笔已完成</span><h4>已转换至可提款余额</h4></div><p>${drShowLast ? '本金 RM ' + money(r.lastDeposit) + ' + 彩金 RM ' + money(r.lastBonus) + '，共 RM ' + money(r.lastAmount) + ' 已到账' + (r.lastAt ? '（' + mytTime(r.lastAt) + '）' : '') + '。' : '上一笔再存彩金已到账。'}可继续进行符合资格的再存。</p>`
+      ? `<div class="step-heading"><span class="step-kicker">本笔已完成</span><h4>已转换至可提款余额</h4></div><p>${drShowLast ? '本金 MYR ' + money(r.lastDeposit) + ' + 彩金 MYR ' + money(r.lastBonus) + '，共 MYR ' + money(r.lastAmount) + ' 已到账' + (r.lastAt ? '（' + mytTime(r.lastAt) + '）' : '') + '。' : '上一笔再存彩金已到账。'}可继续进行符合资格的再存。</p>`
       : stepExplain(s, viewStep, 4);
     const guide = drGuide(r);
     return `${store().journeyBar()}${leadBlock(guide)}
       <section class="reward-feature trial-hero dr-hero">
         <div class="panel-top"><span class="eyebrow">活动奖励 · 第 ${r.day || 1} 个演示日</span><span class="status-badge ${statusCls}">${status}</span></div>
         ${heroAmount}
-        <p class="trial-prose">${heroText}</p>
+        ${heroText ? `<p class="trial-prose">${heroText}</p>` : ''}
       </section>${howToJoin(['已完成首次充值的会员，先选再存优惠', '再存一笔，按 10% 领取彩金（不超过类别上限）', '打完流水后转换到可提款余额，当天还可再存'])}${drWallets(r)}
       
       <section class="section-panel">
@@ -2608,7 +2668,7 @@
       </section>
       ${drCalcTable(r)}
       ${r.deposited ? `<section class="section-panel"><div class="section-header"><h3>流水进度</h3><span>${money(r.turnover || 0)} / ${money(r.turnoverNeed)}</span></div>
-        <div class="bar-label"><span>有效流水（仅计${drOpt(r.option).title}）</span><span>RM ${money(r.turnover || 0)} / RM ${money(r.turnoverNeed)}</span></div>
+        <div class="bar-label"><span>有效流水（仅计${drOpt(r.option).title}）</span><span>MYR ${money(r.turnover || 0)} / MYR ${money(r.turnoverNeed)}</span></div>
         <progress max="${Math.max(1, r.turnoverNeed)}" value="${Math.min(r.turnoverNeed || 0, r.turnover || 0)}" aria-label="有效流水进度"></progress>
         <p class="fine-print trial-prose">仅计算所选择游戏类别的有效投注。</p>
         <button type="button" class="outline-wide" data-action="dr-go-turnover">去完成有效流水</button>
@@ -2631,20 +2691,20 @@
       <section class="section-panel">
         <div class="section-header"><h3>本笔再存</h3><span>${opt.title}</span></div>
         <ul class="kyc-summary">
-          <li><span>再存金额</span><strong>RM ${money(r.depositAmount)}</strong></li>
-          <li><span>彩金</span><strong>RM ${money(r.bonus)}</strong></li>
+          <li><span>再存金额</span><strong>MYR ${money(r.depositAmount)}</strong></li>
+          <li><span>彩金</span><strong>MYR ${money(r.bonus)}</strong></li>
           <li><span>流水倍数</span><strong>${opt.wagerText}</strong></li>
         </ul>
-        <div class="bar-label"><span>有效流水（仅计${opt.title}）</span><span>RM ${money(r.turnover || 0)} / RM ${money(r.turnoverNeed)}</span></div>
+        <div class="bar-label"><span>有效流水（仅计${opt.title}）</span><span>MYR ${money(r.turnover || 0)} / MYR ${money(r.turnoverNeed)}</span></div>
         <progress max="${Math.max(1, r.turnoverNeed)}" value="${Math.min(r.turnoverNeed || 0, r.turnover || 0)}" aria-label="有效流水进度"></progress>
         <p class="fine-print trial-prose">仅计算所选择游戏类别的有效投注。</p>
       </section>
       <section class="section-panel">
         <div class="section-header"><h3>演示投注</h3></div>
         <div class="fd-bet-actions">
-          <button type="button" class="outline-wide" data-action="dr-bet-live">演示真人投注 RM${DR_BET}</button>
-          <button type="button" class="outline-wide" data-action="dr-bet-slots">演示老虎机投注 RM${DR_BET}</button>
-          <button type="button" class="outline-wide" data-action="dr-bet-fish">演示捕鱼投注 RM${DR_BET}</button>
+          <button type="button" class="outline-wide" data-action="dr-bet-live">演示真人投注 MYR${DR_BET}</button>
+          <button type="button" class="outline-wide" data-action="dr-bet-slots">演示老虎机投注 MYR${DR_BET}</button>
+          <button type="button" class="outline-wide" data-action="dr-bet-fish">演示捕鱼投注 MYR${DR_BET}</button>
         </div>
         <button type="button" class="text-button" data-action="dr-accelerate">演示加速完成流水（演示用）</button>
       </section>
@@ -2659,8 +2719,8 @@
     $('#app').innerHTML = page('转换至可提款余额', `
       <section class="reward-feature trial-hero dr-hero">
         <div class="panel-top"><span class="eyebrow">本次转出金额</span><span class="status-badge">流水已完成</span></div>
-        ${amountHtml('RM', total)}
-        <p class="trial-prose">完成指定倍数的有效流水后，才可转换为可提款余额。本次按活动钱包当前可转余额转出，其中本金 RM ${money(r.depositAmount)}，彩金 RM ${money(r.bonus)}。</p>
+        ${amountHtml('MYR', total)}
+        <p class="trial-prose">完成指定倍数的有效流水后，才可转换为可提款余额。本次按活动钱包当前可转余额转出，其中本金 MYR ${money(r.depositAmount)}，彩金 MYR ${money(r.bonus)}。</p>
       </section>
       <section class="section-panel">
         ${termsList(['仅计算所选择游戏类别的有效投注。', '转换后本金与彩金进入可提款余额。'])}
@@ -2760,14 +2820,14 @@
       openModal(`<div class="dialog-illustration">${icon('cash')}</div><h2>确认参与再存优惠</h2>
         <ul class="kyc-summary">
           <li><span>所选优惠</span><strong>${opt.title} ${opt.rateLabel}</strong></li>
-          <li><span>再存金额</span><strong>RM ${money(amount)}</strong></li>
-          <li><span>可得彩金</span><strong>RM ${money(c.bonus)}</strong></li>
-          <li><span>所需有效流水</span><strong>RM ${money(c.need)}</strong></li>
+          <li><span>再存金额</span><strong>MYR ${money(amount)}</strong></li>
+          <li><span>可得彩金</span><strong>MYR ${money(c.bonus)}</strong></li>
+          <li><span>所需有效流水</span><strong>MYR ${money(c.need)}</strong></li>
         </ul>
-        <p class="trial-prose">彩金 = RM ${money(amount)} × ${opt.rateLabel}，不超过 RM ${money(opt.cap)}。（本金 RM ${money(amount)} + 彩金 RM ${money(c.bonus)}）× ${opt.wagerMult} = RM ${money(c.need)}，仅计算${opt.title}的有效投注。</p>
+        <p class="trial-prose">彩金 = MYR ${money(amount)} × ${opt.rateLabel}，不超过 MYR ${money(opt.cap)}。（本金 MYR ${money(amount)} + 彩金 MYR ${money(c.bonus)}）× ${opt.wagerMult} = MYR ${money(c.need)}，仅计算${opt.title}的有效投注。</p>
         ${termsList(['同一笔充值只能选择一种再存优惠。', '不得将多笔充值合并领取同一笔彩金。', '取消、退款或异常充值不计入。', '此活动不能与其他充值活动重叠。'])}
         <p class="subnote">演示充值，不会产生真实扣款。入账后锁定本笔所选优惠。</p>
-        <button type="button" class="primary" data-action="dr-deposit-confirm-${amount}">确认再存 RM ${money(amount)}</button>
+        <button type="button" class="primary" data-action="dr-deposit-confirm-${amount}">确认再存 MYR ${money(amount)}</button>
         <button type="button" class="outline-wide" data-close>取消</button>`);
       return true;
     }
@@ -2786,7 +2846,7 @@
       r.turnover = 0;
       r.turnoverNeed = c.need;
       store().save();
-      toast('再存 RM ' + money(amount) + ' 成功，获得彩金 RM ' + money(c.bonus) + '，需完成有效流水 RM ' + money(c.need));
+      toast('再存 MYR ' + money(amount) + ' 成功，获得彩金 MYR ' + money(c.bonus) + '，需完成有效流水 MYR ' + money(c.need));
       refresh();
       return true;
     }
@@ -2815,7 +2875,7 @@
       const add = r2(Math.min(DR_BET, Math.max(0, r.turnoverNeed - (r.turnover || 0))));
       r.turnover = r2((r.turnover || 0) + add);
       store().save();
-      toast('演示' + label + '有效投注 RM ' + money(DR_BET) + '，计入流水 RM ' + money(add));
+      toast('演示' + label + '有效投注 MYR ' + money(DR_BET) + '，计入流水 MYR ' + money(add));
       refresh();
       return true;
     }
@@ -2857,7 +2917,7 @@
       r.turnoverNeed = 0;
       store().save();
       if (window.lxReward) lxReward({ kicker: '每日再存 · 转换成功', title: '已转换至可提款余额', amount: total, dest: '可提款余额', rows: [['活动钱包', total, 0], ['可提款余额', before, demo.mainWallet]] });
-      else toast('已转出 RM ' + money(total) + '：活动钱包 RM ' + money(total) + ' → RM 0.00，可提款余额 RM ' + money(before) + ' → RM ' + money(demo.mainWallet) + '。');
+      else toast('已转出 MYR ' + money(total) + '：活动钱包 MYR ' + money(total) + ' → MYR 0.00，可提款余额 MYR ' + money(before) + ' → MYR ' + money(demo.mainWallet) + '。');
       navigate('activity=daily-reload');
       return true;
     }
@@ -2958,7 +3018,7 @@
     const cap = REFERRAL_SOURCE.cap;
     const room = r2(Math.max(0, cap - (friend.unlocked || 0)));
     const add = r2(Math.min(amount, room));
-    if (add <= 0) { toast('该好友邀请奖励已达最高 RM1,000'); return 0; }
+    if (add <= 0) { toast('该好友邀请奖励已达最高 MYR1,000'); return 0; }
     const before = r2(demo.mainWallet || 0);
     const prev = r2(friend.unlocked || 0);
     friend.unlocked = r2(prev + add);
@@ -3015,7 +3075,7 @@
         navigate('activity=daily-wheel');
         return true;
       case 'dw-go-spin':
-        if (dwSpinsLeft(w) <= 0 && !(w.bonusWallet > 0)) { toast('请先完成单笔满 RM100 或以上的充值以获得抽奖次数'); navigate('activity=daily-wheel'); return true; }
+        if (dwSpinsLeft(w) <= 0 && !(w.bonusWallet > 0)) { toast('请先完成单笔满 MYR100 或以上的充值以获得抽奖次数'); navigate('activity=daily-wheel'); return true; }
         navigate('demo=dw-spin'); return true;
       case 'dw-spin':
         return true;
@@ -3042,10 +3102,10 @@
         w.bonusWallet = 0;
         w.turnover = 0;
         w.turnoverNeed = 0;
-        record('每日幸运大转盘RM888', amt, '已到账');
+        record('每日幸运大转盘MYR888', amt, '已到账');
         store().save();
         if (window.lxReward) lxReward({ kicker: '每日幸运大转盘 · 转换成功', title: '彩金已转换为现金', amount: amt, dest: '现金钱包', rows: [['活动彩金钱包', amt, 0], ['现金钱包', cashBefore, demo.mainWallet]] });
-        else toast('已转出 RM ' + money(amt) + '：活动彩金钱包 RM ' + money(amt) + ' → RM 0.00，现金钱包 RM ' + money(cashBefore) + ' → RM ' + money(demo.mainWallet) + '。');
+        else toast('已转出 MYR ' + money(amt) + '：活动彩金钱包 MYR ' + money(amt) + ' → MYR 0.00，现金钱包 MYR ' + money(cashBefore) + ' → MYR ' + money(demo.mainWallet) + '。');
         navigate('demo=records'); return true;
       }
 
@@ -3058,7 +3118,7 @@
         if (retTrialTaken(demo)) { toast(nfcBlockReason(demo)); navigate('activity=newcomer-free-challenge'); return true; }
         c.claimed = true; c.trialBalance = 100; c.spinIndex = 0; c.playMode = 'win';
         c.trialEnded = false; c.reachedTarget = false;
-        store().save(); toast('已领取 RM100 试玩额度'); navigate('activity=newcomer-free-challenge'); return true;
+        store().save(); toast('已领取 MYR100 试玩额度'); navigate('activity=newcomer-free-challenge'); return true;
       case 'nfc-go-play':
         if (!c.claimed || c.redeemed) return true;
         navigate('demo=nfc-games'); return true;
@@ -3082,7 +3142,7 @@
       case 'nc-claim-confirm':
         if (n.claimed || n.abandoned) return true;
         n.claimed = true; n.bonus = 88; n.turnover = 0; n.spinIndex = 0; n.playMode = 'win';
-        store().save(); toast('已领取 RM88 活动金'); navigate('activity=newcomer'); return true;
+        store().save(); toast('已领取 MYR88 活动金'); navigate('activity=newcomer'); return true;
       case 'nc-go-play':
         if (!n.claimed || n.abandoned || n.challengeDone) { navigate(n.challengeDone ? 'demo=nc-unlock' : 'activity=newcomer'); return true; }
         navigate('demo=nc-play'); return true;
@@ -3152,13 +3212,13 @@
         r.friends.push(f);
         const add = creditReferral(demo, f, 2, '实名认证');
         store().save();
-        if (!window.lxReward) toast('好友已完成实名认证，系统自动解锁 RM' + money(add));
+        if (!window.lxReward) toast('好友已完成实名认证，系统自动解锁 MYR' + money(add));
         navigate('activity=referral'); return true;
       }
       case 'ref-friend-nokyc': {
         const i = r.friends.length;
         r.friends.push({ name: '演示好友 ' + String.fromCharCode(65 + i), account: 'user****' + (12 + i), registered: true, kyc: false, deposited: false, betUnits: 0, unlocked: 0, disqualified: false, reason: '' });
-        store().save(); toast('好友仅完成注册、未完成实名认证，邀请奖励为 RM0.00'); navigate('activity=referral'); return true;
+        store().save(); toast('好友仅完成注册、未完成实名认证，邀请奖励为 MYR0.00'); navigate('activity=referral'); return true;
       }
       case 'ref-friend-self':
         r.friends.push({ name: '自己的其他账号', account: demo.phone, registered: true, kyc: false, deposited: false, betUnits: 0, unlocked: 0, disqualified: true, reason: '禁止自行邀请自己的其他账号领取奖励。异常邀请关系一律取消资格。' });
@@ -3225,7 +3285,7 @@
         a.turnover = r2(a.turnover + 200);
         const no = AN_TICKETS[a.tickets.length] || String(100000 + a.tickets.length * 173).slice(0, 6);
         a.tickets.push(no);
-        store().save(); toast('有效流水满 RM200，获得1张抽奖券'); navigate('demo=an-play'); return true;
+        store().save(); toast('有效流水满 MYR200，获得1张抽奖券'); navigate('demo=an-play'); return true;
       }
       case 'an-go-draw':
         if (!a.tickets.length) return true;
@@ -3273,8 +3333,8 @@
         demo.mainWallet = r2(demo.mainWallet + 100);
         record('维护补偿 · 100分挑战', 100, '已到账');
         store().save();
-        if (window.lxReward) lxReward({ kicker: '维护补偿 · 任务完成', title: 'RM100 现金已到账', amount: 100, dest: '主钱包', rows: [['主钱包', mtBefore, demo.mainWallet], ['剩余活动分', '已清零']], note: '可用于本人账号投注，也可直接申请取款。' });
-        else toast('RM100 现金已到账，剩余活动分已清零');
+        if (window.lxReward) lxReward({ kicker: '维护补偿 · 任务完成', title: 'MYR100 现金已到账', amount: 100, dest: '主钱包', rows: [['主钱包', mtBefore, demo.mainWallet], ['剩余活动分', '已清零']], note: '可用于本人账号投注，也可直接申请取款。' });
+        else toast('MYR100 现金已到账，剩余活动分已清零');
         navigate('demo=records'); return true;
       case 'mt-make-ineligible':
         if (m.joined || m.completed) return true;
@@ -3318,8 +3378,8 @@
       store().save();
       renderNcPlay();
       if (n.challengeDone) {
-        toast('已完成 RM440 有效流水');
-        store().later(() => openModal(`<div class="goal-celebration"><h2>流水已完成</h2><p class="trial-prose">完成后进入充值解锁阶段。以剩余余额 RM ${money(n.remaining)} 作为可解锁彩金。</p><button type="button" class="primary" data-action="nc-go-unlock">去充值解锁</button></div>`), 300);
+        toast('已完成 MYR440 有效流水');
+        store().later(() => openModal(`<div class="goal-celebration"><h2>流水已完成</h2><p class="trial-prose">完成后进入充值解锁阶段。以剩余余额 MYR ${money(n.remaining)} 作为可解锁彩金。</p><button type="button" class="primary" data-action="nc-go-unlock">去充值解锁</button></div>`), 300);
       }
     }, 90);
   }
@@ -3392,24 +3452,24 @@
         if (!friend.kyc) { toast('需先完成实名认证'); return; }
         if (friend.deposited) { toast('该好友充值任务已完成'); return; }
         friend.deposited = true;
-        creditReferral(demo, friend, 3, '累计充值RM100');
-        store().save(); if (!window.lxReward) toast('好友累计充值 RM100，系统自动解锁 RM3.00'); refreshPromo(); return;
+        creditReferral(demo, friend, 3, '累计充值MYR100');
+        store().save(); if (!window.lxReward) toast('好友累计充值 MYR100，系统自动解锁 MYR3.00'); refreshPromo(); return;
       }
       if (name === 'ref-friend-bet' && friend && !friend.disqualified) {
         if (!friend.kyc) { toast('需先完成实名认证'); return; }
         friend.betUnits = (friend.betUnits || 0) + 1;
-        const add = creditReferral(demo, friend, 0.5, '有效投注RM1,000');
+        const add = creditReferral(demo, friend, 0.5, '有效投注MYR1,000');
         store().save();
-        if (add && !window.lxReward) toast('好友有效投注满 RM1,000，系统自动解锁 RM0.50');
+        if (add && !window.lxReward) toast('好友有效投注满 MYR1,000，系统自动解锁 MYR0.50');
         refreshPromo(); return;
       }
       if (name === 'ref-friend-cap' && friend && !friend.disqualified) {
         if (!friend.kyc) { toast('需先完成实名认证'); return; }
         const room = r2(Math.max(0, REFERRAL_SOURCE.cap - (friend.unlocked || 0)));
-        if (room <= 0) { toast('该好友邀请奖励已达最高 RM1,000'); return; }
+        if (room <= 0) { toast('该好友邀请奖励已达最高 MYR1,000'); return; }
         friend.betUnits = (friend.betUnits || 0) + Math.ceil(room / 0.5);
         creditReferral(demo, friend, room, '有效投注累计至上限');
-        store().save(); if (!window.lxReward) toast('该好友邀请奖励已达最高 RM1,000，系统自动解锁'); refreshPromo(); return;
+        store().save(); if (!window.lxReward) toast('该好友邀请奖励已达最高 MYR1,000，系统自动解锁'); refreshPromo(); return;
       }
     }
     const stepBtn = e.target.closest('[data-promo-step]');
@@ -3453,12 +3513,12 @@
       const amt = kind === '100' ? 100 : 150;
       w.earnedToday = (w.earnedToday || 0) + 1;
       store().save();
-      toast('单笔充值 RM' + amt + ' 已成功入账，获得1次免费抽奖机会');
+      toast('单笔充值 MYR' + amt + ' 已成功入账，获得1次免费抽奖机会');
       refreshPromo();
       return;
     }
-    if (kind === '50') { toast('单笔充值须满 RM100 或以上才可获得抽奖机会。充值不可合并计算抽奖次数。'); return; }
-    if (kind === 'merge') { toast('两笔各 RM80 不可合并计算抽奖次数，未获得抽奖机会。'); return; }
+    if (kind === '50') { toast('单笔充值须满 MYR100 或以上才可获得抽奖机会。充值不可合并计算抽奖次数。'); return; }
+    if (kind === 'merge') { toast('两笔各 MYR80 不可合并计算抽奖次数，未获得抽奖机会。'); return; }
     if (kind === 'void') { toast('取消、退款或异常充值不产生抽奖机会。'); return; }
   }
   function dwSpinEase(t) {
@@ -3506,8 +3566,8 @@
         landed.dataset.angle = String(target);
       }
       const show = () => {
-        if (window.lxReward) lxReward({ kicker: '演示结果 · 非正式开奖', title: '恭喜抽中', amount: prize, destPrefix: '已存入', dest: '活动彩金钱包', rows: [['活动彩金钱包', r2(w.bonusWallet - prize), w.bonusWallet], ['所需有效流水', 'RM ' + money(prize * WHEEL_SOURCE.wagerMult)]], note: '彩金完成3倍有效流水后可转换为现金。' });
-        else toast('演示结果：获得 RM ' + money(prize) + '，已进入活动彩金钱包（需完成 RM ' + money(prize * WHEEL_SOURCE.wagerMult) + ' 有效流水）');
+        if (window.lxReward) lxReward({ kicker: '演示结果 · 非正式开奖', title: '恭喜抽中', amount: prize, destPrefix: '已存入', dest: '活动彩金钱包', rows: [['活动彩金钱包', r2(w.bonusWallet - prize), w.bonusWallet], ['所需有效流水', 'MYR ' + money(prize * WHEEL_SOURCE.wagerMult)]], note: '彩金完成3倍有效流水后可转换为现金。' });
+        else toast('演示结果：获得 MYR ' + money(prize) + '，已进入活动彩金钱包（需完成 MYR ' + money(prize * WHEEL_SOURCE.wagerMult) + ' 有效流水）');
       };
       const beat = motion ? motion.ms(280, 0) : 0;
       if (beat) setTimeout(show, beat);
@@ -3562,7 +3622,7 @@
       const add = r2(Math.min(188, Math.max(0, (w.turnoverNeed || 0) - (w.turnover || 0))));
       w.turnover = r2((w.turnover || 0) + add);
       store().save();
-      toast(add > 0 ? ('演示' + provider + '有效投注 RM 188.00，计入流水 RM ' + money(add)) : '所需流水已完成');
+      toast(add > 0 ? ('演示' + provider + '有效投注 MYR 188.00，计入流水 MYR ' + money(add)) : '所需流水已完成');
       renderDwTurnover();
     }
   }, true);
@@ -3573,7 +3633,7 @@
       <div class="panel-top"><span class="eyebrow">${o.title}</span></div>
       <div class="fd-option-rate">${o.rateLabel}</div>
       <ul class="kyc-summary">
-        <li><span>最高彩金</span><strong>RM ${money(o.cap)}</strong></li>
+        <li><span>最高彩金</span><strong>MYR ${money(o.cap)}</strong></li>
         <li><span>流水倍数</span><strong>${o.wagerText}</strong></li>
       </ul>
     </div>`).join('')}</div>`;
@@ -3586,8 +3646,8 @@
     const extra = opts.extra || '';
     return `<section class="reward-feature trial-hero ${opts.cls || ''}">
       <div class="panel-top"><span class="eyebrow">${opts.eyebrow || '活动奖励'}</span></div>
-      ${opts.amount}
-      <p class="trial-prose">${opts.text}</p>
+      ${opts.amount || ''}
+      ${opts.text ? `<p class="trial-prose">${opts.text}</p>` : ''}
       ${path}${opts.cta || ''}
       ${extra}
     </section>`;
@@ -3601,20 +3661,20 @@
     if (id === 'newcomer-free-challenge') {
       return publicHero({
         cls: '',
-        amount: '<div class="amount"><small>RM</small>100<span>.00</span></div>',
-        text: CHALLENGE_SOURCE.reward,
-        path: [['RM100', '免费试玩'], ['RM200', '达标余额'], ['RM100', '兑换现金']]
-      }) + join(['免费领取 RM100 试玩额度', '在指定游戏把试玩余额玩到 RM200', '兑换 RM100 现金到主钱包'])
+        amount: '<div class="amount"><small>MYR</small>100<span>.00</span></div>',
+        text: '',
+        path: [['MYR100', '免费试玩'], ['MYR200', '达标余额'], ['MYR100', '兑换现金']]
+      }) + join(['免费领取 MYR100 试玩额度', '在指定游戏把试玩余额玩到 MYR200', '兑换 MYR100 现金到主钱包'])
         + rulesBtn;
     }
     if (id === 'daily-wheel') {
       const prizes = (typeof WHEEL_SOURCE !== 'undefined' ? WHEEL_SOURCE.prizes : [888, 588, 188, 58, 18, 8]);
       return publicHero({
         cls: 'wheel-hero',
-        amount: '<div class="amount"><small>最高 RM</small>888</div>',
-        text: WHEEL_SOURCE.reward,
-        extra: `<div class="wheel-prize-chips" aria-hidden="true">${prizes.map(n => `<span>RM${n}</span>`).join('')}</div>`
-      }) + join(['单笔充值满 RM100 或以上，获得 1 次抽奖（每天最多 3 次）', '转动转盘，奖金进入活动彩金钱包', '完成 3 倍有效流水后，转换为现金'])
+        amount: '<div class="amount"><small>最高 MYR</small>888</div>',
+        text: '',
+        extra: `<div class="wheel-prize-chips" aria-hidden="true">${prizes.map(n => `<span>MYR${n}</span>`).join('')}</div>`
+      }) + join(['单笔充值满 MYR100 或以上，获得 1 次抽奖', '转动转盘，奖金进入活动彩金钱包', '完成 3 倍有效流水后，转换为现金'])
         + rulesBtn;
     }
     if (id === 'vip-benefits') {
@@ -3622,35 +3682,27 @@
         <div class="panel-top"><span class="eyebrow">${b.title}</span></div>
         <p class="trial-prose">${b.text}</p>
       </div>`).join('')}</div>`;
-      return publicHero({
-        cls: 'vip-hero',
-        amount: '',
-        text: VIP_SOURCE.reward + ' ' + VIP_SOURCE.summary
-      }) + join(['按你的 VIP 等级查看可领的礼金', '点对应项目领取', '奖励发放到主钱包'])
+      return vbOfficialTable()
         + publicSection('五大专属福利', cards)
         + rulesBtn;
     }
     if (id === 'newcomer') {
-      const cta = action('立即领取活动金', 'new-claim');
-      const table = `<div class="table-wrap"><table><thead><tr><th>活动余额</th><th>充值金额</th><th>可解锁彩金</th></tr></thead><tbody><tr><td>RM500</td><td>RM500</td><td>RM500</td></tr><tr><td>RM1,000</td><td>RM600</td><td>RM600</td></tr><tr><td>RM2,000</td><td>RM2,000</td><td>RM1,888</td></tr></tbody></table></div><button class="text-button" data-promo="growth">查看成长彩金计划 ${icon('arrow')}</button>`;
+      const table = `<div class="table-wrap"><table><thead><tr><th>活动余额</th><th>充值金额</th><th>可解锁彩金</th></tr></thead><tbody><tr><td>MYR500</td><td>MYR500</td><td>MYR500</td></tr><tr><td>MYR1,000</td><td>MYR600</td><td>MYR600</td></tr><tr><td>MYR2,000</td><td>MYR2,000</td><td>MYR1,888</td></tr></tbody></table></div><button class="text-button" data-promo="growth">查看成长彩金计划 ${icon('arrow')}</button>`;
       return publicHero({
-        amount: '<div class="amount"><small>RM</small>88<span>.00</span></div>',
+        amount: '<div class="amount"><small>MYR</small>88<span>.00</span></div>',
         text: '完成实名认证后领取 · 每位新会员限一次',
-        eyebrow: '新人活动金',
-        cta
-      }) + `<div class="essential-grid"><div><strong>5倍</strong><span>首阶段流水 RM440</span></div><div><strong>48小时</strong><span>充值解锁期限</span></div><div><strong>RM1,888</strong><span>解锁彩金上限</span></div></div>`
-        + join(['领取 RM88 活动金并完成指定流水', '在时限内充值，按 1:1 解锁彩金', '完成流水后，解锁彩金进入真钱钱包'])
-        + publicSection('充值解锁示例', table, '1:1 · 最高 RM1,888')
+        eyebrow: '新人活动金'
+      }) + `<div class="essential-grid"><div><strong>5倍</strong><span>首阶段流水 MYR440</span></div><div><strong>48小时</strong><span>充值解锁期限</span></div><div><strong>MYR1,888</strong><span>解锁彩金上限</span></div></div>`
+        + join(['领取 MYR88 活动金并完成指定流水', '在时限内充值，按 1:1 解锁彩金', '完成流水后，解锁彩金进入真钱钱包'])
+        + publicSection('充值解锁示例', table, '1:1 · 最高 MYR1,888')
         + rulesBtn;
     }
     if (id === 'referral') {
-      const cta = action('邀请好友', 'invite');
       const empty = `<div class="compact-empty" id="friend-empty">${icon('friends')}<h4>暂无邀请好友</h4><p>好友记录将显示在这里</p></div>`;
       return publicHero({
         eyebrow: '每位成功邀请',
-        amount: '<div class="amount"><small>最高 RM</small>1,000</div>',
-        text: REFERRAL_SOURCE.reward,
-        cta
+        amount: '<div class="amount"><small>最高 MYR</small>1,000</div>',
+        text: REFERRAL_SOURCE.reward
       }) + join(['分享你的邀请码或链接给好友', '好友完成实名认证、充值和有效投注', '对应奖励自动进入你的主钱包'])
         + publicSection('我的邀请', statRow([['已邀请好友', '0<span> 位</span>'], ['已解锁总额', '0.00'], ['已领取总额', '0.00'], ['待领取', '0.00']], 'four-stats') + '<span class="unit-note">金额单位：MYR</span>')
         + publicSection('推荐奖励明细', empty, '0 位好友')
@@ -3662,7 +3714,7 @@
         const title = row[0], amt = row[1];
         return `<details class="level-card" ${i === 0 ? 'open' : ''}><summary><span class="level-icon">${icon('gift')}</span><span class="level-title"><b>${title}</b><small>成长彩金 MYR ${amt}</small></span>${icon('arrow')}</summary><div class="level-content">${i === 0 ? `<div class="section-header small"><h4>解锁比例</h4><button class="text-button" data-action="rates">查看说明 ${icon('arrow')}</button></div>${rateTable()}<p class="fine-print">有效投注按游戏类型比例解锁彩金。电子 0.3%，打鱼 0.3%，现场 0.1%，体育 0.5%。</p>` : '<p class="trial-prose">完成当前档位后自动激活。</p>'}</div></details>`;
       }).join('')}</section>`;
-      return `<section class="section-panel growth-overview"><div class="section-header"><h3>当前档位 · 首充</h3></div><div class="growth-main"><div><span class="eyebrow">首充200% · 最高彩金</span><div class="growth-amount"><small>RM</small> 5,888<span>.00</span></div></div></div><p class="trial-prose">${GROWTH_SOURCE.reward}</p></section>`
+      return `<section class="section-panel growth-overview"><div class="section-header"><h3>当前档位 · 首充</h3></div><div class="growth-main"><div><span class="eyebrow">首充200% · 最高彩金</span><div class="growth-amount"><small>MYR</small> 5,888<span>.00</span></div></div></div><p class="trial-prose">${GROWTH_SOURCE.reward}</p></section>`
         + join(['先完成首次充值，激活 200% 档位', '在指定游戏累计有效投注，按比例解锁彩金', '解锁后领取奖励，完成当前档位后进入下一档'])
         + `<div class="section-header outside"><h3>活动档位</h3><span>共 5 档</span></div>${list}`
         + publicRulesButton('查看活动说明');
@@ -3672,35 +3724,35 @@
       return publicHero({
         cls: 'draw-hero',
         eyebrow: '3周年幸运大抽奖',
-        amount: '<div class="amount"><small>头奖 RM</small>100,000</div>',
-        text: '有效流水累计每满 RM200，获得1张抽奖券。',
+        amount: '<div class="amount"><small>头奖 MYR</small>100,000</div>',
+        text: '',
         extra: `<div class="period-dates"><div><span>活动开始</span><b>2026.11.15 <small>19:00:00</small></b></div><div><span>活动结束</span><b>2026.11.22 <small>18:59:59</small></b></div></div>${cta}`
-      }) + join(['有效流水每满 RM200，获得 1 张抽奖券', '按开奖号码核对是否中奖', '中奖后在 48 小时内手动领取'])
+      }) + join(['有效流水每满 MYR200，获得 1 张抽奖券', '按开奖号码核对是否中奖', '中奖后在 48 小时内手动领取'])
         + publicSection('开奖参考', `<div class="draw-reference"><div><b>2026年11月22日</b><p>根据当周星期日 TOTO 6D 开奖号码兑奖</p></div><button class="text-button" data-action="draw-reference">查看参考说明 ${icon('arrow')}</button></div><div class="number-balls" aria-label="开奖号码">${Array(6).fill('<span>—</span>').join('')}</div>`, 'TOTO 6D');
     }
     if (id === 'maintenance') {
       return publicHero({
         eyebrow: '维护补偿 · 限参加1次',
-        amount: '<div class="amount"><small>现金 RM</small>100</div>',
+        amount: '<div class="amount"><small>现金 MYR</small>100</div>',
         text: '领取100活动分，达到200分后手动完成任务。',
         cta: '<button class="support-link" data-action="maint-eligibility">查看参与资格</button>'
-      }) + join(['符合资格后参加，领取 100 活动分', '在指定游戏把活动分打到 200 分', '手动完成任务，领取 RM100 现金'])
+      }) + join(['符合资格后参加，领取 100 活动分', '在指定游戏把活动分打到 200 分', '手动完成任务，领取 MYR100 现金'])
         + rulesBtn;
     }
     if (id === 'returning-member') {
       return publicHero({
         cls: 'return-hero',
-        amount: '<div class="amount"><small>RM</small>188<span>.00</span></div>',
-        text: RETURNING_SOURCE.reward,
-        path: [['RM100', '免费试玩'], ['RM200', '达标余额'], ['RM188', '兑换现金']]
-      }) + join(['连续 7 天未上线的老会员，免费领取 RM100 试玩', '在指定游戏把试玩余额玩到 RM200', '兑换 RM188 现金到主钱包'])
+        amount: '<div class="amount"><small>MYR</small>188<span>.00</span></div>',
+        text: '',
+        path: [['MYR100', '免费试玩'], ['MYR200', '达标余额'], ['MYR188', '兑换现金']]
+      }) + join(['连续 7 天未上线的老会员，免费领取 MYR100 试玩', '在指定游戏把试玩余额玩到 MYR200', '兑换 MYR188 现金到主钱包'])
         + rulesBtn;
     }
     if (id === 'first-deposit-bonus') {
       return publicHero({
         cls: 'fd-hero',
-        amount: '<div class="amount"><small>最高 RM</small>300<span>.00</span></div>',
-        text: FIRST_DEPOSIT_SOURCE.reward
+        amount: '<div class="amount"><small>最高 MYR</small>300<span>.00</span></div>',
+        text: ''
       }) + join(['先选一种首存优惠（入账前可换）', '完成首次充值，得到对应彩金', '打完指定流水后，转换到可提款余额'])
         + publicSection('首存优惠', publicOptionCards(FIRST_DEPOSIT_SOURCE.options), '只能选择一种')
         + rulesBtn;
@@ -3708,8 +3760,8 @@
     if (id === 'daily-reload') {
       return publicHero({
         cls: 'dr-hero',
-        amount: '<div class="amount"><small>最高 RM</small>300</div>',
-        text: DAILY_RELOAD_SOURCE.reward
+        amount: '<div class="amount"><small>最高 MYR</small>300</div>',
+        text: ''
       }) + join(['已完成首次充值的会员，先选再存优惠', '再存一笔，按 10% 领取彩金（不超过类别上限）', '打完流水后转换到可提款余额，当天还可再存'])
         + publicSection('再存优惠', publicOptionCards(DAILY_RELOAD_SOURCE.options), '按单笔及类别上限计算')
         + rulesBtn;
@@ -3721,12 +3773,13 @@
     let body;
     if (selected === 1) body = rules(p);
     else if (selected === 2 && p.id === 'anniversary') body = (typeof _publicTickets === 'function' ? _publicTickets() : (typeof _tickets === 'function' ? _tickets() : tickets()));
-    else if (selected === 2 && p.id === 'vip-benefits') body = `<div class="compact-empty">${icon('receipt')}<h4>暂无奖励记录</h4><p class="trial-prose">领取升级礼金、保级礼金、返水、每周关怀或节日礼金后，记录将显示在这里。</p></div><button type="button" class="outline-wide" data-tab="0">返回活动详情</button>`;
+    else if (selected === 2 && p.id === 'vip-benefits') body = `<div class="compact-empty">${icon('receipt')}<h4>暂无奖励记录</h4><p class="trial-prose">升级奖金、季度等级奖金、返水、每周救援金或纪念奖金发放后，记录将显示在这里。</p></div><button type="button" class="outline-wide" data-tab="0">返回活动详情</button>`;
     else if (selected === 2) body = (typeof _publicTickets === 'function' ? _publicTickets() : '');
     else body = publicBody(p.id);
+    const stickyHtml = selected === 0 ? publicSticky(p.id) : '';
     const hero = p.banner ? `<div class="detail-hero">${banner(p)}</div>` : '';
-    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'returning-member', 'first-deposit-bonus', 'daily-reload', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' + (p.banner === 'photo' ? ' has-photo-banner' : '') : '';
-    $('#app').innerHTML = `<article class="detail ${detailClass}"><button class="back-link" data-back>${icon('arrow')} 返回活动列表</button>${hero}<div class="detail-heading"><span class="badge">${p.badge}</span><h2>${p.title}</h2><p class="trial-prose">${p.secondary}</p></div><div class="activity-tabs" aria-label="活动内容">${p.tabs.map((tab, i) => `<button data-tab="${i}" class="${i === selected ? 'active' : ''}" aria-pressed="${i === selected}">${tab}</button>`).join('')}</div><div id="detail-content">${body}</div><button class="support-link" data-support>需要帮助？联系客服</button>${footer()}</article>`;
+    const detailClass = detailClassFor(p, stickyHtml);
+    $('#app').innerHTML = `<article class="detail ${detailClass}"><button class="back-link" data-back>${icon('arrow')} 返回活动列表</button>${hero}<div class="detail-heading"><span class="badge">${p.badge}</span><h2>${p.title}</h2><p class="trial-prose">${p.secondary}</p></div><div class="activity-tabs" aria-label="活动内容">${p.tabs.map((tab, i) => `<button data-tab="${i}" class="${i === selected ? 'active' : ''}" aria-pressed="${i === selected}">${tab}</button>`).join('')}</div><div id="detail-content">${body}</div>${stickyHtml}<button class="support-link" data-support>需要帮助？联系客服</button>${footer()}</article>`;
     if (p.id === 'referral' && selected === 0 && $('#friend-search')) $('#friend-search').addEventListener('input', updateSearch);
   }
 
@@ -3763,7 +3816,6 @@
     const stickyFor = {
       'newcomer-free-challenge': () => sticky(nfcCta(demoOf().freeChallenge)),
       'daily-wheel': () => sticky(dwCta(demoOf().dailyWheel)),
-      'vip-benefits': () => sticky(vbCta(demoOf().vipBenefits)),
       'returning-member': () => sticky(retCta(demoOf().returningMember)),
       'first-deposit-bonus': () => sticky(fdCta(demoOf().firstDepositBonus)),
       'daily-reload': () => sticky(drCta(demoOf().dailyReload)),
@@ -3775,7 +3827,7 @@
     };
     const stickyHtml = selected === 0 && stickyFor[p.id] ? stickyFor[p.id]() : (p.id === 'anniversary' && selected === 2 ? sticky(anCta(demoOf().anniversary)) : '');
     const hero = p.banner ? `<div class="detail-hero">${banner(p)}</div>` : '';
-    const detailClass = ['newcomer-free-challenge', 'daily-wheel', 'vip-benefits', 'returning-member', 'first-deposit-bonus', 'daily-reload', 'newcomer', 'referral', 'growth', 'anniversary', 'maintenance'].includes(p.id) ? 'trial-detail promo-detail' + (p.banner === 'photo' ? ' has-photo-banner' : '') : '';
+    const detailClass = detailClassFor(p, stickyHtml);
     $('#app').innerHTML = `<article class="detail ${detailClass}"><button class="back-link" data-back>${icon('arrow')} 返回活动列表</button>${hero}<div class="detail-heading"><span class="badge">${p.badge}</span><h2>${p.title}</h2><p class="trial-prose">${p.secondary}</p></div><div class="activity-tabs" aria-label="活动内容">${p.tabs.map((t, i) => `<button data-tab="${i}" class="${i === selected ? 'active' : ''}" aria-pressed="${i === selected}">${t}</button>`).join('')}</div><div id="detail-content">${body}</div>${stickyHtml}<button class="support-link" data-support>需要帮助？联系客服</button>${footer()}</article>`;
     if (p.id === 'referral' && selected === 0 && $('#friend-search')) $('#friend-search').addEventListener('input', updateSearch);
   };
@@ -3790,6 +3842,19 @@
       // existing app.js also handles data-period; allow default
     }
   }, true);
+
+  const _handleActionFix12 = handleAction;
+  handleAction = function (name) {
+    if (name === 'enable-demo') {
+      if (typeof window.DemoMode !== 'undefined') window.DemoMode.set(true);
+      return;
+    }
+    if (name === 'need-demo' || (name && !isDemoOn() && /^(new-claim|invite)$/.test(name))) {
+      showNeedDemoPrompt();
+      return;
+    }
+    return _handleActionFix12(name);
+  };
 
   if (store()) {
     if (isDemoOn() && store().ensureBanner) store().ensureBanner();

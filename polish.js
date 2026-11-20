@@ -41,7 +41,7 @@
   window.lxReward = function (o) {
     const amt = Number(o.amount || 0);
     const parts = fmt(amt).split('.');
-    const cur = esc(o.currency || 'RM');
+    const cur = esc(o.currency || 'MYR');
     const rows = (o.rows || []).map(r => `<li><span>${esc(r[0])}</span><span class="lx-ba">${r.length > 2 ? `<s>${cur} ${fmt(r[1])}</s><i aria-hidden="true">→</i><b>${cur} ${fmt(r[2])}</b>` : `<b>${esc(r[1])}</b>`}</span></li>`).join('');
     const sparks = Array.from({ length: 14 }, (_, i) => `<i style="--a:${i * (360 / 14)}deg;--d:${(i % 3) * 40}ms"></i>`).join('');
     const html = `<div class="lx-reward">
@@ -93,7 +93,7 @@
   }
 
   /* ---------- DOM enhancement (idempotent) ---------- */
-  const NUM = /(RM\s?[\d,]+(?:\.\d+)?|\d+(?:\.\d+)?%|[x×]\s?\d+|\d+(?:,\d{3})*(?:\.\d+)?)/g;
+  const NUM = /(MYR\s?[\d,]+(?:\.\d+)?|\d+(?:\.\d+)?%|[x×]\s?\d+|\d+(?:,\d{3})*(?:\.\d+)?)/g;
   function wrapNumbers(p) {
     if (p.dataset.lxNum || p.querySelector('*')) return;
     const lang = document.documentElement.lang || 'zh-CN';
@@ -103,7 +103,7 @@
     if (!NUM.test(text)) return;
     NUM.lastIndex = 0;
     p.dataset.lxNum = '1';
-    p.innerHTML = esc(text).replace(NUM, m => `<span class="lx-num${/^RM/.test(m) ? ' is-money' : ''}">${m}</span>`);
+    p.innerHTML = esc(text).replace(NUM, m => `<span class="lx-num${/^MYR/.test(m) ? ' is-money' : ''}">${m}</span>`);
   }
   function enhance(root) {
     if (!root || !root.querySelectorAll) return;
@@ -134,11 +134,11 @@
       }
       const strong = hi && hi.querySelector('strong');
       if (strong && !reduce()) {
-        const m = strong.textContent.match(/RM\s?([\d,]+)\.(\d{2})/);
+        const m = strong.textContent.match(/MYR\s?([\d,]+)\.(\d{2})/);
         if (m) {
           const to = Number(m[1].replace(/,/g, ''));
           const t0 = performance.now();
-          const step = now => { const p = Math.min(1, (now - t0) / 900), e = 1 - Math.pow(1 - p, 3); strong.textContent = 'RM ' + Math.round(to * e).toLocaleString('en-US') + '.' + (p < 1 ? '00' : m[2]); if (p < 1) requestAnimationFrame(step); };
+          const step = now => { const p = Math.min(1, (now - t0) / 900), e = 1 - Math.pow(1 - p, 3); strong.textContent = 'MYR ' + Math.round(to * e).toLocaleString('en-US') + '.' + (p < 1 ? '00' : m[2]); if (p < 1) requestAnimationFrame(step); };
           requestAnimationFrame(step);
         }
       }
