@@ -541,6 +541,9 @@ RM188 现金已到主钱包。本活动仅限领取一次。|RM188 現金已到�
 兑换RM188到主钱包|兌換RM188到主錢包|Redeem RM188 to main wallet|Tebus RM188 ke dompet utama|Đổi RM188 vào ví chính|แลก RM188 เข้ากระเป๋าหลัก|Tebus RM188 ke dompet utama|RM188 मुख्य वॉलेट में रिडीम करें
 演示|示範|Demo|Demo|Demo|เดโม|Demo|डेमो
 演示模式|示範模式|Demo mode|Mod demo|Chế độ demo|โหมดสาธิต|Mode demo|डेमो मोड
+处理中|處理中|Processing|Sedang diproses|Đang xử lý|กำลังดำเนินการ|Memproses|प्रोसेस हो रहा है
+开奖中|開獎中|Drawing|Sedang cabutan|Đang quay thưởng|กำลังออกรางวัล|Sedang undian|ड्रॉ हो रहा है
+转盘转动中…|轉盤轉動中…|Spinning…|Roda sedang berputar…|Đang quay…|กำลังหมุน…|Roda berputar…|घूम रहा है…
 `;
 const UI_DICTIONARIES=Object.fromEntries(UI_LANGUAGES.map(([code])=>[code,{}]));
 for(const row of UI_TRANSLATION_ROWS.trim().split('\n')){const cells=row.split('|');if(cells.length!==8)throw new Error('Invalid locale row: '+cells[0]);UI_LANGUAGES.forEach(([code],i)=>UI_DICTIONARIES[code][cells[0]]=cells[i]);}

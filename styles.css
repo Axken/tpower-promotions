@@ -718,3 +718,115 @@ html.demo-off #demo-toast{display:none !important}
   .demo-toggle-ui:after{width:10px;height:10px}
   .demo-toggle input:checked + .demo-toggle-ui:after{transform:translateX(10px)}
 }
+
+
+/* fix9: restrained interaction — press, transitions, wheel/lottery play feel */
+:root{--fx-ease:cubic-bezier(.22,1,.36,1);--fx-press:.16s;--fx-move:.28s}
+button, .promo-card, .fd-option-card, .vip-benefit-card, .source-card, .category-nav button, .activity-tabs button, .records-button, .demo-toggle{
+  -webkit-tap-highlight-color:transparent;
+}
+button:not(:disabled):not(.icon-button), .promo-card, .fd-option-card, .vip-benefit-card, .source-card, [data-promo], [data-category]{
+  transition:transform var(--fx-press) var(--fx-ease), background-color .18s ease, border-color .18s ease, box-shadow .18s ease, filter .18s ease, opacity .18s ease;
+}
+button:not(:disabled):is(:active,.is-pressed):not(.activity-tabs button):not(.icon-button),
+.promo-card:active, .fd-option-card:active, .vip-benefit-card:active, .source-card:active, [data-promo]:active, [data-category]:active{
+  transform:scale(.97);
+  filter:brightness(.92);
+}
+@media(hover:hover) and (pointer:fine){
+  button.primary:hover:not(:disabled):not(.is-loading){transform:translateY(-1px)}
+  .promo-card:hover, .vip-benefit-card:hover, .fd-option-card:hover:not(.is-locked){transform:translateY(-2px)}
+  .promo-card:hover:active, button.primary:hover:active:not(:disabled){transform:scale(.97)}
+}
+button:focus-visible, .promo-card:focus-visible, .fd-option-card:focus-visible, .vip-benefit-card:focus-visible, .source-card:focus-visible, .demo-toggle input:focus-visible + .demo-toggle-ui{
+  outline:2px solid #f06779;
+  outline-offset:3px;
+}
+button.is-loading{pointer-events:none;opacity:.88;letter-spacing:.04em}
+.fx-spinner{display:inline-block;width:14px;height:14px;margin-right:8px;border:1.5px solid rgba(255,255,255,.28);border-top-color:#fff;border-radius:50%;vertical-align:-2px;animation:fxSpin .6s linear infinite}
+button.primary.is-loading{background-image:linear-gradient(110deg,transparent 40%,rgba(255,255,255,.14) 50%,transparent 60%);background-size:180% 100%;animation:fxShimmer .7s var(--fx-ease) infinite}
+@keyframes fxSpin{to{transform:rotate(360deg)}}
+@keyframes fxShimmer{from{background-position:120% 0}to{background-position:-40% 0}}
+
+.fd-option-card{position:relative}
+.fd-option-card.is-selected{box-shadow:0 0 0 1px #e12d3d55,0 0 18px #e12d3d22}
+.fd-option-card.is-selected:after{content:"✓";position:absolute;top:10px;right:12px;width:18px;height:18px;border-radius:50%;background:#b81f31;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;line-height:1;animation:fxCheckPop .28s var(--fx-ease)}
+@keyframes fxCheckPop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+
+.activity-tabs{position:relative}
+.activity-tabs.has-ink button.active:after{content:none}
+.fx-tab-ink{position:absolute;left:0;bottom:-1px;height:3px;border-radius:4px;background:#e12d3d;transform:translateX(0);width:0;pointer-events:none;transition:transform .24s var(--fx-ease),width .24s var(--fx-ease)}
+#detail-content.fx-tab-fade{animation:fxFade .22s var(--fx-ease)}
+
+@keyframes fxFade{from{opacity:0}to{opacity:1}}
+@keyframes fxEnterFwd{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes fxEnterBack{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+@keyframes fxLeaveFwd{to{opacity:0;transform:translateX(-14px)}}
+@keyframes fxLeaveBack{to{opacity:0;transform:translateX(14px)}}
+#app.fx-enter-fwd{animation:fxEnterFwd var(--fx-move) var(--fx-ease) both}
+#app.fx-enter-back{animation:fxEnterBack var(--fx-move) var(--fx-ease) both}
+#app.fx-enter-fade,#app.fx-demo-swap{animation:fxFade .26s var(--fx-ease) both}
+#app.fx-leave-fwd{animation:fxLeaveFwd .16s ease both}
+#app.fx-leave-back{animation:fxLeaveBack .16s ease both}
+
+.cards.fx-stagger .promo-card,.cards.fx-stagger .source-card{animation:fxRise .32s var(--fx-ease) both}
+.cards.fx-stagger .promo-card:nth-child(1),.cards.fx-stagger .source-card:nth-child(1){animation-delay:0ms}
+.cards.fx-stagger .promo-card:nth-child(2),.cards.fx-stagger .source-card:nth-child(2){animation-delay:40ms}
+.cards.fx-stagger .promo-card:nth-child(3),.cards.fx-stagger .source-card:nth-child(3){animation-delay:80ms}
+.cards.fx-stagger .promo-card:nth-child(4),.cards.fx-stagger .source-card:nth-child(4){animation-delay:120ms}
+.cards.fx-stagger .promo-card:nth-child(5),.cards.fx-stagger .source-card:nth-child(5){animation-delay:160ms}
+.cards.fx-stagger .promo-card:nth-child(n+6),.cards.fx-stagger .source-card:nth-child(n+6){animation-delay:200ms}
+@keyframes fxRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.journey-steps,.flow-steps{--fx-pct:0}
+.journey-steps .fx-rail,.flow-steps .fx-rail{position:absolute;left:8%;right:8%;top:11px;height:2px;background:transparent;pointer-events:none;z-index:0;overflow:hidden}
+.flow-steps .fx-rail{left:10%;right:10%;top:18px}
+.journey-steps .fx-rail i,.flow-steps .fx-rail i{display:block;height:100%;width:0;background:#b81f31;border-radius:2px;transition:width .32s var(--fx-ease)}
+.fx-dot-pop{animation:fxDotPop .28s var(--fx-ease)}
+@keyframes fxDotPop{0%{transform:scale(.7)}55%{transform:scale(1.12)}100%{transform:none}}
+.next-guide.fx-guide-swap{animation:fxFade .22s var(--fx-ease)}
+
+/* Wheel play feel */
+.wheel-stage{touch-action:none}
+.wheel-pointer{transform-origin:50% 0;transition:transform 80ms ease-out}
+.wheel-pointer.is-tick{animation:fxPointerTick 90ms ease-out}
+@keyframes fxPointerTick{0%{transform:translateX(-50%) rotate(0)}35%{transform:translateX(-50%) rotate(-16deg)}100%{transform:translateX(-50%) rotate(0)}}
+.lucky-wheel .wheel-label b{transform:translateX(-50%);text-shadow:0 1px 3px #000c}
+.wheel-label.is-winner b{color:#fff6d8;text-shadow:0 0 12px #f1c984,0 1px 3px #000c}
+.lucky-wheel.is-landed{box-shadow:0 0 0 6px #231318,0 0 0 10px #c9a96e88,0 10px 28px #0007}
+.fx-spin-count{font-variant-numeric:tabular-nums}
+
+/* Lottery rolling digits */
+.number-balls .fx-digit{display:inline-flex;align-items:center;justify-content:center;min-width:1.15em;overflow:hidden}
+.number-balls .fx-digit.is-rolling{opacity:.7}
+.number-balls .fx-digit.is-locked{animation:fxDigitLock .28s var(--fx-ease)}
+@keyframes fxDigitLock{from{transform:scale(1.18);color:#f1c984}to{transform:none}}
+.record-list li.is-hit{border-color:#c9a96e;box-shadow:0 0 0 1px #c9a96e66;animation:fxHitIn .4s var(--fx-ease)}
+@keyframes fxHitIn{from{transform:scale(.98);opacity:0}to{transform:none;opacity:1}}
+.slot-window.is-win span{animation:fxWinPulse .5s var(--fx-ease)}
+@keyframes fxWinPulse{0%{filter:brightness(1)}40%{filter:brightness(1.25)}100%{filter:brightness(1)}}
+
+html[data-skip-motion="1"] .fx-spinner,
+html[data-skip-motion="1"] button.primary.is-loading{animation:none}
+html[data-skip-motion="1"] #app,
+html[data-skip-motion="1"] #detail-content,
+html[data-skip-motion="1"] .cards .promo-card,
+html[data-skip-motion="1"] .next-guide,
+html[data-skip-motion="1"] .fx-dot-pop,
+html[data-skip-motion="1"] .fd-option-card.is-selected:after{animation:none!important;transition:none!important}
+
+@media(prefers-reduced-motion:reduce){
+  button:not(:disabled):is(:active,.is-pressed), .promo-card:active, .fd-option-card:active, .vip-benefit-card:active, .source-card:active, [data-promo]:active{
+    transform:none;filter:brightness(.94);
+  }
+  #app.fx-enter-fwd,#app.fx-enter-back,#app.fx-enter-fade,#app.fx-demo-swap,#app.fx-leave-fwd,#app.fx-leave-back,#detail-content.fx-tab-fade{
+    animation:fxFade .16s ease both;
+  }
+  .cards.fx-stagger .promo-card,.cards.fx-stagger .source-card,.fx-dot-pop,.fd-option-card.is-selected:after,.number-balls .fx-digit.is-locked,.record-list li.is-hit{
+    animation:fxFade .16s ease both;
+  }
+  .fx-tab-ink,.journey-steps .fx-rail i,.flow-steps .fx-rail i{transition-duration:.16s}
+  .lucky-wheel{transition:none!important}
+  .wheel-pointer.is-tick{animation:none}
+  .fx-spinner{animation:none;border-top-color:#fff}
+}

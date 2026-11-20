@@ -342,7 +342,11 @@
   }
   let demo = loadDemo();
   let demoTimer = 0;
-  const later = (fn, ms) => { clearTimeout(demoTimer); demoTimer = setTimeout(fn, ms); };
+  const later = (fn, ms) => {
+    clearTimeout(demoTimer);
+    const wait = window.TpowerMotion ? window.TpowerMotion.ms(ms, Math.min(80, ms || 0)) : ms;
+    demoTimer = setTimeout(fn, wait);
+  };
 
   function journeyIndex() {
     if (!demo.claimed) return 0;

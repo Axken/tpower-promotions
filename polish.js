@@ -1,6 +1,6 @@
 /* fix4: premium interaction layer — dialogs, reward moments, toasts, rules typography. Visual only; no business logic. */
 (() => {
-  const reduce = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduce = () => (window.TpowerMotion && window.TpowerMotion.reduce()) || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
   const fmt = n => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const svg = {

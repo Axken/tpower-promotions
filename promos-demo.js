@@ -420,6 +420,8 @@
       }
       store().save();
       renderNfcPlay();
+      const nfcWin = document.getElementById('nfc-slot-window');
+      if (nfcWin && step.delta > 0) nfcWin.classList.add('is-win');
       if (c.reachedTarget) {
         toast('试玩余额已达到 RM200');
         store().later(() => openModal(`<div class="goal-celebration"><div class="goal-burst" aria-hidden="true"></div><h2>恭喜达标</h2><p class="trial-prose">试玩余额达到RM200，即可兑换RM100现金奖励。</p><button type="button" class="primary" data-action="nfc-go-redeem">兑换RM100现金</button></div>`), 400);
@@ -480,11 +482,11 @@
   function dwPrizeTable() {
     return `<div class="table-wrap"><table class="prize-table"><thead><tr><th>转盘奖金</th><th>3倍流水要求</th></tr></thead><tbody>${WHEEL_SOURCE.prizes.map(n => `<tr${n === 888 ? ' class="first-prize"' : ''}><td>RM ${money(n)}</td><td>RM ${money(n * WHEEL_SOURCE.wagerMult)}</td></tr>`).join('')}</tbody></table></div>`;
   }
-  function dwWheelMarkup(w, rotating) {
+  function dwWheelMarkup(w, rotating, landedIndex) {
     const prizes = WHEEL_SOURCE.prizes;
     const angle = w.lastAngle || 0;
-    const labels = prizes.map((n, i) => `<div class="wheel-label" style="--i:${i};--spin:${angle}deg"><b>RM${n}</b></div>`).join('');
-    return `<div class="wheel-stage"><div class="wheel-pointer" aria-hidden="true"></div><div class="lucky-wheel${rotating ? ' is-spinning' : ''}" id="lucky-wheel" style="transform:rotate(${angle}deg)">${labels}</div></div>`;
+    const labels = prizes.map((n, i) => `<div class="wheel-label${landedIndex === i ? ' is-winner' : ''}" data-prize-index="${i}" style="--i:${i}"><b>RM${n}</b></div>`).join('');
+    return `<div class="wheel-stage"><div class="wheel-pointer" id="wheel-pointer" aria-hidden="true"></div><div class="lucky-wheel${rotating ? ' is-spinning' : ''}${!rotating && landedIndex >= 0 ? ' is-landed' : ''}" id="lucky-wheel" data-angle="${angle}" style="transform:rotate(${angle}deg)">${labels}</div></div>`;
   }
   window.renderDailyWheelDemo = function () {
     store().ensureBanner();
@@ -525,10 +527,11 @@
     const w = dwOf();
     const left = dwSpinsLeft(w);
     const rotating = !!w.spinning;
+    const landedIndex = !rotating && w.lastPrize ? WHEEL_SOURCE.prizes.indexOf(w.lastPrize) : -1;
     $('#app').innerHTML = page('幸运大转盘', `
-      ${dwWheelMarkup(w, rotating)}
+      ${dwWheelMarkup(w, rotating, landedIndex)}
       <div class="play-wallet">
-        <div><span>剩余抽奖</span><strong>${left} / 3</strong></div>
+        <div><span>剩余抽奖</span><strong class="fx-spin-count" data-spins="${left}">${left} / 3</strong></div>
         <div><span>活动彩金钱包</span><strong>RM ${money(w.bonusWallet || 0)}</strong></div>
       </div>
       ${w.lastPrize ? `<p class="fine-print center trial-prose">演示结果：RM ${money(w.lastPrize)}，非正式开奖，仅用于预览兑奖流程。</p>` : '<p class="fine-print center trial-prose">每次抽奖必定获得其中一档奖金。以下为演示结果，非正式开奖。</p>'}
@@ -1013,6 +1016,68 @@
       ${a.tickets.length >= 3 ? '<button type="button" class="primary" data-action="an-go-draw">演示开奖</button>' : ''}
     `, 'activity=anniversary');
     document.title = '累计有效流水 · TPOWER';
+  }
+
+  function startAnDraw() {
+    const demo = store().load();
+    const a = demo.anniversary;
+    if (!a.tickets.length || a.drawDone) return;
+    const finish = () => {
+      a.drawDone = true;
+      a.drawNumber = AN_DRAW;
+      let best = 0, name = '';
+      a.tickets.forEach(no => {
+        const hit = prizeMatch(no, a.drawNumber);
+        if (hit && hit[1] > best) { best = hit[1]; name = hit[0]; }
+      });
+      a.winAmount = best;
+      a.prizeName = name;
+      store().save();
+      renderAnDraw();
+      document.querySelectorAll('#app .record-list li').forEach((li, i) => {
+        const no = a.tickets[i];
+        if (no && prizeMatch(no, a.drawNumber)) li.classList.add('is-hit');
+      });
+      toast(best ? '已按演示开奖号码完成核对' : '未中奖');
+    };
+    const motion = window.TpowerMotion;
+    const balls = document.getElementById('an-draw-balls');
+    if (!balls || !motion || motion.skip() || motion.reduce() || motion.ms(480, 0) === 0) {
+      finish();
+      return;
+    }
+    if (balls.dataset.rolling === '1') return;
+    balls.dataset.rolling = '1';
+    const btn = document.querySelector('[data-action="an-draw-confirm"]');
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('is-loading');
+      btn.innerHTML = '<span class="fx-spinner" aria-hidden="true"></span><span>开奖中</span>';
+    }
+    if (motion.vibrate) motion.vibrate(10);
+    const digits = String(AN_DRAW).split('');
+    balls.innerHTML = digits.map((_, i) => '<span class="fx-digit is-rolling" data-i="' + i + '">0</span>').join('');
+    const els = [...balls.querySelectorAll('.fx-digit')];
+    const rollOne = (el, final, startAt) => new Promise(resolve => {
+      setTimeout(() => {
+        const t0 = performance.now();
+        const dur = motion.ms(520, 0) || 1;
+        const tick = now => {
+          const p = Math.min(1, (now - t0) / dur);
+          if (p >= 1) {
+            el.textContent = final;
+            el.classList.remove('is-rolling');
+            el.classList.add('is-locked');
+            resolve();
+            return;
+          }
+          el.textContent = String(Math.floor((now / 45) % 10));
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }, startAt);
+    });
+    Promise.all(els.map((el, i) => rollOne(el, digits[i], i * 180))).then(() => setTimeout(finish, 280));
   }
   function renderAnDraw() {
     const a = demoOf().anniversary;
@@ -1934,6 +1999,8 @@
       }
       store().save();
       renderRetPlay();
+      const retWin = document.getElementById('ret-slot-window');
+      if (retWin && step.delta > 0) retWin.classList.add('is-win');
       if (r.reachedTarget) {
         toast('试玩余额已达到 RM200');
         store().later(() => openModal(`<div class="goal-celebration"><div class="goal-burst" aria-hidden="true"></div><h2>恭喜达标</h2><p class="trial-prose">试玩余额达到RM200，即可兑换RM188现金奖励。</p><button type="button" class="primary" data-action="ret-go-redeem">兑换RM188现金</button></div>`), 400);
@@ -3180,18 +3247,7 @@
         navigate('demo=an-draw'); return true;
       case 'an-draw-confirm': {
         if (!a.tickets.length || a.drawDone) return true;
-        a.drawDone = true;
-        a.drawNumber = AN_DRAW;
-        let best = 0, name = '';
-        a.tickets.forEach(no => {
-          const hit = prizeMatch(no, a.drawNumber);
-          if (hit && hit[1] > best) { best = hit[1]; name = hit[0]; }
-        });
-        a.winAmount = best;
-        a.prizeName = name;
-        store().save();
-        toast(best ? '已按演示开奖号码完成核对' : '未中奖');
-        navigate('demo=an-draw');
+        startAnDraw();
         return true;
       }
       case 'an-go-claim':
@@ -3420,6 +3476,13 @@
     if (kind === 'merge') { toast('两笔各 RM80 不可合并计算抽奖次数，未获得抽奖机会。'); return; }
     if (kind === 'void') { toast('取消、退款或异常充值不产生抽奖机会。'); return; }
   }
+  function dwSpinEase(t) {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    if (t < 0.18) return (t / 0.18) * (t / 0.18) * 0.12;
+    const u = (t - 0.18) / 0.82;
+    return 0.12 + 0.88 * (1 - Math.pow(1 - u, 3));
+  }
   function runDwSpin() {
     const demo = store().load();
     const w = demo.dailyWheel;
@@ -3428,20 +3491,17 @@
     const prizeIndex = WHEEL_SOURCE.prizes.indexOf(prize);
     const from = w.lastAngle || 0;
     const target = dwTargetAngle(prizeIndex < 0 ? 0 : prizeIndex, from);
+    const motion = window.TpowerMotion;
+    const duration = motion && motion.spinMs ? motion.spinMs() : DW_SPIN_MS;
     w.spinning = true;
     store().save();
     renderDwSpin();
     const wheel = document.getElementById('lucky-wheel');
-    if (wheel) {
-      wheel.style.transition = 'none';
-      wheel.style.transform = 'rotate(' + from + 'deg)';
-      void wheel.offsetWidth;
-      wheel.style.transition = 'transform ' + (DW_SPIN_MS / 1000) + 's cubic-bezier(0.12, 0.7, 0.1, 1)';
-      wheel.style.transform = 'rotate(' + target + 'deg)';
-    }
+    const pointer = document.getElementById('wheel-pointer');
     const btn = document.getElementById('dw-spin-btn');
     if (btn) { btn.disabled = true; btn.textContent = '转盘转动中…'; }
-    store().later(() => {
+    if (window.TpowerMotion && window.TpowerMotion.vibrate) window.TpowerMotion.vibrate(10);
+    const finish = () => {
       const demo = store().load();
       const w = demo.dailyWheel;
       w.spinning = false;
@@ -3454,9 +3514,47 @@
       w.history = (w.history || []).concat([{ prize, need: prize * WHEEL_SOURCE.wagerMult, day: w.day || 1 }]);
       store().save();
       renderDwSpin();
-      if (window.lxReward) lxReward({ kicker: '演示结果 · 非正式开奖', title: '恭喜抽中', amount: prize, destPrefix: '已存入', dest: '活动彩金钱包', rows: [['活动彩金钱包', r2(w.bonusWallet - prize), w.bonusWallet], ['所需有效流水', 'RM ' + money(prize * WHEEL_SOURCE.wagerMult)]], note: '彩金完成3倍有效流水后可转换为现金。' });
-      else toast('演示结果：获得 RM ' + money(prize) + '，已进入活动彩金钱包（需完成 RM ' + money(prize * WHEEL_SOURCE.wagerMult) + ' 有效流水）');
-    }, DW_SPIN_MS);
+      const landed = document.getElementById('lucky-wheel');
+      if (landed) {
+        landed.dataset.landedPrize = String(prize);
+        landed.dataset.prizeIndex = String(prizeIndex < 0 ? 0 : prizeIndex);
+        landed.dataset.angle = String(target);
+      }
+      const show = () => {
+        if (window.lxReward) lxReward({ kicker: '演示结果 · 非正式开奖', title: '恭喜抽中', amount: prize, destPrefix: '已存入', dest: '活动彩金钱包', rows: [['活动彩金钱包', r2(w.bonusWallet - prize), w.bonusWallet], ['所需有效流水', 'RM ' + money(prize * WHEEL_SOURCE.wagerMult)]], note: '彩金完成3倍有效流水后可转换为现金。' });
+        else toast('演示结果：获得 RM ' + money(prize) + '，已进入活动彩金钱包（需完成 RM ' + money(prize * WHEEL_SOURCE.wagerMult) + ' 有效流水）');
+      };
+      const beat = motion ? motion.ms(280, 0) : 0;
+      if (beat) setTimeout(show, beat);
+      else show();
+    };
+    if (!wheel || duration <= 0) {
+      if (wheel) {
+        wheel.style.transition = 'none';
+        wheel.style.transform = 'rotate(' + target + 'deg)';
+      }
+      finish();
+      return;
+    }
+    wheel.style.transition = 'none';
+    wheel.style.transform = 'rotate(' + from + 'deg)';
+    let lastSeg = Math.floor(from / 60);
+    const t0 = performance.now();
+    const step = now => {
+      const p = Math.min(1, (now - t0) / duration);
+      const a = from + (target - from) * dwSpinEase(p);
+      wheel.style.transform = 'rotate(' + a + 'deg)';
+      const seg = Math.floor(a / 60);
+      if (pointer && seg !== lastSeg) {
+        lastSeg = seg;
+        pointer.classList.remove('is-tick');
+        void pointer.offsetWidth;
+        pointer.classList.add('is-tick');
+      }
+      if (p < 1) requestAnimationFrame(step);
+      else finish();
+    };
+    requestAnimationFrame(step);
   }
 
   document.addEventListener('click', e => {
