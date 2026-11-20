@@ -330,6 +330,7 @@
       if (/春节|中秋/.test(parsed.vipBenefits.festival || '')) parsed.vipBenefits.festival = '注册周年';
       if (parsed.vipBenefits.weeklyLoss == null) parsed.vipBenefits.weeklyLoss = 10000;
       if (!parsed.vipBenefits.rebateGame) parsed.vipBenefits.rebateGame = 'live';
+      if (Array.isArray(parsed.records)) parsed.records = parsed.records.filter(r => !/VIP会员专属福利|^VIP升级|^VIP季度|^VIP专属返水|^VIP每周|^VIP纪念/.test(String((r && r.title) || '')));
       parsed.returningMember = Object.assign(base.returningMember, parsed.returningMember || {});
       parsed.firstDepositBonus = Object.assign(base.firstDepositBonus, parsed.firstDepositBonus || {});
       parsed.dailyReload = Object.assign(base.dailyReload, parsed.dailyReload || {});
@@ -626,9 +627,16 @@
     }
   }
 
+  function isVipRecord(r) {
+    return /VIP会员专属福利|^VIP升级|^VIP季度|^VIP专属返水|^VIP每周|^VIP纪念/.test(String((r && r.title) || ''));
+  }
+  function visibleRecords() {
+    return (demo.records || []).filter(r => !isVipRecord(r));
+  }
   function renderRecords() {
-    const rows = demo.records.length
-      ? `<ul class="record-list">${demo.records.map(r => `<li><div><strong>${esc(r.title)}</strong><small>${formatRecordTime(r.time)}</small></div><div class="record-right"><b>MYR ${money(r.amount)}</b><span class="status-badge">${esc(r.status)}</span></div></li>`).join('')}</ul>`
+    const list = visibleRecords();
+    const rows = list.length
+      ? `<ul class="record-list">${list.map(r => `<li><div><strong>${esc(r.title)}</strong><small>${formatRecordTime(r.time)}</small></div><div class="record-right"><b>MYR ${money(r.amount)}</b><span class="status-badge">${esc(r.status)}</span></div></li>`).join('')}</ul>`
       : `<div class="compact-empty">${icon('receipt')}<h4>暂无领奖记录</h4><p>完成活动领奖后，记录将显示在这里。</p></div>`;
     $('#app').innerHTML = demoPage('领奖记录', `${rows}<p class="fine-print center">演示记录仅保存在本机浏览器中。</p>`, (() => { const id = currentRoute().get('activity'); return id ? 'activity=' + id : 'category=all'; })());
     document.title = '领奖记录 · TPOWER';
@@ -668,7 +676,6 @@
           <li><span>成长彩金</span><strong>${!demo.growth.started ? '未参加' : (demo.growth.expired && demo.growth.expired[demo.growth.tier]) ? '档位已失效' : demo.growth.claimed.every((v, i) => v >= (GROWTH_SOURCE.caps[i] || 0)) ? '已完成' : '进行中'}</strong></li>
           <li><span>周年抽奖</span><strong>${demo.anniversary.claimed ? '已领取' : demo.anniversary.expired ? '已作废' : demo.anniversary.tickets.length ? '进行中' : '未参加'}</strong></li>
           <li><span>维护补偿</span><strong>${demo.maintenance.completed ? '已领取' : !demo.maintenance.eligible ? '不符资格' : demo.maintenance.joined ? '进行中' : '未参加'}</strong></li>
-          <li><span>VIP福利</span><strong>${(demo.vipBenefits.history || []).length || demo.vipBenefits.pendingUpgrade || demo.vipBenefits.qualifyingBets || demo.vipBenefits.week > 1 ? '进行中' : '未参加'}</strong></li>
           <li><span>老会员回归</span><strong>${demo.returningMember.redeemed ? '已领取' : demo.returningMember.claimed ? '进行中' : '未参加'}</strong></li>
           <li><span>首存彩金</span><strong>${demo.firstDepositBonus.converted ? '已领取' : demo.firstDepositBonus.deposited || demo.firstDepositBonus.option ? '进行中' : '未参加'}</strong></li>
           <li><span>每日再存</span><strong>${demo.dailyReload.historyCount ? '已领取' : demo.dailyReload.deposited || demo.dailyReload.option ? '进行中' : '未参加'}</strong></li>

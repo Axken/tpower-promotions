@@ -215,13 +215,12 @@
       maintenance: () => ({ labels: MT_JOURNEY, current: mtIndex(demo.maintenance), finished: demo.maintenance.completed }),
       'newcomer-free-challenge': () => ({ labels: NFC_JOURNEY, current: nfcIndex(demo.freeChallenge), finished: demo.freeChallenge.redeemed }),
       'daily-wheel': () => ({ labels: DW_JOURNEY, current: dwIndex(demo.dailyWheel), finished: (demo.dailyWheel.converted || 0) > 0 && (demo.dailyWheel.bonusWallet || 0) <= 0 }),
-      'vip-benefits': () => ({ labels: VB_JOURNEY, current: vbIndex(demo.vipBenefits), finished: (demo.vipBenefits.history || []).length > 0 && vbPendingCount(demo.vipBenefits) === 0 }),
       'returning-member': () => ({ labels: RET_JOURNEY, current: retIndex(demo.returningMember), finished: demo.returningMember.redeemed }),
       'first-deposit-bonus': () => ({ labels: FD_JOURNEY, current: fdIndex(demo.firstDepositBonus), finished: demo.firstDepositBonus.converted }),
       'daily-reload': () => ({ labels: DR_JOURNEY, current: drIndex(demo.dailyReload), finished: (demo.dailyReload.historyCount || 0) > 0 && !demo.dailyReload.deposited })
     };
     if (map[id]) return map[id]();
-    const byScreen = { nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', vb: 'vip-benefits', ret: 'returning-member', fd: 'first-deposit-bonus', dr: 'daily-reload' };
+    const byScreen = { nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', ret: 'returning-member', fd: 'first-deposit-bonus', dr: 'daily-reload' };
     if (byScreen[prefix] && map[byScreen[prefix]]) return map[byScreen[prefix]]();
     return null;
   };
@@ -1316,7 +1315,7 @@
     refreshPromo();
   }
   function vbOfficialTable(currentLevel) {
-    const lv = arguments.length ? currentLevel : (isDemoOn() ? (vbOf() && vbOf().level) : null);
+    const lv = currentLevel;
     return `<section class="section-panel vip-level-panel">
       <div class="section-header"><h3>等级表</h3><span>连续 3 个月累计「存款 + 1倍流水」</span></div>
       <div class="table-wrap"><table class="prize-table vip-level-table">
@@ -1581,6 +1580,9 @@
   }
 
   function handleVipAction(name, demo) {
+    if (!name || !name.startsWith('vb-')) return false;
+    navigate('activity=vip-benefits');
+    return true;
     if (!name || !name.startsWith('vb-')) return false;
     const v = demo.vipBenefits;
     if (!v) return false;
@@ -2926,6 +2928,10 @@
 
 
   window.PromoRenderDemo = function (screen) {
+    if (String(screen || '').startsWith('vb-')) {
+      navigate('activity=vip-benefits');
+      return true;
+    }
     store().ensureBanner();
     store().load();
     const pages = {
@@ -3004,7 +3010,7 @@
     };
     if (gates[screen] && !gates[screen]()) {
       const back = {
-        nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', vb: 'vip-benefits', ret: 'returning-member', fd: 'first-deposit-bonus', dr: 'daily-reload'
+        nc: 'newcomer', ref: 'referral', gr: 'growth', an: 'anniversary', mt: 'maintenance', nfc: 'newcomer-free-challenge', dw: 'daily-wheel', ret: 'returning-member', fd: 'first-deposit-bonus', dr: 'daily-reload'
       }[screen.split('-')[0]];
       navigate('activity=' + back);
       return true;
@@ -3773,7 +3779,6 @@
     let body;
     if (selected === 1) body = rules(p);
     else if (selected === 2 && p.id === 'anniversary') body = (typeof _publicTickets === 'function' ? _publicTickets() : (typeof _tickets === 'function' ? _tickets() : tickets()));
-    else if (selected === 2 && p.id === 'vip-benefits') body = `<div class="compact-empty">${icon('receipt')}<h4>暂无奖励记录</h4><p class="trial-prose">升级奖金、季度等级奖金、返水、每周救援金或纪念奖金发放后，记录将显示在这里。</p></div><button type="button" class="outline-wide" data-tab="0">返回活动详情</button>`;
     else if (selected === 2) body = (typeof _publicTickets === 'function' ? _publicTickets() : '');
     else body = publicBody(p.id);
     const stickyHtml = selected === 0 ? publicSticky(p.id) : '';
@@ -3786,6 +3791,10 @@
   const _renderDetail = renderDetail;
   window.renderDetail = function (p, tabIndex = 0) {
     if (p.readOnly) { renderSourceDocument(p); return; }
+    if (p.id === 'vip-benefits') {
+      renderPublicDetail(p, tabIndex);
+      return;
+    }
     if (!isDemoOn()) {
       if (store() && store().removeBanner) store().removeBanner();
       renderPublicDetail(p, tabIndex);
@@ -3802,7 +3811,6 @@
       maintenance: window.renderMaintenanceDemo,
       'newcomer-free-challenge': window.renderFreeChallengeDemo,
       'daily-wheel': window.renderDailyWheelDemo,
-      'vip-benefits': window.renderVipBenefitsDemo,
       'returning-member': window.renderReturningMemberDemo,
       'first-deposit-bonus': window.renderFirstDepositDemo,
       'daily-reload': window.renderDailyReloadDemo
@@ -3810,7 +3818,6 @@
     let body;
     if (selected === 1) body = rules(p);
     else if (selected === 2 && p.id === 'anniversary') body = window.renderAnniversaryTickets();
-    else if (selected === 2 && p.id === 'vip-benefits') body = window.renderVipRecordsPanel();
     else if (selected === 2) body = tickets();
     else body = (pages[p.id] || (() => ''))();
     const stickyFor = {

@@ -4,7 +4,7 @@ const CATEGORIES=[['all','全部活动','gift'],['new','新人豪礼','adduser']
 const PROMOS=[
 {id:'newcomer-free-challenge',title:'新人免费挑战赢取MYR100',fullTitle:'新人免费挑战赢取MYR100',category:'new',tag:'新人挑战',banner:'photo',summary:'免费MYR100试玩，达标兑换MYR100现金',secondary:'完成试玩挑战后，兑换现金奖励。',badge:'新注册会员 · 终身限领一次',tabs:['活动详情','活动规则']},
 {id:'daily-wheel',title:'每日幸运大转盘MYR888',fullTitle:'每日幸运大转盘MYR888',category:'surprise',tag:'每日转盘',banner:'photo',summary:'每日最多3次免费抽奖，最高赢取MYR888',secondary:'单笔充值满MYR100或以上获得1次抽奖，每天最多3次。次数每日更新，彩金需完成3倍流水后转现金。',badge:'每日转盘',tabs:['活动详情','活动规则']},
-{id:'vip-benefits',title:'VIP会员专属福利',fullTitle:'VIP会员专属福利',category:'vip',tag:'VIP专属',banner:'photo',summary:'会员等级越高，享有对应VIP权益',secondary:'会员等级越高，享有对应VIP权益。',badge:'五大专属福利',tabs:['活动详情','活动规则','我的记录']},
+{id:'vip-benefits',title:'VIP会员专属福利',fullTitle:'VIP会员专属福利',category:'vip',tag:'VIP专属',banner:'photo',summary:'会员等级越高，享有对应VIP权益',secondary:'会员等级越高，享有对应VIP权益。',badge:'五大专属福利',tabs:['活动详情','活动规则']},
 {id:'newcomer',title:'新人专享挑战',fullTitle:'Tpower新人专享挑战活动',category:'new',tag:'新人专享',banner:'new',summary:'实名认证领取 MYR88',secondary:'完成挑战，充值解锁最高 MYR1,888',badge:'每位新会员限一次',tabs:['活动详情','活动规则']},
 {id:'referral',title:'邀请好友挑战，赚取高达MYR1,000',fullTitle:'邀请好友挑战，赚取高达MYR1,000',category:'invite',tag:'邀请好友',banner:'invite',summary:'每成功邀请一名好友，最高累计赚取MYR1,000',secondary:'好友完成指定任务后，系统自动解锁对应邀请奖励。',badge:'每名好友最高 MYR1,000',tabs:['我的邀请','活动规则']},
 {id:'growth',title:'成长彩金200%扶持计划',fullTitle:'成长彩金200%扶持计划',category:'growth',tag:'成长彩金',banner:'growth',summary:'首充200% · 最高 MYR5,888',secondary:'随着有效投注逐步解锁奖励，领取后无需额外流水。',badge:'五个奖励档位',tabs:['成长进度','活动规则']},
