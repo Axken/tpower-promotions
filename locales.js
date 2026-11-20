@@ -110,6 +110,7 @@ TPOWER · 活动页面交互预览|TPOWER · 活動頁面互動預覽|TPOWER · 
 领取前请确认|領取前請確認|Confirm before claiming|Sahkan sebelum menuntut|Xác nhận trước khi nhận|ยืนยันก่อนรับ|Konfirmasi sebelum klaim|प्राप्त करने से पहले पुष्टि करें
 活动奖励|活動獎勵|Reward|Ganjaran|Phần thưởng|รางวัล|Hadiah|पुरस्कार
 参与条件|參與條件|Eligibility|Syarat|Điều kiện|เงื่อนไข|Syarat|पात्रता
+当前状态|當前狀態|Current status|Status semasa|Trạng thái hiện tại|สถานะปัจจุบัน|Status saat ini|वर्तमान स्थिति
 重要条款|重要條款|Important terms|Terma penting|Điều khoản quan trọng|ข้อกำหนดสำคัญ|Ketentuan penting|महत्वपूर्ण शर्तें
 按活动原文整理|按活動原文整理|Based on official rules|Berdasarkan peraturan rasmi|Theo thể lệ gốc|อ้างอิงกติกาอย่างเป็นทางการ|Berdasarkan aturan resmi|आधिकारिक नियमों पर आधारित
 去实名认证|去實名認證|Complete verification|Sahkan identiti|Xác minh danh tính|ยืนยันตัวตน|Verifikasi identitas|सत्यापन पूरा करें
