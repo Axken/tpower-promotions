@@ -948,3 +948,19 @@ html[data-skip-motion="1"] .fd-option-card.is-selected:after{animation:none!impo
   .vip-level-card{padding:14px 13px 12px}
   .vip-hi-val{font-size:15px}
 }
+
+
+/* fix15: journey groups on the activity list */
+.promo-group{margin:0 0 22px}
+.promo-group-head{margin:0 0 10px}
+.promo-group-head h3{margin:0;font-size:15px;font-weight:650;letter-spacing:.04em}
+.promo-group-hint{margin:4px 0 0;color:var(--muted,#a09b9d);font-size:12px;line-height:1.45}
+.promo-lock{text-align:left}
+.promo-lock h3{margin:0 0 6px;font-size:15px}
+.promo-lock p{margin:0 0 12px;color:var(--muted,#a09b9d);font-size:13px;line-height:1.55}
+@media(min-width:601px){
+  .category-nav button{min-height:72px;gap:6px;font-size:13px}
+  .category-nav svg{width:24px;height:24px}
+}
+.promo-giveup{margin-top:8px}
+

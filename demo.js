@@ -245,6 +245,7 @@
       turnover: 0,
       turnoverNeed: 0,
       converted: false,
+      givenUp: false,
       overlap: false
     };
   }
@@ -330,7 +331,7 @@
       if (/春节|中秋/.test(parsed.vipBenefits.festival || '')) parsed.vipBenefits.festival = '注册周年';
       if (parsed.vipBenefits.weeklyLoss == null) parsed.vipBenefits.weeklyLoss = 10000;
       if (!parsed.vipBenefits.rebateGame) parsed.vipBenefits.rebateGame = 'live';
-      if (Array.isArray(parsed.records)) parsed.records = parsed.records.filter(r => !/VIP会员专属福利|^VIP升级|^VIP季度|^VIP专属返水|^VIP每周|^VIP纪念/.test(String((r && r.title) || '')));
+      if (Array.isArray(parsed.records)) parsed.records = parsed.records.filter(r => !/VIP会员专属福利|^VIP升级|^VIP季度|^VIP专属返水|^VIP每周|^VIP纪念|维护补偿/.test(String((r && r.title) || '')));
       parsed.returningMember = Object.assign(base.returningMember, parsed.returningMember || {});
       parsed.firstDepositBonus = Object.assign(base.firstDepositBonus, parsed.firstDepositBonus || {});
       parsed.dailyReload = Object.assign(base.dailyReload, parsed.dailyReload || {});
@@ -592,7 +593,7 @@
       demo.mainWallet = 100;
       demo.records.unshift({
         id: 'trial-cash-' + now.getTime(),
-        title: '新人免费挑战赢取MYR100',
+        title: '免费试玩赢MYR100',
         amount: 100,
         status: '已到账',
         time: now.toISOString()
@@ -658,12 +659,11 @@
         <div class="wallet-card trial"><span>试玩钱包</span><strong>MYR ${money(demo.trialBalance)}</strong></div>
       </div>
       ${demo.freeChallenge.claimed ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>免费挑战试玩钱包</span><strong>MYR ${money(demo.freeChallenge.trialBalance)}</strong></div></div>` : ''}
-      ${demo.returningMember.claimed ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>老会员回归试玩钱包</span><strong>MYR ${money(demo.returningMember.trialBalance)}</strong></div></div>` : ''}
+      ${demo.returningMember.claimed ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>老用户回归试玩钱包</span><strong>MYR ${money(demo.returningMember.trialBalance)}</strong></div></div>` : ''}
       ${demo.firstDepositBonus.deposited && !demo.firstDepositBonus.converted ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>首存活动钱包</span><strong>MYR ${money((demo.firstDepositBonus.depositAmount||0)+(demo.firstDepositBonus.bonus||0))}</strong></div></div>` : ''}
       ${demo.dailyReload.deposited ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>再存活动钱包</span><strong>MYR ${money((demo.dailyReload.depositAmount||0)+(demo.dailyReload.bonus||0))}</strong></div></div>` : ''}
       ${demo.dailyWheel.bonusWallet > 0 || demo.dailyWheel.converted > 0 ? `<div class="wallet-pair compact"><div class="wallet-card trial"><span>活动彩金钱包</span><strong>MYR ${money(demo.dailyWheel.bonusWallet)}</strong></div></div>` : ''}
       ${demo.newcomer.claimed && !demo.newcomer.completed ? `<div class="wallet-pair compact"><div class="wallet-card"><span>挑战活动余额</span><strong>MYR ${money(demo.newcomer.deposited ? demo.newcomer.walletTotal : demo.newcomer.bonus)}</strong></div></div>` : ''}
-      ${demo.maintenance.joined && !demo.maintenance.completed ? `<div class="wallet-pair compact"><div class="wallet-card"><span>维护活动分</span><strong>${money(demo.maintenance.points)}</strong></div></div>` : ''}
       <section class="section-panel">
         <div class="section-header"><h3>账户状态</h3><span class="demo-badge">演示模式</span></div>
         <ul class="kyc-summary">
@@ -675,9 +675,8 @@
           <li><span>邀请挑战</span><strong>${demo.referral.unlocked > 0 ? '已解锁' : demo.referral.friends.length ? '进行中' : '未参加'}</strong></li>
           <li><span>成长彩金</span><strong>${!demo.growth.started ? '未参加' : (demo.growth.expired && demo.growth.expired[demo.growth.tier]) ? '档位已失效' : demo.growth.claimed.every((v, i) => v >= (GROWTH_SOURCE.caps[i] || 0)) ? '已完成' : '进行中'}</strong></li>
           <li><span>周年抽奖</span><strong>${demo.anniversary.claimed ? '已领取' : demo.anniversary.expired ? '已作废' : demo.anniversary.tickets.length ? '进行中' : '未参加'}</strong></li>
-          <li><span>维护补偿</span><strong>${demo.maintenance.completed ? '已领取' : !demo.maintenance.eligible ? '不符资格' : demo.maintenance.joined ? '进行中' : '未参加'}</strong></li>
-          <li><span>老会员回归</span><strong>${demo.returningMember.redeemed ? '已领取' : demo.returningMember.claimed ? '进行中' : '未参加'}</strong></li>
-          <li><span>首存彩金</span><strong>${demo.firstDepositBonus.converted ? '已领取' : demo.firstDepositBonus.deposited || demo.firstDepositBonus.option ? '进行中' : '未参加'}</strong></li>
+          <li><span>老用户回归</span><strong>${demo.returningMember.redeemed ? '已领取' : demo.returningMember.claimed ? '进行中' : '未参加'}</strong></li>
+          <li><span>首存彩金</span><strong>${demo.firstDepositBonus.givenUp ? '已放弃' : demo.firstDepositBonus.converted ? '已领取' : demo.firstDepositBonus.deposited || demo.firstDepositBonus.option ? '进行中' : '未参加'}</strong></li>
           <li><span>每日再存</span><strong>${demo.dailyReload.historyCount ? '已领取' : demo.dailyReload.deposited || demo.dailyReload.option ? '进行中' : '未参加'}</strong></li>
         </ul>
       </section>

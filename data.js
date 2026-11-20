@@ -1,18 +1,26 @@
 // Content transcribed from the user's 14 screenshots (IMG_4080–IMG_4093).
 // These are presentation snapshots, never a live member account or live draw result.
-const CATEGORIES=[['all','全部活动','gift'],['new','新人豪礼','adduser'],['growth','充值加码','cash'],['surprise','惊喜福利','gift'],['vip','VIP尊享','crown'],['invite','邀友赚礼','friends']];
+const CATEGORIES=[['all','全部活动','gift'],['free','新人免费','adduser'],['first','首次充值','cash'],['daily','每日存款','calendar'],['invite','邀请好友','friends'],['turnover','投注流水','slot'],['returning','老用户','user'],['vip','VIP权益','crown']];
+const PROMO_GROUPS=[
+  {id:'free',title:'新人免费',hint:'每个活动限领一次，可都参加，先后不限',ids:['newcomer-free-challenge','newcomer']},
+  {id:'first',title:'首次充值',hint:'第1笔启动成长彩金，第2笔领首存',ids:['growth','first-deposit-bonus']},
+  {id:'daily',title:'每日存款',hint:'完成或放弃首存后开启，同笔充值可分开领',ids:['daily-wheel','daily-reload']},
+  {id:'invite',title:'邀请好友',hint:'邀请好友完成任务后解锁奖励',ids:['referral']},
+  {id:'turnover',title:'投注流水',hint:'有效流水满额即可获得抽奖券',ids:['anniversary']},
+  {id:'returning',title:'老用户专属',hint:'连续7天或以上未上线可参加',ids:['returning-member']},
+  {id:'vip',title:'VIP权益',hint:'查看各等级福利',ids:['vip-benefits']}
+];
 const PROMOS=[
-{id:'newcomer-free-challenge',title:'新人免费挑战赢取MYR100',fullTitle:'新人免费挑战赢取MYR100',category:'new',tag:'新人挑战',banner:'photo',summary:'免费MYR100试玩，达标兑换MYR100现金',secondary:'完成试玩挑战后，兑换现金奖励。',badge:'新注册会员 · 终身限领一次',tabs:['活动详情','活动规则']},
-{id:'daily-wheel',title:'每日幸运大转盘MYR888',fullTitle:'每日幸运大转盘MYR888',category:'surprise',tag:'每日转盘',banner:'photo',summary:'每日最多3次免费抽奖，最高赢取MYR888',secondary:'单笔充值满MYR100或以上获得1次抽奖，每天最多3次。次数每日更新，彩金需完成3倍流水后转现金。',badge:'每日转盘',tabs:['活动详情','活动规则']},
-{id:'vip-benefits',title:'VIP会员专属福利',fullTitle:'VIP会员专属福利',category:'vip',tag:'VIP专属',banner:'photo',summary:'会员等级越高，享有对应VIP权益',secondary:'会员等级越高，享有对应VIP权益。',badge:'五大专属福利',tabs:['活动详情','活动规则']},
-{id:'newcomer',title:'新人专享挑战',fullTitle:'Tpower新人专享挑战活动',category:'new',tag:'新人专享',banner:'new',summary:'实名认证领取 MYR88',secondary:'完成挑战，充值解锁最高 MYR1,888',badge:'每位新会员限一次',tabs:['活动详情','活动规则']},
-{id:'referral',title:'邀请好友挑战，赚取高达MYR1,000',fullTitle:'邀请好友挑战，赚取高达MYR1,000',category:'invite',tag:'邀请好友',banner:'invite',summary:'每成功邀请一名好友，最高累计赚取MYR1,000',secondary:'好友完成指定任务后，系统自动解锁对应邀请奖励。',badge:'每名好友最高 MYR1,000',tabs:['我的邀请','活动规则']},
-{id:'growth',title:'成长彩金200%扶持计划',fullTitle:'成长彩金200%扶持计划',category:'growth',tag:'成长彩金',banner:'growth',summary:'首充200% · 最高 MYR5,888',secondary:'随着有效投注逐步解锁奖励，领取后无需额外流水。',badge:'五个奖励档位',tabs:['成长进度','活动规则']},
-{id:'anniversary',title:'3周年幸运大抽奖',fullTitle:'3周年幸运大抽奖',category:'surprise',tag:'周年抽奖',banner:'anniversary',summary:'头奖 MYR100,000',secondary:'累积有效流水即可获得抽奖券。',badge:'第3期',tabs:['活动详情','活动规则','我的抽奖券']},
-{id:'maintenance',title:'维护补偿 · 100分挑战',fullTitle:'维护补偿 · 100分挑战领MYR100',category:'surprise',tag:'维护补偿',banner:'maintenance',summary:'挑战完成领取 MYR100 现金',secondary:'100活动分达到200分后，手动领取',badge:'每人限参加一次',tabs:['活动详情','活动规则']},
-{id:'returning-member',title:'老会员回归，免费赢取MYR188',fullTitle:'老会员回归，免费赢取MYR188',category:'surprise',tag:'老会员回归',banner:'photo',summary:'免费MYR100试玩，达标兑换MYR188现金',secondary:'完成试玩挑战后，兑换现金奖励。',badge:'老会员 · 仅限领取一次',tabs:['活动详情','活动规则']},
-{id:'first-deposit-bonus',title:'新人首存彩金100%',fullTitle:'新人首存彩金100%',category:'new',tag:'首存彩金',banner:'photo',summary:'首次充值最高领取MYR300彩金',secondary:'可选老虎机 100% 或真人 50% 两种首存优惠，最高领取 MYR300 彩金。',badge:'首次充值',tabs:['活动详情','活动规则']},
-{id:'daily-reload',title:'每日再存10%彩金',fullTitle:'每日再存10%彩金',category:'growth',tag:'每日再存',banner:'photo',summary:'每日再存额外领取10%，最高MYR300',secondary:'已完成首次充值的会员，再存可额外领取 10% 彩金。',badge:'每日再存 · 不限次数',tabs:['活动详情','活动规则']}
+{id:'newcomer-free-challenge',title:'免费试玩赢MYR100',fullTitle:'免费试玩赢MYR100',category:'free',tag:'免费试玩',banner:'photo',summary:'免费MYR100试玩，达标兑换MYR100现金',secondary:'完成试玩挑战后，兑换现金奖励。',badge:'新注册会员 · 终身限领一次',tabs:['活动详情','活动规则']},
+{id:'newcomer',title:'新人专享挑战',fullTitle:'新人专享挑战',category:'free',tag:'新人专享',banner:'new',summary:'实名认证领取 MYR88',secondary:'完成挑战，充值解锁最高 MYR1,888，并启动成长彩金200%。',badge:'每位新会员限一次',tabs:['活动详情','活动规则']},
+{id:'growth',title:'成长彩金200%',fullTitle:'成长彩金200%',category:'first',tag:'成长彩金',banner:'growth',summary:'首充200% · 最高 MYR5,888',secondary:'第一笔有效充值启动计划，随着有效投注逐步解锁奖励，领取后无需额外流水。',badge:'五个奖励档位',tabs:['成长进度','活动规则']},
+{id:'first-deposit-bonus',title:'新人首存彩金100%',fullTitle:'新人首存彩金100%',category:'first',tag:'首存彩金',banner:'photo',summary:'老虎机100%或真人50%，最高MYR300',secondary:'成长彩金启动后的下一笔充值可领。可选老虎机 100% 或真人 50% 两种优惠，最高领取 MYR300 彩金。',badge:'限领一次',tabs:['活动详情','活动规则']},
+{id:'daily-wheel',title:'每日转盘赢MYR888',fullTitle:'每日转盘赢MYR888',category:'daily',tag:'每日转盘',banner:'photo',summary:'每日最多3次免费抽奖，最高赢取MYR888',secondary:'完成或放弃首存后开启。单笔充值满MYR100或以上获得1次抽奖，每天最多3次。',badge:'每日最多3次',tabs:['活动详情','活动规则']},
+{id:'daily-reload',title:'每日再存10%彩金',fullTitle:'每日再存10%彩金',category:'daily',tag:'每日再存',banner:'photo',summary:'每日再存额外领取10%，最高MYR300',secondary:'完成或放弃首存后开启。每笔再存可额外领取 10% 彩金，一次充值一次领取。',badge:'每日再存 · 不限次数',tabs:['活动详情','活动规则']},
+{id:'referral',title:'邀请好友赚MYR1,000',fullTitle:'邀请好友赚MYR1,000',category:'invite',tag:'邀请好友',banner:'invite',summary:'每成功邀请一名好友，最高累计赚取MYR1,000',secondary:'好友完成指定任务后，系统自动解锁对应邀请奖励。',badge:'每名好友最高 MYR1,000',tabs:['我的邀请','活动规则']},
+{id:'anniversary',title:'3周年幸运大抽奖',fullTitle:'3周年幸运大抽奖',category:'turnover',tag:'周年抽奖',banner:'anniversary',summary:'头奖 MYR100,000',secondary:'累积有效流水即可获得抽奖券。',badge:'第3期',tabs:['活动详情','活动规则','我的抽奖券']},
+{id:'returning-member',title:'老用户回归赢MYR188',fullTitle:'老用户回归赢MYR188',category:'returning',tag:'老用户回归',banner:'photo',summary:'免费MYR100试玩，达标兑换MYR188现金',secondary:'连续7天或以上未上线的会员，完成试玩挑战后兑换现金奖励。',badge:'连续7天未上线 · 限领一次',tabs:['活动详情','活动规则']},
+{id:'vip-benefits',title:'VIP会员专属福利',fullTitle:'VIP会员专属福利',category:'vip',tag:'VIP专属',banner:'photo',summary:'会员等级越高，享有对应VIP权益',secondary:'会员等级越高，享有对应VIP权益。',badge:'五大专属福利',tabs:['活动详情','活动规则']}
 ];
 const NEW_STEPS=[
 {title:'领取',heading:'实名认证后领取 MYR88',short:'完成 KYC',text:'完成 KYC 实名认证后，可领取 MYR88 活动金；活动金只能用于指定游戏。'},
@@ -22,7 +30,7 @@ const NEW_STEPS=[
 {title:'完成',heading:'彩金转入真钱钱包',short:'本金另需1倍流水',text:'充值彩金完成12倍流水后发放至真钱钱包；本金还需完成1倍流水，然后按照 Tpower 提款规则申请提款。'}
 ];
 const NEW_RULES=[
-['谁可以参加',['每位新会员只能参加一次。','必须完成 KYC 实名认证；相同真实姓名与手机号码不能重复参与。']],
+['谁可以参加',['每位新会员只能参加一次。','可与「免费试玩赢MYR100」同时参加，先后顺序不限。','必须完成 KYC 实名认证；相同真实姓名与手机号码不能重复参与。']],
 ['领取与5倍流水',['实名认证后领取 MYR88 活动金，只能用于指定游戏。','仅计算指定游戏商有效投注，第一阶段需完成 MYR88 × 5 = MYR440 流水。']],
 ['充值解锁彩金',['完成 MYR440 流水后，以剩余余额作为可解锁彩金；充值对应金额，按1:1解锁，最高 MYR1,888。','须在48小时内完成充值，最低 MYR10；只有一次充值解锁机会。逾期未充值，解锁资格自动失效。','此充值会同时激活成长彩金计划奖励。','原规则示例：余额 MYR500，充值 MYR500 → 解锁 MYR500；余额 MYR1,000，充值 MYR600 → 解锁 MYR600；余额 MYR2,000，充值 MYR2,000 → 最高解锁 MYR1,888。']],
 ['12倍流水与提款',['解锁充值彩金后，继续在指定游戏商投注。钱包总金额须完成12倍有效流水。','原规则示例：钱包原余额 MYR50 + MYR100 充值彩金 = MYR150；所需有效流水 MYR150 × 12 = MYR1,800。','充值彩金完成12倍流水后，发放至真钱钱包。本金再完成1倍流水后，按 Tpower 提款规则申请提款。','活动期间不能提款、不能转账。']],
@@ -59,7 +67,7 @@ const TRIAL_SOURCE={
  terms:[
   '达标兑换后，试玩额度及剩余试玩余额自动清零。',
   '试玩额度不可直接充值、转账或提款。',
-  '每位符合资格的会员终身限领一次。',
+  '每位符合资格的会员终身限领一次。','可与「新人专享挑战」同时参加，先后顺序不限。',
   '未达MYR200目标，不可兑换部分奖励。'
  ]
 };
@@ -82,7 +90,7 @@ const CHALLENGE_SOURCE={
   terms:[
     '达标兑换后，试玩额度及剩余试玩余额自动清零。',
     '试玩额度不可直接充值、转账或提款。',
-    '每位符合资格的会员终身限领一次。',
+    '每位符合资格的会员终身限领一次。','可与「新人专享挑战」同时参加，先后顺序不限。',
     '未达MYR200目标，不可兑换部分奖励。'
   ]
 };
@@ -96,6 +104,8 @@ const CHALLENGE_RULES=[
 const WHEEL_SOURCE={
   reward:'每日最多3次免费抽奖，最高赢取MYR888',
   eligibility:[
+    '完成或放弃「新人首存彩金100%」后开启。成长彩金的第一笔充值不计入抽奖次数。',
+    '每次符合资格的充值会同时激活每日再存和每日转盘，可分开领取。',
     '每成功充值一笔满MYR100或以上，即可获得1次免费抽奖机会。',
     '每名会员每日最多获得3次抽奖机会。',
     '充值不可合并计算抽奖次数。',
@@ -198,7 +208,7 @@ const RETURNING_SOURCE={
     '每位合格会员仅可领取一次。'
   ],
   steps:[
-    {title:'进入活动',heading:'进入老会员回归活动页面',text:'进入老会员回归活动页面。'},
+    {title:'进入活动',heading:'进入老用户回归活动页面',text:'进入老用户回归活动页面。'},
     {title:'领取额度',heading:'免费领取MYR100试玩额度',text:'免费领取MYR100试玩额度。'},
     {title:'去试玩',heading:'在指定游戏内进行试玩',text:'在指定游戏内进行试玩。'},
     {title:'达标余额',heading:'试玩余额达到MYR200',text:'试玩余额达到MYR200。'},
@@ -209,11 +219,8 @@ const RETURNING_SOURCE={
     '每位会员仅限领取一次。',
     '试玩额度不得直接提款、转让或充值。',
     '未达到MYR200不可兑换奖励。',
-    '兑换后试玩额度自动清零。',
-    '此活动与新人免费挑战赢取MYR100互斥，不允许同一会员重复领取两种免费试玩奖励。'
-  ],
-  exclusion:'此活动与新人免费挑战赢取MYR100互斥，不允许同一会员重复领取两种免费试玩奖励。',
-  exclusionNote:'演示中，该互斥规则适用于「新人免费挑战赢取MYR100」。'
+    '兑换后试玩额度自动清零。'
+  ]
 };
 const RETURNING_RULES=[
   ['活动奖励',[RETURNING_SOURCE.reward]],
@@ -231,7 +238,7 @@ const FIRST_DEPOSIT_SOURCE={
   ],
   amounts:[100,300,500],
   rules:[
-    '仅限会员首次成功充值。',
+    '本活动在成长彩金200%启动后的下一笔充值领取。',
     '每位会员只能领取一次首存彩金。',
     '玩家根据指定游戏类别选择其中一个首存优惠。',
     '彩金根据实际充值金额及活动比例计算。',
@@ -240,7 +247,8 @@ const FIRST_DEPOSIT_SOURCE={
     '首存优惠不得重复领取。',
     '每个会员只能选择一种首存彩金。',
     '同一充值不可同时领取老虎机及真人两种优惠。',
-    '此活动不能与其他充值活动重叠。'
+    '领取本活动彩金，或放弃本活动后，才会开启每日再存10%彩金和每日转盘赢MYR888。',
+    '可放弃本活动，直接开启每日优惠；放弃后不能再领取本活动。'
   ]
 };
 const FIRST_DEPOSIT_RULES=[
@@ -258,15 +266,15 @@ const DAILY_RELOAD_SOURCE={
   ],
   amounts:[500,1000,3000],
   rules:[
-    '适用于已完成首次充值的会员。',
-    '每日进行符合资格的再存，即可领取10%彩金。每日不限领取次数，每笔符合资格的再存均可单独领取。',
+    '完成或放弃「新人首存彩金100%」后开启。成长彩金的第一笔充值不计入每日再存。',
+    '每次符合资格的充值会同时激活每日再存和每日转盘，可分开领取。',
+    '每日进行符合资格的再存，即可领取10%彩金。每日不限领取次数，每笔符合资格的再存均可单独领取。一次充值一次领取，不叠加。',
     '彩金按照实际充值金额计算，不超过对应类别上限（按单笔再存计算：真人最高MYR100，老虎机、捕鱼最高MYR300）。',
     '完成指定倍数的有效流水后，才可转换为可提款余额。',
     '仅计算所选择游戏类别的有效投注。',
     '同一笔充值只能选择一种再存优惠。',
     '不得将多笔充值合并领取同一笔彩金。',
-    '取消、退款或异常充值不计入。',
-    '此活动不能与其他充值活动重叠。'
+    '取消、退款或异常充值不计入。'
   ]
 };
 const DAILY_RELOAD_RULES=[
@@ -385,7 +393,8 @@ const GROWTH_RULES=[
 ['第三阶段｜解锁并领取彩金',['达到当前档位要求后，解锁相应彩金。','玩家点击「立即领取」。','奖励直接发放至现金钱包。','已领取的成长彩金无需额外流水要求。','当前档位完成后，系统自动激活下一档位。']],
 ['第四阶段｜后续档位',['每次只允许一个档位正式进行。','后续档位可提前「点亮」，但不可提前累计流水。','前一档位完成后，下一档位自动启动。','后续每个档位有效期为10天。','超过10天未完成，当期档位失效，且不能恢复。']],
 ['活动流程',['首次充值 → 激活200%档位 → 累计有效投注 → 解锁彩金 → 领取奖励 → 完成当前档位 → 进入下一档位']],
-['规则',['每位会员仅限开启一次成长计划。','已失效档位不可重复领取或重新启动。','免费试玩、未解锁彩金及其他活动金产生的投注不计入成长进度。','充值退款、取消及异常套利行为不计入有效进度。']]
+['规则',['每位会员仅限开启一次成长计划。','已失效档位不可重复领取或重新启动。','免费试玩、未解锁彩金及其他活动金产生的投注不计入成长进度。','充值退款、取消及异常套利行为不计入有效进度。']],
+['领取顺序',['本计划由「新人专享挑战」的充值启动，该笔充值为第一笔充值，激活成长彩金200%。也可在本活动页完成第一笔有效充值启动。','启动后的下一笔充值才可领取「新人首存彩金100%」。','成长计划的第一笔充值不计入每日再存和每日转盘。']]
 ];
 
 const DRAW_SOURCE={
