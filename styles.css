@@ -893,3 +893,58 @@ html[data-skip-motion="1"] .fd-option-card.is-selected:after{animation:none!impo
   .has-photo-banner .wheel-live-line{margin-top:2px}
   .has-photo-banner .next-guide{margin:2px 0 4px;padding:4px 8px}
 }
+
+
+/* fix14: VIP level presentation — mobile tabs + card, desktop comparison table */
+.vip-level-head{margin:0 0 14px}
+.vip-level-head h3{margin:0 0 6px;font-size:16px;font-weight:650;letter-spacing:.02em}
+.vip-level-note{margin:0;color:var(--muted,#a09b9d);font-size:12.5px;line-height:1.55}
+.vip-level-tabs{display:flex;gap:6px;overflow-x:auto;padding:0 0 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.vip-level-tabs::-webkit-scrollbar{display:none}
+.vip-lv-tab{flex:1 0 auto;min-width:46px;margin:0;padding:8px 10px;border-radius:8px;border:1px solid var(--lx-line-2,rgba(255,255,255,.14));background:transparent;color:var(--muted,#a09b9d);font-size:12.5px;font-weight:600;line-height:1.2}
+.vip-lv-tab.is-active{color:var(--lx-gold,#e8c98a);border-color:var(--lx-gold-line,#7a5a28);background:rgba(201,169,110,.12)}
+.vip-level-card{border:1px solid var(--lx-line-2,rgba(255,255,255,.14));border-radius:14px;background:linear-gradient(180deg,rgba(201,169,110,.08),rgba(201,169,110,0) 42%),var(--lx-surface-2,#1b1918);padding:16px 16px 14px}
+.vip-level-card[hidden]{display:none}
+.vip-level-card-head{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+.vip-level-card-head h4{margin:0;font-size:18px;font-weight:650}
+.vip-lv-badge{display:inline-flex;align-items:center;justify-content:center;min-width:42px;padding:4px 8px;border-radius:6px;border:1px solid var(--lx-gold-line,#7a5a28);background:rgba(201,169,110,.14);color:var(--lx-gold,#e8c98a);font-size:11px;font-weight:700;letter-spacing:.06em}
+.vip-hi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vip-hi{padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--lx-line,rgba(255,255,255,.08))}
+.vip-hi-grid .vip-hi:last-child:nth-child(odd){grid-column:1 / -1}
+.vip-hi-lab{display:block;font-size:11px;color:var(--muted,#a09b9d);letter-spacing:.02em}
+.vip-hi-val{display:block;margin-top:3px;font-size:15px;line-height:1.25;font-variant-numeric:tabular-nums;font-weight:650;color:var(--text,#f5f3f2);white-space:nowrap}
+.vip-hi-sep{color:var(--muted,#a09b9d);font-weight:500;padding:0 2px}
+.vip-hi-hint{display:block;margin-top:3px;font-size:10px;color:#a09b9d}
+.vip-hi-grid .vip-hi{min-width:0}
+@media(max-width:600px){
+  .vip-hi-grid:has(.vip-hi:nth-child(4)) .vip-hi-val{font-size:13.5px;white-space:normal}
+}
+.vip-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin:14px 0 0;padding-top:12px;border-top:1px solid var(--lx-line,rgba(255,255,255,.08))}
+.vip-meta div{display:flex;justify-content:space-between;align-items:baseline;gap:8px;min-width:0}
+.vip-meta dt{margin:0;color:var(--muted,#a09b9d);font-size:12px;flex:none}
+.vip-meta dd{margin:0;font-variant-numeric:tabular-nums;font-size:13px;font-weight:600;text-align:right;min-width:0}
+.vip-level-basic{display:flex;flex-direction:column;gap:4px;margin:0}
+.vip-level-basic strong{font-size:16px}
+.vip-level-basic span{color:var(--muted,#a09b9d);font-size:13px;line-height:1.5}
+.vip-level-table-wrap{display:none}
+@media(min-width:900px){
+  .vip-level-mobile{display:none}
+  .vip-level-table-wrap{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .vip-level-table{font-size:11px;width:100%;border-collapse:collapse}
+  .vip-level-table th,.vip-level-table td{padding:8px 7px}
+  .vip-level-table th{white-space:normal;line-height:1.35;text-align:right;font-weight:650}
+  .vip-level-table td{white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;vertical-align:middle;font-size:11px}
+  .vip-level-table th:last-child,.vip-level-table td:last-child{white-space:normal}
+  .vip-level-table thead th:first-child,
+  .vip-level-table tbody th{text-align:left;position:sticky;left:0;z-index:1;background:var(--lx-surface,#161414);font-weight:650;white-space:nowrap}
+  .vip-level-table tr.vip-is-basic td{text-align:left;font-variant-numeric:normal;white-space:normal}
+}
+.vip-benefit-card{display:flex;gap:12px;align-items:flex-start}
+.vip-benefit-no{flex:none;min-width:22px;margin-top:1px;color:var(--lx-gold,#e8c98a);font-size:11px;font-weight:700;letter-spacing:.08em}
+.vip-benefit-body{min-width:0;flex:1}
+.vip-benefit-body h4{margin:0 0 4px;font-size:14px;font-weight:650}
+.vip-benefit-body .trial-prose{margin:0}
+@media(max-width:600px){
+  .vip-level-card{padding:14px 13px 12px}
+  .vip-hi-val{font-size:15px}
+}

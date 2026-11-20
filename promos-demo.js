@@ -1314,14 +1314,63 @@
     }
     refreshPromo();
   }
+  function vbThresholdShort(l) {
+    if (!l || l.level === 0) return l ? l.threshold : '';
+    const m = String(l.threshold || '').match(/MYR\s*[\d,]+(?:\.\d+)?/);
+    return m ? m[0] : l.threshold;
+  }
+  function vbLevelParts(l) {
+    const m = String(l.name || '').match(/^(LV\d+)\s+(.+)$/);
+    return m ? { badge: m[1], title: m[2] } : { badge: '', title: l.name || l.short || '' };
+  }
+  function vbLevelCard(l) {
+    if (l.level === 0) {
+      return `<article class="vip-level-card vip-level-card-basic" data-vip-card="${l.level}" hidden>
+        <p class="vip-level-basic"><strong>普通会员</strong><span>注册即成为普通会员</span></p>
+      </article>`;
+    }
+    const parts = vbLevelParts(l);
+    const rebate = (l.rebateLive == null && l.rebateSlots == null) ? '' : `${vbPct(l.rebateLive)} <span class="vip-hi-sep">/</span> ${vbPct(l.rebateSlots)}`;
+    const weekly = l.weeklyPct == null ? '' : vbWeeklyLabel(l);
+    const hi = [];
+    if (l.upgrade != null) hi.push(['升级奖金', vbAmt(l.upgrade)]);
+    if (l.quarterly != null) hi.push(['季度等级奖金', vbAmt(l.quarterly)]);
+    if (rebate) hi.push(['返水', rebate, '现场游戏 / 老虎机']);
+    if (weekly) hi.push(['每周救援金', weekly]);
+    const meta = [];
+    if (l.threshold) meta.push(['升级标准', vbThresholdShort(l)]);
+    if (l.retention != null) meta.push(['保级标准', vbAmt(l.retention)]);
+    if (l.memorial != null) meta.push(['纪念奖金', vbAmt(l.memorial)]);
+    return `<article class="vip-level-card${l.level === 1 ? ' is-active' : ''}" data-vip-card="${l.level}"${l.level === 1 ? '' : ' hidden'}>
+      <header class="vip-level-card-head"><span class="vip-lv-badge">${parts.badge}</span><h4>${parts.title}</h4></header>
+      <div class="vip-hi-grid">${hi.map(([lab, val, hint]) => `<div class="vip-hi"><span class="vip-hi-lab">${lab}</span><strong class="vip-hi-val">${val}</strong>${hint ? `<small class="vip-hi-hint">${hint}</small>` : ''}</div>`).join('')}</div>
+      ${meta.length ? `<dl class="vip-meta">${meta.map(([lab, val]) => `<div><dt>${lab}</dt><dd>${val}</dd></div>`).join('')}</dl>` : ''}
+    </article>`;
+  }
   function vbOfficialTable(currentLevel) {
-    const lv = currentLevel;
+    const levels = VIP_SOURCE.levels || [];
+    const tabs = levels.map(l => {
+      const label = l.level === 0 ? '普通' : (l.short || ('LV' + l.level));
+      const on = l.level === 1;
+      return `<button type="button" class="vip-lv-tab${on ? ' is-active' : ''}" role="tab" data-vip-level="${l.level}" aria-selected="${on ? 'true' : 'false'}" aria-controls="vip-card-${l.level}">${label}</button>`;
+    }).join('');
+    const cards = levels.map(l => vbLevelCard(l).replace('data-vip-card="' + l.level + '"', 'id="vip-card-' + l.level + '" data-vip-card="' + l.level + '"')).join('');
+    const rows = levels.map(l => {
+      if (l.level === 0) return `<tr class="vip-is-basic"><th scope="row">普通会员</th><td colspan="7">注册即成为普通会员</td></tr>`;
+      return `<tr><th scope="row">${l.name}</th><td>${vbThresholdShort(l)}</td><td>${vbDashAmt(l.retention)}</td><td>${vbDashAmt(l.quarterly)}</td><td>${vbDashAmt(l.upgrade)}</td><td>${vbDashAmt(l.memorial)}</td><td>${l.rebateLive == null ? '—' : vbPct(l.rebateLive) + ' / ' + vbPct(l.rebateSlots)}</td><td>${l.weeklyPct == null ? '—' : vbWeeklyLabel(l)}</td></tr>`;
+    }).join('');
     return `<section class="section-panel vip-level-panel">
-      <div class="section-header"><h3>等级表</h3><span>连续 3 个月累计「存款 + 1倍流水」</span></div>
-      <div class="table-wrap"><table class="prize-table vip-level-table">
-        <thead><tr><th>等级</th><th>升级门槛<small>（3个月一次）</small></th><th>季度保级标准</th><th>季度等级奖金</th><th>升级奖金</th><th>纪念奖金</th><th>返水比例<small>现场游戏 / 老虎机</small></th><th>每周救援金<small>比例 / 上限</small></th></tr></thead>
-        <tbody>${VIP_SOURCE.levels.map(l => `<tr${l.level === lv ? ' class="current-level"' : ''}><td>${l.name}</td><td>${l.threshold}</td><td>${vbDashAmt(l.retention)}</td><td>${vbDashAmt(l.quarterly)}</td><td>${vbDashAmt(l.upgrade)}</td><td>${vbDashAmt(l.memorial)}</td><td>${l.rebateLive == null ? '—' : vbPct(l.rebateLive) + ' / ' + vbPct(l.rebateSlots)}</td><td>${vbWeeklyLabel(l)}</td></tr>`).join('')}</tbody>
-      </table></div>
+      <div class="vip-level-head"><h3>等级表</h3><p class="vip-level-note">以连续 3 个月累计的「存款 + 1倍流水」计算</p></div>
+      <div class="vip-level-mobile">
+        <div class="vip-level-tabs" role="tablist" aria-label="会员等级">${tabs}</div>
+        <div class="vip-level-cards">${cards}</div>
+      </div>
+      <div class="table-wrap vip-level-table-wrap">
+        <table class="prize-table vip-level-table">
+          <thead><tr><th>等级</th><th>升级标准</th><th>保级标准</th><th>季度等级奖金</th><th>升级奖金</th><th>纪念奖金</th><th>返水（现场游戏 / 老虎机）</th><th>每周救援金</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
     </section>`;
   }
   function vbExampleTable() {
@@ -3684,9 +3733,9 @@
         + rulesBtn;
     }
     if (id === 'vip-benefits') {
-      const cards = `<div class="vip-benefit-grid">${VIP_SOURCE.benefits.map(b => `<div class="vip-benefit-card">
-        <div class="panel-top"><span class="eyebrow">${b.title}</span></div>
-        <p class="trial-prose">${b.text}</p>
+      const cards = `<div class="vip-benefit-grid">${VIP_SOURCE.benefits.map((b, i) => `<div class="vip-benefit-card">
+        <span class="vip-benefit-no">${String(i + 1).padStart(2, '0')}</span>
+        <div class="vip-benefit-body"><h4>${b.title}</h4><p class="trial-prose">${b.text}</p></div>
       </div>`).join('')}</div>`;
       return vbOfficialTable()
         + publicSection('五大专属福利', cards)
@@ -3862,6 +3911,44 @@
     }
     return _handleActionFix12(name);
   };
+
+  function selectVipLevel(level, root) {
+    root = root || document.querySelector('.vip-level-panel');
+    if (!root) return;
+    const id = String(level);
+    root.querySelectorAll('[data-vip-level]').forEach(btn => {
+      const on = btn.getAttribute('data-vip-level') === id;
+      btn.classList.toggle('is-active', on);
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    root.querySelectorAll('[data-vip-card]').forEach(card => {
+      const on = card.getAttribute('data-vip-card') === id;
+      card.hidden = !on;
+      card.classList.toggle('is-active', on);
+    });
+  }
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('[data-vip-level]');
+    if (!btn || btn.disabled) return;
+    selectVipLevel(btn.getAttribute('data-vip-level'), btn.closest('.vip-level-panel'));
+  });
+  let vipTouchX = 0;
+  document.addEventListener('touchstart', e => {
+    const host = e.target.closest('.vip-level-cards');
+    if (!host) return;
+    vipTouchX = e.changedTouches[0].clientX;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const host = e.target.closest('.vip-level-cards');
+    if (!host) return;
+    const dx = e.changedTouches[0].clientX - vipTouchX;
+    if (Math.abs(dx) < 40) return;
+    const panel = host.closest('.vip-level-panel');
+    const tabs = [...panel.querySelectorAll('[data-vip-level]')];
+    const i = tabs.findIndex(b => b.classList.contains('is-active'));
+    const next = tabs[i + (dx < 0 ? 1 : -1)];
+    if (next) selectVipLevel(next.getAttribute('data-vip-level'), panel);
+  }, { passive: true });
 
   if (store()) {
     if (isDemoOn() && store().ensureBanner) store().ensureBanner();

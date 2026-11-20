@@ -123,6 +123,12 @@ LV3 起可享|LV3 起可享|LV3 and above|LV3 ke atas|Từ LV3|LV3 ขึ้น�
 最高 MYR|最高 MYR|Max MYR|Maks MYR|Tối đa MYR|สูงสุด MYR|Maks. MYR|अधिकतम MYR
 头奖 MYR|頭獎 MYR|Jackpot MYR|Jackpot MYR|Giải độc đắc MYR|รางวัลที่ 1 MYR|Hadiah utama MYR|जैकपॉट MYR
 等级表|等級表|Level table|Jadual tahap|Bảng cấp độ|ตารางระดับ|Tabel level|स्तर तालिका
+升级标准|升級標準|Upgrade requirement|Syarat naik taraf|Điều kiện nâng cấp|เกณฑ์เลื่อนระดับ|Syarat peningkatan|अपग्रेड मानक
+保级标准|保級標準|Retention requirement|Syarat kekal tahap|Điều kiện giữ hạng|เกณฑ์รักษาเลเวล|Syarat retensi|रिटेंशन मानक
+返水（现场游戏 / 老虎机）|返水（現場遊戲 / 老虎機）|Rebate (live / slots)|Rebat (langsung / slot)|Hoàn trả (trực tiếp / slot)|คืนยอด (เกมสด / สล็อต)|Rebate (live / slot)|रिबेट (लाइव / स्लॉट)
+以连续 3 个月累计的「存款 + 1倍流水」计算|以連續 3 個月累計的「存款 + 1倍流水」計算|Based on combined deposits + 1x turnover over 3 consecutive months|Berdasarkan deposit + 1x pusing ganti terkumpul selama 3 bulan berturut-turut|Tính theo tổng nạp + 1 lần doanh số trong 3 tháng liên tiếp|คิดจากยอดฝากรวม + เทิร์น 1 เท่า ใน 3 เดือนติดกัน|Berdasarkan deposit + turnover 1x selama 3 bulan berturut-turut|लगातार 3 महीनों की जमा + 1x टर्नओवर के योग पर आधारित
+普通|普通|Regular|Biasa|Thường|ทั่วไป|Biasa|सामान्य
+会员等级|會員等級|Membership tier|Tahap keahlian|Hạng hội viên|ระดับสมาชิก|Tingkat keanggotaan|सदस्य स्तर
 升级奖金|升級獎金|Upgrade bonus|Bonus naik taraf|Thưởng nâng cấp|โบนัสเลื่อนระดับ|Bonus peningkatan|अपग्रेड बोनस
 季度等级奖金|季度等級獎金|Quarterly tier bonus|Bonus suku tahunan|Thưởng hạng quý|โบนัสระดับรายไตรมาส|Bonus tingkat kuartalan|त्रैमासिक टियर बोनस
 纪念奖金|紀念獎金|Anniversary bonus|Bonus ulang tahun|Thưởng kỷ niệm|โบนัสวันครบรอบ|Bonus peringatan|वर्षगांठ बोनस

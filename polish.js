@@ -114,6 +114,7 @@
       if (/彩金|奖金|到账|奖励|转出/.test(k)) li.classList.add('lx-em');
     });
     root.querySelectorAll('table').forEach(t => {
+      if (t.classList.contains('vip-level-table')) return;
       const heads = [...t.querySelectorAll('thead th, tr:first-child th')].map(th => th.textContent.trim());
       if (heads.length < 5) return;
       t.classList.add('lx-stack');
