@@ -770,7 +770,7 @@
       <section class="section-panel">
         <div class="section-header"><h3>确认充值金额</h3></div>
         <p class="trial-prose">活动剩余余额 MYR ${money(remaining)}。演示按1:1充值对应金额，不连接真实支付。</p>
-        <p class="fine-print trial-prose">此充值会同时激活成长彩金计划奖励。48小时内未充值，解锁资格自动失效。</p>
+        <p class="fine-print trial-prose">此充值会启动「成长彩金200%」，该笔为第一笔充值。48小时内未充值，解锁资格自动失效。</p>
         <button type="button" class="primary" data-action="nc-unlock-confirm" data-deposit="${suggested}">确认充值 MYR ${money(suggested)} 并解锁</button>
         <button type="button" class="outline-wide" data-action="nc-expire">演示48小时未充值</button>
       </section>
