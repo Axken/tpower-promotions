@@ -1,15 +1,6 @@
 // Content transcribed from the user's 14 screenshots (IMG_4080–IMG_4093).
 // These are presentation snapshots, never a live member account or live draw result.
 const CATEGORIES=[['all','全部活动','gift'],['free','新人免费','adduser'],['first','首次充值','cash'],['daily','每日存款','calendar'],['invite','邀请好友','friends'],['turnover','投注流水','slot'],['returning','老用户','user'],['vip','VIP权益','crown']];
-const PROMO_GROUPS=[
-  {id:'free',title:'新人免费',hint:'每个活动限领一次，可都参加，先后不限',ids:['newcomer-free-challenge','newcomer']},
-  {id:'first',title:'首次充值',hint:'第1笔启动成长彩金，第2笔领首存',ids:['growth','first-deposit-bonus']},
-  {id:'daily',title:'每日存款',hint:'完成或放弃首存后开启，同笔充值可分开领',ids:['daily-wheel','daily-reload']},
-  {id:'invite',title:'邀请好友',hint:'邀请好友完成任务后解锁奖励',ids:['referral']},
-  {id:'turnover',title:'投注流水',hint:'有效流水满额即可获得抽奖券',ids:['anniversary']},
-  {id:'returning',title:'老用户专属',hint:'连续7天或以上未上线可参加',ids:['returning-member']},
-  {id:'vip',title:'VIP权益',hint:'查看各等级福利',ids:['vip-benefits']}
-];
 const PROMOS=[
 {id:'newcomer-free-challenge',title:'免费试玩赢MYR100',fullTitle:'免费试玩赢MYR100',category:'free',tag:'免费试玩',banner:'photo',summary:'免费MYR100试玩，达标兑换MYR100现金',secondary:'完成试玩挑战后，兑换现金奖励。',badge:'新注册会员 · 终身限领一次',tabs:['活动详情','活动规则']},
 {id:'newcomer',title:'新人专享挑战',fullTitle:'新人专享挑战',category:'free',tag:'新人专享',banner:'new',summary:'实名认证领取 MYR88',secondary:'完成挑战，充值解锁最高 MYR1,888，并启动成长彩金200%。',badge:'每位新会员限一次',tabs:['活动详情','活动规则']},
