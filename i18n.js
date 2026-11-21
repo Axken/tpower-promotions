@@ -56,19 +56,129 @@
       const anClaim=key.match(/^领取 MYR (.+) 奖金$/);
       if(anClaim){const labels={'zh-TW':`領取 MYR ${anClaim[1]} 獎金`,en:`Claim MYR ${anClaim[1]} prize`,ms:`Tuntut hadiah MYR ${anClaim[1]}`,vi:`Nhận thưởng MYR ${anClaim[1]}`,th:`รับรางวัล MYR ${anClaim[1]}`,id:`Klaim hadiah MYR ${anClaim[1]}`,hi:`MYR ${anClaim[1]} पुरस्कार दावा करें`};translated=labels[language];}
 
+      const people=key.match(/^(\d+) 位$/);
+      if(people){const labels={'zh-TW':'位',en:'people',ms:'orang',vi:'người',th:'คน',id:'orang',hi:'जन'};translated=people[1]+' '+labels[language];}
+      const tickets=key.match(/^(\d+) 张 · 每满 MYR200 得1张$/);
+      if(tickets){const labels={'zh-TW':`${tickets[1]} 張 · 每滿 MYR200 得1張`,en:`${tickets[1]} tickets · 1 ticket per MYR200`,ms:`${tickets[1]} tiket · 1 tiket setiap MYR200`,vi:`${tickets[1]} vé · 1 vé mỗi MYR200`,th:`${tickets[1]} ใบ · ทุก MYR200 ได้ 1 ใบ`,id:`${tickets[1]} tiket · 1 tiket per MYR200`,hi:`${tickets[1]} टिकट · प्रत्येक MYR200 पर 1 टिकट`};translated=labels[language];}
+      const ticketsGot=key.match(/^已获抽奖券(\d+) 张 · 每满 MYR200 得1张$/);
+      if(ticketsGot){const labels={'zh-TW':`已獲抽獎券${ticketsGot[1]} 張 · 每滿 MYR200 得1張`,en:`Tickets earned: ${ticketsGot[1]} · 1 ticket per MYR200`,ms:`Tiket diperoleh: ${ticketsGot[1]} · 1 tiket setiap MYR200`,vi:`Vé đã có: ${ticketsGot[1]} · 1 vé mỗi MYR200`,th:`ได้ตั๋วแล้ว ${ticketsGot[1]} ใบ · ทุก MYR200 ได้ 1 ใบ`,id:`Tiket didapat: ${ticketsGot[1]} · 1 tiket per MYR200`,hi:`टिकट मिले: ${ticketsGot[1]} · प्रत्येक MYR200 पर 1`};translated=labels[language];}
+      const pct=key.match(/^(\d+(?:\.\d+)?)%已解锁$/);
+      if(pct){const labels={'zh-TW':`${pct[1]}%已解鎖`,en:`${pct[1]}% unlocked`,ms:`${pct[1]}% dinyahkunci`,vi:`Đã mở ${pct[1]}%`,th:`ปลดล็อกแล้ว ${pct[1]}%`,id:`${pct[1]}% terbuka`,hi:`${pct[1]}% अनलॉक`};translated=labels[language];}
+      const todayWheel=key.match(/^今日 (\d+)\/3 · 剩余 (\d+) · 彩金 MYR (.+)$/);
+      if(todayWheel){const labels={'zh-TW':`今日 ${todayWheel[1]}/3 · 剩餘 ${todayWheel[2]} · 彩金 MYR ${todayWheel[3]}`,en:`Today ${todayWheel[1]}/3 · ${todayWheel[2]} left · Bonus MYR ${todayWheel[3]}`,ms:`Hari ini ${todayWheel[1]}/3 · tinggal ${todayWheel[2]} · Bonus MYR ${todayWheel[3]}`,vi:`Hôm nay ${todayWheel[1]}/3 · còn ${todayWheel[2]} · Thưởng MYR ${todayWheel[3]}`,th:`วันนี้ ${todayWheel[1]}/3 · เหลือ ${todayWheel[2]} · โบนัส MYR ${todayWheel[3]}`,id:`Hari ini ${todayWheel[1]}/3 · sisa ${todayWheel[2]} · Bonus MYR ${todayWheel[3]}`,hi:`आज ${todayWheel[1]}/3 · ${todayWheel[2]} शेष · बोनस MYR ${todayWheel[3]}`};translated=labels[language];}
+      const remainSpin=key.match(/^剩余抽奖(\d+)\s*\/\s*3$/);
+      if(remainSpin){const labels={'zh-TW':`剩餘抽獎${remainSpin[1]} / 3`,en:`Spins left ${remainSpin[1]} / 3`,ms:`Putaran tinggal ${remainSpin[1]} / 3`,vi:`Lượt còn ${remainSpin[1]} / 3`,th:`สิทธิ์เหลือ ${remainSpin[1]} / 3`,id:`Spin tersisa ${remainSpin[1]} / 3`,hi:`स्पिन शेष ${remainSpin[1]} / 3`};translated=labels[language];}
+      const canSpin=key.match(/^可抽奖 · 剩余 (\d+) 次$/);
+      if(canSpin){const labels={'zh-TW':`可抽獎 · 剩餘 ${canSpin[1]} 次`,en:`Ready to spin · ${canSpin[1]} left`,ms:`Boleh putar · tinggal ${canSpin[1]}`,vi:`Có thể quay · còn ${canSpin[1]} lượt`,th:`หมุนได้ · เหลือ ${canSpin[1]} ครั้ง`,id:`Bisa putar · sisa ${canSpin[1]}`,hi:`स्पिन कर सकते हैं · ${canSpin[1]} शेष`};translated=labels[language];}
+      const rewardSpin=key.match(/^活动奖励可抽奖 · 剩余 (\d+) 次$/);
+      if(rewardSpin){const labels={'zh-TW':`活動獎勵可抽獎 · 剩餘 ${rewardSpin[1]} 次`,en:`Reward ready to spin · ${rewardSpin[1]} left`,ms:`Ganjaran sedia diputar · tinggal ${rewardSpin[1]}`,vi:`Thưởng có thể quay · còn ${rewardSpin[1]} lượt`,th:`รางวัลพร้อมหมุน · เหลือ ${rewardSpin[1]} ครั้ง`,id:`Hadiah siap diputar · sisa ${rewardSpin[1]}`,hi:`इनाम स्पिन के लिए तैयार · ${rewardSpin[1]} शेष`};translated=labels[language];}
+      const demoDay=key.match(/^第 (\d+) 个演示日(.*)$/);
+      if(demoDay){
+        const tail=demoDay[2];
+        const tailKey=tail.replace(/^[。.\s]+/,'');
+        const punct=/^[。.]/.test(tail)?(language==='zh-TW'?'。':'. '):'';
+        const tailTr=dict[tailKey]!==undefined?dict[tailKey]:(dict[tail]!==undefined?dict[tail]:tailKey);
+        const labels={'zh-TW':`第 ${demoDay[1]} 個演示日${tail.replace('个','個')}`,en:`Demo day ${demoDay[1]}${punct}${tailTr}`,ms:`Hari demo ${demoDay[1]}${punct}${tailTr}`,vi:`Ngày demo ${demoDay[1]}${punct}${tailTr}`,th:`วันที่เดโม ${demoDay[1]}${punct}${tailTr}`,id:`Hari demo ${demoDay[1]}${punct}${tailTr}`,hi:`डेमो दिन ${demoDay[1]}${punct}${tailTr}`};
+        translated=labels[language];
+      }
+      const rewardDay=key.match(/^活动奖励 · 第 (\d+) 个演示日(.*)$/);
+      if(rewardDay){
+        const tail=rewardDay[2];
+        const tailTr=tail?(dict[tail]!==undefined?dict[tail]:tail):'';
+        const labels={'zh-TW':`活動獎勵 · 第 ${rewardDay[1]} 個演示日${tail}`,en:`Rewards · demo day ${rewardDay[1]}${tailTr?' '+tailTr:''}`,ms:`Ganjaran · hari demo ${rewardDay[1]}${tailTr?' '+tailTr:''}`,vi:`Thưởng · ngày demo ${rewardDay[1]}${tailTr?' '+tailTr:''}`,th:`รางวัล · วันที่เดโม ${rewardDay[1]}${tailTr?' '+tailTr:''}`,id:`Hadiah · hari demo ${rewardDay[1]}${tailTr?' '+tailTr:''}`,hi:`इनाम · डेमो दिन ${rewardDay[1]}${tailTr?' '+tailTr:''}`};
+        translated=labels[language];
+      }
+      const viewDetail=key.match(/^查看(.+)详情$/);
+      if(viewDetail){
+        const title=dict[viewDetail[1]]!==undefined?dict[viewDetail[1]]:viewDetail[1];
+        const labels={'zh-TW':`查看${title}詳情`,en:`View ${title} details`,ms:`Lihat butiran ${title}`,vi:`Xem chi tiết ${title}`,th:`ดูรายละเอียด ${title}`,id:`Lihat detail ${title}`,hi:`${title} विवरण देखें`};
+        translated=labels[language];
+      }
+      const viewRules=key.match(/^查看(.+)规则说明$/);
+      if(viewRules){
+        const title=dict[viewRules[1]]!==undefined?dict[viewRules[1]]:viewRules[1];
+        const labels={'zh-TW':`查看${title}規則說明`,en:`View ${title} rules`,ms:`Lihat peraturan ${title}`,vi:`Xem thể lệ ${title}`,th:`ดูกติกา ${title}`,id:`Lihat aturan ${title}`,hi:`${title} नियम देखें`};
+        translated=labels[language];
+      }
+      const arrived=key.match(/^已到账至 (.+)$/);
+      if(arrived){
+        const dest=dict[arrived[1]]!==undefined?dict[arrived[1]]:arrived[1];
+        const labels={'zh-TW':`已到賬至 ${dest}`,en:`Credited to ${dest}`,ms:`Telah masuk ke ${dest}`,vi:`Đã vào ${dest}`,th:`เข้าสู่ ${dest} แล้ว`,id:`Sudah masuk ke ${dest}`,hi:`${dest} में जमा हो गया`};
+        translated=labels[language];
+      }
+      const unlockedMyr=key.match(/^已解锁 MYR (.+)$/);
+      if(unlockedMyr){const labels={'zh-TW':`已解鎖 MYR ${unlockedMyr[1]}`,en:`Unlocked MYR ${unlockedMyr[1]}`,ms:`Dinyahkunci MYR ${unlockedMyr[1]}`,vi:`Đã mở khóa MYR ${unlockedMyr[1]}`,th:`ปลดล็อกแล้ว MYR ${unlockedMyr[1]}`,id:`Terbuka MYR ${unlockedMyr[1]}`,hi:`अनलॉक MYR ${unlockedMyr[1]}`};translated=labels[language];}
+      const growthAmt=key.match(/^成长彩金 MYR (.+)$/);
+      if(growthAmt){const labels={'zh-TW':`成長彩金 MYR ${growthAmt[1]}`,en:`Growth bonus MYR ${growthAmt[1]}`,ms:`Bonus pertumbuhan MYR ${growthAmt[1]}`,vi:`Thưởng tăng trưởng MYR ${growthAmt[1]}`,th:`โบนัสเติบโต MYR ${growthAmt[1]}`,id:`Bonus pertumbuhan MYR ${growthAmt[1]}`,hi:`ग्रोथ बोनस MYR ${growthAmt[1]}`};translated=labels[language];}
+      const pendingUnlock=key.match(/^待解锁([0-9,\.]+)$/);
+      if(pendingUnlock){const labels={'zh-TW':`待解鎖${pendingUnlock[1]}`,en:`To unlock ${pendingUnlock[1]}`,ms:`Belum dinyahkunci ${pendingUnlock[1]}`,vi:`Chờ mở ${pendingUnlock[1]}`,th:`รอปลดล็อก ${pendingUnlock[1]}`,id:`Menunggu buka ${pendingUnlock[1]}`,hi:`अनलॉक बाकी ${pendingUnlock[1]}`};translated=labels[language];}
+      const pendingClaim=key.match(/^待领取([0-9,\.]+)$/);
+      if(pendingClaim){const labels={'zh-TW':`待領取${pendingClaim[1]}`,en:`To claim ${pendingClaim[1]}`,ms:`Belum dituntut ${pendingClaim[1]}`,vi:`Chờ nhận ${pendingClaim[1]}`,th:`รอรับ ${pendingClaim[1]}`,id:`Menunggu klaim ${pendingClaim[1]}`,hi:`दावा बाकी ${pendingClaim[1]}`};translated=labels[language];}
+      const doneSteps=key.match(/^已完成 (\d+) \/ (\d+)$/);
+      if(doneSteps){const labels={'zh-TW':`已完成 ${doneSteps[1]} / ${doneSteps[2]}`,en:`Completed ${doneSteps[1]} / ${doneSteps[2]}`,ms:`Selesai ${doneSteps[1]} / ${doneSteps[2]}`,vi:`Đã xong ${doneSteps[1]} / ${doneSteps[2]}`,th:`เสร็จแล้ว ${doneSteps[1]} / ${doneSteps[2]}`,id:`Selesai ${doneSteps[1]} / ${doneSteps[2]}`,hi:`पूरा ${doneSteps[1]} / ${doneSteps[2]}`};translated=labels[language];}
+      const invited=key.match(/^已邀请好友(\d+) 位$/);
+      if(invited){const labels={'zh-TW':`已邀請好友${invited[1]} 位`,en:`Friends invited: ${invited[1]}`,ms:`Rakan dijemput: ${invited[1]}`,vi:`Bạn đã mời: ${invited[1]}`,th:`เพื่อนที่ชวนแล้ว: ${invited[1]}`,id:`Teman diundang: ${invited[1]}`,hi:`मित्र आमंत्रित: ${invited[1]}`};translated=labels[language];}
+      const claimedAvail=key.match(/^已领取 MYR (.+) · 可领取 MYR (.+)$/);
+      if(claimedAvail){const labels={'zh-TW':`已領取 MYR ${claimedAvail[1]} · 可領取 MYR ${claimedAvail[2]}`,en:`Claimed MYR ${claimedAvail[1]} · Available MYR ${claimedAvail[2]}`,ms:`Dituntut MYR ${claimedAvail[1]} · Boleh dituntut MYR ${claimedAvail[2]}`,vi:`Đã nhận MYR ${claimedAvail[1]} · Có thể nhận MYR ${claimedAvail[2]}`,th:`รับแล้ว MYR ${claimedAvail[1]} · พร้อมรับ MYR ${claimedAvail[2]}`,id:`Diklaim MYR ${claimedAvail[1]} · Bisa diklaim MYR ${claimedAvail[2]}`,hi:`दावा हुआ MYR ${claimedAvail[1]} · उपलब्ध MYR ${claimedAvail[2]}`};translated=labels[language];}
+      const nextStep=key.match(/^下一步第 (\d+) 步，共 (\d+) 步(.*)$/);
+      if(nextStep){
+        const tail=nextStep[3];
+        const tailTr=tail?(dict[tail]!==undefined?dict[tail]:tail):'';
+        const labels={'zh-TW':`下一步第 ${nextStep[1]} 步，共 ${nextStep[2]} 步${tail}`,en:`Next: step ${nextStep[1]} of ${nextStep[2]}${tailTr?' · '+tailTr:''}`,ms:`Seterusnya: langkah ${nextStep[1]} daripada ${nextStep[2]}${tailTr?' · '+tailTr:''}`,vi:`Tiếp theo: bước ${nextStep[1]}/${nextStep[2]}${tailTr?' · '+tailTr:''}`,th:`ถัดไป: ขั้น ${nextStep[1]} จาก ${nextStep[2]}${tailTr?' · '+tailTr:''}`,id:`Berikutnya: langkah ${nextStep[1]} dari ${nextStep[2]}${tailTr?' · '+tailTr:''}`,hi:`अगला: चरण ${nextStep[1]}/${nextStep[2]}${tailTr?' · '+tailTr:''}`};
+        translated=labels[language];
+      }
+      const walletPromo=key.match(/^活动彩金钱包MYR (.+)$/);
+      if(walletPromo){const labels={'zh-TW':`活動彩金錢包MYR ${walletPromo[1]}`,en:`Promo bonus wallet MYR ${walletPromo[1]}`,ms:`Dompet bonus promosi MYR ${walletPromo[1]}`,vi:`Ví thưởng khuyến mãi MYR ${walletPromo[1]}`,th:`กระเป๋าโบนัสโปรโมชั่น MYR ${walletPromo[1]}`,id:`Dompet bonus promo MYR ${walletPromo[1]}`,hi:`प्रोमो बोनस वॉलेट MYR ${walletPromo[1]}`};translated=labels[language];}
+      if(translated===undefined){
+        const step=key.match(/^([1-6])([\u4e00-\u9fff].+)$/);
+        if(step&&dict[step[2]]!==undefined)translated=step[1]+dict[step[2]];
+      }
+
     }
     if(translated===undefined)return source;
     return source.slice(0,source.length-source.trimStart().length)+translated+source.slice(source.trimEnd().length);
+  }
+
+  const originalUnits=new WeakMap();
+  const SKIP_UNIT=new Set(['SCRIPT','STYLE','SELECT','OPTION','TEXTAREA','SVG','BODY','HTML','HEAD','SECTION','ARTICLE','MAIN','NAV','UL','OL','TABLE','THEAD','TBODY','TFOOT','TR','DIALOG','FORM','ASIDE','HEADER','FOOTER','PICTURE','VIDEO','CANVAS']);
+  function isUnit(el){
+    if(!el||el.nodeType!==1)return false;
+    if(SKIP_UNIT.has(el.tagName))return false;
+    if(el.closest('script,style,select,#language-note,svg,.banner,picture'))return false;
+    if(el===select||el.id==='language-select')return false;
+    let hasText=false;
+    for(const c of el.childNodes){
+      if(c.nodeType===3){if(c.nodeValue&&c.nodeValue.trim())hasText=true;continue;}
+      if(c.nodeType===1&&c.classList&&c.classList.contains('lx-num')){hasText=true;continue;}
+      return false;
+    }
+    return hasText;
+  }
+  function translateUnit(el){
+    if(!isUnit(el))return;
+    const cur=el.textContent;
+    let rec=originalUnits.get(el);
+    if(!rec||cur!==rec.last)rec={source:cur,last:cur};
+    const result=translate(rec.source);
+    if(cur!==result){
+      el.textContent=result;
+      if(el.dataset&&'lxNum' in el.dataset)delete el.dataset.lxNum;
+    }
+    rec.last=result;
+    originalUnits.set(el,rec);
   }
   function apply(){
     observer.disconnect();
     document.documentElement.lang=language;
     document.documentElement.dataset.uiLanguage=language;
-    note.textContent=UI_NOTES[language];note.hidden=!UI_NOTES[language];
+    note.textContent=UI_NOTES[language]||'';
+    note.hidden=!UI_NOTES[language];
+    document.body.querySelectorAll('p,li,h1,h2,h3,h4,h5,h6,th,td,button,a,label,dt,dd,summary,span,small,strong,b,em,figcaption,div').forEach(translateUnit);
     const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
     let node;
     while(node=walker.nextNode()){
-      if(!node.parentElement||node.parentElement.closest('script,style,select,#language-note'))continue;
+      if(!node.parentElement||node.parentElement.closest('script,style,select,#language-note,svg,.banner,picture'))continue;
+      if(isUnit(node.parentElement))continue;
       let record=originalText.get(node);
       if(!record||node.nodeValue!==record.last)record={source:node.nodeValue,last:node.nodeValue};
       const result=translate(record.source);
@@ -87,11 +197,14 @@
       }
       originalAttrs.set(el,record);
     });
-    // Source prose is explicitly distinguished from translated interface labels.
-    document.querySelectorAll('.rule-content,.step-explanation p,.detail-heading h2,.detail-heading>p,.card-title,.card-type,.banner,.trial-prose,.eligibility-list,.trial-terms,.demo-lead').forEach(el=>el.lang='zh-CN');
-    if(!location.hash.includes('activity='))document.title='TPOWER · '+UI_DICTIONARIES[language]['促销活动'];
+    if(!location.hash.includes('activity='))document.title='TPOWER · '+(UI_DICTIONARIES[language]['促销活动']||'促销活动');
+    else{
+      const h2=document.querySelector('.detail-heading h2');
+      if(h2&&h2.textContent.trim())document.title='TPOWER · '+h2.textContent.trim();
+    }
     observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','placeholder','title','alt']});
   }
+
   const observer=new MutationObserver(apply);
   select.addEventListener('change',()=>{language=allowed.has(select.value)?select.value:'zh-CN';try{localStorage.setItem(KEY,language)}catch{}apply();});
   apply();
