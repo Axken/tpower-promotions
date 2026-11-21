@@ -54,7 +54,7 @@
     } catch (e) {}
   }
   function recordsFallback() {
-    simpleModal('领奖记录', '<p>暂未提供逐笔领奖记录。</p><p class="subnote">预览不会将其编造成具体交易记录。</p>', 'receipt');
+    simpleModal('领奖记录', '<p>暂无可展示的领奖记录。</p>', 'receipt');
   }
   function bindRecordsButton() {
     const btn = document.getElementById('records');

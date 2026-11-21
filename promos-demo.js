@@ -746,7 +746,7 @@
         <div><span>活动余额</span><strong id="play-balance">MYR ${money(n.bonus)}</strong></div>
         <div class="play-progress"><div class="bar-label"><span>有效流水</span><span>MYR ${money(n.turnover)} / MYR 440.00</span></div><progress max="440" value="${Math.min(440, n.turnover)}" aria-label="有效流水进度"></progress></div>
       </div>
-      <p class="fine-print trial-prose">只计算指定游戏商的有效投注。本活动只能在指定的真人现场游戏和老虎机中进行。截图未列出具体游戏商名单。</p>
+      <p class="fine-print trial-prose">只计算指定游戏商的有效投注。本活动只能在指定的真人现场游戏和老虎机中进行。具体游戏商名单以平台公告为准。</p>
       <section class="slot-machine" aria-label="演示老虎机">
         <div class="slot-window" id="slot-window">${symbols}</div>
         <p class="slot-result" id="slot-result" aria-live="polite">${n.challengeDone ? '已完成 MYR440 有效流水' : '按下开始，演示一局投注'}</p>
@@ -872,7 +872,7 @@
   function renderRefInvite() {
     const r = demoOf().referral;
     $('#app').innerHTML = page('分享邀请', `
-      <p class="demo-lead trial-prose">分享专属邀请链接或邀请码。好友成功注册并完成指定任务后，系统自动解锁对应邀请奖励。预览不向外发送邀请。</p>
+      <p class="demo-lead trial-prose">分享专属邀请链接或邀请码。好友成功注册并完成指定任务后，系统自动解锁对应邀请奖励。此为演示流程，不会向外发送邀请。</p>
       <section class="section-panel invite-code-card">
         <div class="section-header"><h3>演示邀请码</h3></div>
         <p class="invite-code" id="invite-code">${r.code}</p>
@@ -1077,7 +1077,7 @@
           return `<li><div><strong>抽奖券 ${i + 1}</strong><small>号码 ${no}</small></div><div class="record-right"><b>${hit ? 'MYR ' + money(hit[1]) : '—'}</b><span class="status-badge">${st}</span></div></li>`;
         }).join('')}</ul>`
       : '';
-    return `${store().journeyBar()}<section class="section-panel tickets-panel"><div class="section-header"><h3>我的抽奖券</h3></div><div class="period-tabs" aria-label="抽奖期数">${[3, 2, 1].map(n => `<button data-period="${n}" aria-pressed="${n === period}" class="${n === period ? 'active' : ''}">第${n}期<small>11月${{ 3: '22', 2: '15', 1: '08' }[n]}日</small></button>`).join('')}</div><div class="ticket-period"><b>第${period}期 · 2026年11月${day}日</b>${current ? '<p>2026.11.15 19:00:00 — 2026.11.22 18:59:59</p>' : '<p>仅提供了该期期数与开奖参考日期。</p>'}</div>${current ? `${a.drawDone ? `<div class="number-balls small-balls">${a.drawNumber.split('').map(d => `<span>${d}</span>`).join('')}</div><p class="fine-print center trial-prose">演示开奖号码 ${a.drawNumber}，非官方结果。</p>` : `<div class="number-balls small-balls">${Array(6).fill('<span>—</span>').join('')}</div><p class="fine-print center">尚未开奖</p>`}${statRow([['抽奖券数', String(a.tickets.length)], ['中奖总额', a.drawDone ? money(a.winAmount) : '—'], ['未领取奖额', a.drawDone && !a.claimed && !a.expired ? money(a.winAmount) : money(0)]])}${list}` : `<p class="fine-print center">该期开奖号码未提供</p>${action('该期领奖数据未提供', 'ticket-claim', true)}`}</section>${note('奖金须在48小时内点击领取，逾期作废。')}`;
+    return `${store().journeyBar()}<section class="section-panel tickets-panel"><div class="section-header"><h3>我的抽奖券</h3></div><div class="period-tabs" aria-label="抽奖期数">${[3, 2, 1].map(n => `<button data-period="${n}" aria-pressed="${n === period}" class="${n === period ? 'active' : ''}">第${n}期<small>11月${{ 3: '22', 2: '15', 1: '08' }[n]}日</small></button>`).join('')}</div><div class="ticket-period"><b>第${period}期 · 2026年11月${day}日</b>${current ? '<p>2026.11.15 19:00:00 — 2026.11.22 18:59:59</p>' : '<p>开奖结果以平台公告为准。</p>'}</div>${current ? `${a.drawDone ? `<div class="number-balls small-balls">${a.drawNumber.split('').map(d => `<span>${d}</span>`).join('')}</div><p class="fine-print center trial-prose">演示开奖号码 ${a.drawNumber}，非官方结果。</p>` : `<div class="number-balls small-balls">${Array(6).fill('<span>—</span>').join('')}</div><p class="fine-print center">尚未开奖</p>`}${statRow([['抽奖券数', String(a.tickets.length)], ['中奖总额', a.drawDone ? money(a.winAmount) : '—'], ['未领取奖额', a.drawDone && !a.claimed && !a.expired ? money(a.winAmount) : money(0)]])}${list}` : `<p class="fine-print center">该期开奖号码以平台公告为准</p>${action('暂无该期领奖数据', 'ticket-claim', true)}`}</section>${note('奖金须在48小时内点击领取，逾期作废。')}`;
   };
   function renderAnPlay() {
     const a = demoOf().anniversary;
@@ -1213,7 +1213,7 @@
     const s = MAINT_SOURCE.steps[viewStep];
     const points = m.joined ? `<div class="wallet-pair" id="mt-balance"><div class="wallet-card trial"><span>活动分</span><strong>${money(m.points)}</strong><small>只能用于指定游戏，不能提现</small></div><div class="wallet-card main ${demo.mainWallet > 0 ? 'highlight' : ''}"><span>主钱包</span><strong>MYR ${money(demo.mainWallet)}</strong><small>${m.completed ? 'MYR100 现金已到账' : '完成任务后领取 MYR100'}</small></div></div>${!m.completed && !m.ended ? `<div class="trial-balance"><div class="bar-label"><span>达标进度</span><span>${money(m.points)} / 200.00</span></div><progress max="200" value="${Math.min(200, m.points)}" aria-label="活动分进度"></progress></div>` : ''}` : '';
     const guide = mtGuide(m);
-    return `${store().journeyBar()}${leadBlock(guide)}${points}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">维护补偿 · 限参加1次</span><span class="status-badge ${status[1]}">${status[0]}</span></div><div class="amount"><small>现金 MYR</small>100</div><p class="trial-prose">领取100活动分，达到200分后手动完成任务。</p></section>${howToJoin(['符合资格后参加，领取 100 活动分', '在指定游戏把活动分打到 200 分', '手动完成任务，领取 MYR100 现金'])}${m.eligible ? '' : '<section class="section-panel"><div class="section-header"><h3>当前状态</h3></div><p class="fine-print trial-prose">当前演示为不符资格：不在 2024年1月1日至2026年10月31日期间有成功充值。</p></section>'}<section class="section-panel"><div class="section-header"><h3>可玩游戏</h3><span>仅限活动分</span></div><div class="locked-games">${icon('shield')}<div><b>${m.joined ? '已开放指定游戏' : '参加活动后开放'}</b><p class="trial-prose">截图未显示具体游戏名单。名单待确认。</p></div></div></section>${demoTools(m.eligible && !m.joined ? '<button type="button" class="text-button trial-reset" data-action="mt-make-ineligible">演示不符资格</button>' : '')}<button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>`;
+    return `${store().journeyBar()}${leadBlock(guide)}${points}<section class="reward-feature trial-hero"><div class="panel-top"><span class="eyebrow">维护补偿 · 限参加1次</span><span class="status-badge ${status[1]}">${status[0]}</span></div><div class="amount"><small>现金 MYR</small>100</div><p class="trial-prose">领取100活动分，达到200分后手动完成任务。</p></section>${howToJoin(['符合资格后参加，领取 100 活动分', '在指定游戏把活动分打到 200 分', '手动完成任务，领取 MYR100 现金'])}${m.eligible ? '' : '<section class="section-panel"><div class="section-header"><h3>当前状态</h3></div><p class="fine-print trial-prose">当前演示为不符资格：不在 2024年1月1日至2026年10月31日期间有成功充值。</p></section>'}<section class="section-panel"><div class="section-header"><h3>可玩游戏</h3><span>仅限活动分</span></div><div class="locked-games">${icon('shield')}<div><b>${m.joined ? '已开放指定游戏' : '参加活动后开放'}</b><p class="trial-prose">具体游戏名单以平台公告为准。</p></div></div></section>${demoTools(m.eligible && !m.joined ? '<button type="button" class="text-button trial-reset" data-action="mt-make-ineligible">演示不符资格</button>' : '')}<button type="button" class="outline-wide" data-tab="1">查看完整活动规则 ${icon('arrow')}</button>`;
   };
   function renderMtPlay() {
     const m = demoOf().maintenance;
