@@ -21,6 +21,7 @@ function fillCards(box,list){
     else{const w=document.createElement('div');w.innerHTML=card(p).trim();frag.append(w.firstElementChild)}
   }
   box.replaceChildren(frag);
+  if(window.bindListBanners) window.bindListBanners(box);
 }
 function renderList(){
   const current=CATEGORIES.find(c=>c[0]===state.category)||CATEGORIES[0];
@@ -65,6 +66,7 @@ function renderList(){
     return;
   }
   app.innerHTML=`<div class="activity-layout"><div class="category-nav-wrap"><aside class="category-nav" aria-label="活动分类">${CATEGORIES.map(c=>`<button data-category="${c[0]}" class="${c[0]===state.category?'active':''}" aria-pressed="${c[0]===state.category}">${icon(c[2])}<span>${c[1]}</span></button>`).join('')}</aside><div class="category-scroll" hidden aria-hidden="true"><i class="category-scroll-thumb"></i></div></div><section class="list-panel" aria-label="活动列表"><div class="list-top"><h2>${current[1]}</h2><span>${filtered.length} 项活动</span></div>${groupedCards(filtered)}${footer()}</section></div>`;
+  if(window.bindListBanners) window.bindListBanners(app);
 }
 function statRow(data,cls=''){return `<div class="stat-row ${cls}">${data.map(([label,val])=>`<div><span>${label}</span><strong>${val}</strong></div>`).join('')}</div>`}
 function action(label,actionName,disabled=false){return `<button class="primary" ${disabled?'disabled':''} data-action="${actionName}">${label}</button>`}

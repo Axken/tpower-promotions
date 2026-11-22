@@ -153,6 +153,66 @@
       requestAnimationFrame(step);
     });
   }
+  /* ---------- List banner skeleton (Facebook-style) ---------- */
+  function imgReady(img) {
+    return !!(img && img.complete && img.naturalWidth > 0);
+  }
+  const knownReady = new Set();
+  function srcKeys(img) {
+    const keys = [img.currentSrc, img.src, img.getAttribute('src')].filter(Boolean);
+    const source = img.parentElement && img.parentElement.querySelector('source');
+    if (source && source.getAttribute('srcset')) keys.push(source.getAttribute('srcset'));
+    return keys;
+  }
+  function markKnown(img) { srcKeys(img).forEach(k => knownReady.add(k)); }
+  function wasKnown(img) { return srcKeys(img).some(k => knownReady.has(k)); }
+  function bindListBanners(root) {
+    if (!root || !root.querySelectorAll) return;
+    root.querySelectorAll('.promo-card .banner').forEach(banner => {
+      const img = banner.querySelector('img');
+      if (!img) return;
+      if (!banner.querySelector('.banner-shimmer')) {
+        const shine = document.createElement('i');
+        shine.className = 'banner-shimmer';
+        shine.setAttribute('aria-hidden', 'true');
+        banner.prepend(shine);
+      }
+      if (banner.dataset.skBound === '1') {
+        if ((imgReady(img) || wasKnown(img)) && !banner.classList.contains('is-ready') && !banner.classList.contains('is-error')) {
+          banner.classList.remove('is-skeleton');
+          banner.classList.add('is-ready');
+          markKnown(img);
+        }
+        return;
+      }
+      banner.dataset.skBound = '1';
+      const reveal = () => {
+        markKnown(img);
+        banner.classList.remove('is-skeleton');
+        banner.classList.add('is-ready');
+      };
+      if (imgReady(img) || wasKnown(img)) {
+        reveal();
+        if (img.decode) img.decode().catch(() => {});
+        return;
+      }
+      banner.classList.add('is-skeleton');
+      const onLoad = () => {
+        const show = () => reveal();
+        if (typeof img.decode === 'function') img.decode().then(show, show);
+        else show();
+      };
+      const onErr = () => {
+        banner.classList.remove('is-skeleton', 'is-ready');
+        banner.classList.add('is-error');
+      };
+      img.addEventListener('load', onLoad, { once: true });
+      img.addEventListener('error', onErr, { once: true });
+      if (imgReady(img)) onLoad();
+    });
+  }
+  window.bindListBanners = bindListBanners;
+
   /* ---------- Category list scroll cue ---------- */
   function syncCategoryScroll(nav) {
     const wrap = nav && nav.closest('.category-nav-wrap');
@@ -217,7 +277,7 @@
 
   const app = document.getElementById('app');
   let queued = false;
-  const run = () => { queued = false; obs.disconnect(); enhance(app); enhance(document.getElementById('modal-body')); bindCategoryScroll(); obs.observe(app, { childList: true, subtree: true }); obs.observe(document.getElementById('modal-body'), { childList: true, subtree: true }); };
+  const run = () => { queued = false; obs.disconnect(); enhance(app); enhance(document.getElementById('modal-body')); bindListBanners(app); bindCategoryScroll(); obs.observe(app, { childList: true, subtree: true }); obs.observe(document.getElementById('modal-body'), { childList: true, subtree: true }); };
   const obs = new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(run); } });
   run();
 })();
