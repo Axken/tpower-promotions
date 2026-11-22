@@ -1,6 +1,6 @@
 // Content transcribed from the user's 14 screenshots (IMG_4080–IMG_4093).
 // These are presentation snapshots, never a live member account or live draw result.
-const CATEGORIES=[['all','全部活动','gift'],['free','新人免费','adduser'],['first','首次充值','cash'],['daily','每日存款','calendar'],['invite','邀请好友','friends'],['turnover','幸运大抽奖','slot'],['returning','特别福利','user'],['vip','VIP权益','crown']];
+const CATEGORIES=[['all','全部活动','gift'],['free','新人免费','adduser'],['first','首次充值','cash'],['daily','每日存款','calendar'],['invite','邀请好友','friends'],['returning','特别福利','user'],['vip','VIP权益','crown']];
 const PROMOS=[
 {id:'newcomer-free-challenge',title:'免费试玩赢MYR100',fullTitle:'免费试玩赢MYR100',category:'free',tag:'免费试玩',banner:'photo',summary:'免费MYR100试玩，达标兑换MYR100现金',secondary:'完成试玩挑战后，兑换现金奖励。',badge:'新注册会员 · 终身限领一次',tabs:['活动详情','活动规则']},
 {id:'newcomer',title:'新人专享挑战',fullTitle:'新人专享挑战',category:'free',tag:'新人专享',banner:'new',summary:'实名认证领取 MYR88',secondary:'完成挑战，充值解锁最高 MYR1,888，并启动成长彩金200%。',badge:'每位新会员限一次',tabs:['活动详情','活动规则']},
@@ -9,8 +9,8 @@ const PROMOS=[
 {id:'daily-wheel',title:'每日转盘赢MYR888',fullTitle:'每日转盘赢MYR888',category:'daily',tag:'每日转盘',banner:'photo',summary:'每日最多3次免费抽奖，最高赢取MYR888',secondary:'完成或放弃首存后开启。单笔充值满MYR100或以上获得1次抽奖，每天最多3次。',badge:'每日最多3次',tabs:['活动详情','活动规则']},
 {id:'daily-reload',title:'每日再存10%彩金',fullTitle:'每日再存10%彩金',category:'daily',tag:'每日再存',banner:'photo',summary:'每日再存额外领取10%，最高MYR300',secondary:'完成或放弃首存后开启。每笔再存可额外领取 10% 彩金，一次充值一次领取。',badge:'每日再存 · 不限次数',tabs:['活动详情','活动规则']},
 {id:'referral',title:'邀请好友赚MYR1,000',fullTitle:'邀请好友赚MYR1,000',category:'invite',tag:'邀请好友',banner:'invite',summary:'每成功邀请一名好友，最高累计赚取MYR1,000',secondary:'好友完成指定任务后，系统自动解锁对应邀请奖励。',badge:'每名好友最高 MYR1,000',tabs:['我的邀请','活动规则']},
-{id:'anniversary',title:'3周年幸运大抽奖',fullTitle:'3周年幸运大抽奖',category:'turnover',tag:'周年抽奖',banner:'anniversary',summary:'头奖 MYR100,000',secondary:'累积有效流水即可获得抽奖券。',badge:'第3期',tabs:['活动详情','活动规则','我的抽奖券']},
 {id:'returning-member',title:'老用户回归赢MYR188',fullTitle:'老用户回归赢MYR188',category:'returning',tag:'老用户回归',banner:'photo',summary:'免费MYR100试玩，达标兑换MYR188现金',secondary:'连续7天或以上未上线的会员，完成试玩挑战后兑换现金奖励。',badge:'连续7天未上线 · 限领一次',tabs:['活动详情','活动规则']},
+{id:'anniversary',title:'3周年幸运大抽奖',fullTitle:'3周年幸运大抽奖',category:'returning',tag:'周年抽奖',banner:'anniversary',summary:'头奖 MYR100,000',secondary:'累积有效流水即可获得抽奖券。',badge:'第3期',tabs:['活动详情','活动规则','我的抽奖券']},
 {id:'vip-benefits',title:'VIP会员专属福利',fullTitle:'VIP会员专属福利',category:'vip',tag:'VIP专属',banner:'photo',summary:'会员等级越高，享有对应VIP权益',secondary:'会员等级越高，享有对应VIP权益。',badge:'五大专属福利',tabs:['活动详情','活动规则']}
 ];
 const NEW_STEPS=[
