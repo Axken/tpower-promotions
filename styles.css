@@ -977,14 +977,14 @@ html[data-skip-motion="1"] .fd-option-card.is-selected:after{animation:none!impo
 }
 .promo-giveup{margin-top:8px}
 
-/* fix25: Facebook-style skeleton on list banners only; detail heroes unchanged */
+/* fix25/fix26: Facebook-style skeleton on list banners only; detail heroes unchanged */
 .promo-card .banner{background:#4a4548}
 .promo-card .banner-photo{background:#4a4548}
 .promo-card .banner img{opacity:0;transition:opacity .28s ease;z-index:2}
 .promo-card .banner.is-ready img{opacity:1}
-.promo-card .banner-shimmer{display:none;position:absolute;top:0;bottom:0;left:0;width:42%;pointer-events:none;z-index:1;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.12) 32%,rgba(255,255,255,.42) 50%,rgba(255,255,255,.12) 68%,transparent 100%)}
+.promo-card .banner-shimmer{display:none;position:absolute;top:0;left:0;width:140%;height:140%;pointer-events:none;z-index:1;background:linear-gradient(45deg,transparent 0%,transparent 38%,rgba(255,255,255,.06) 46%,rgba(255,255,255,.16) 50%,rgba(255,255,255,.06) 54%,transparent 62%,transparent 100%)}
 .promo-card .banner.is-skeleton .banner-shimmer{display:block;animation:bannerShimmer 1.35s ease-in-out infinite}
-@keyframes bannerShimmer{from{transform:translateX(190%)}to{transform:translateX(-190%)}}
+@keyframes bannerShimmer{from{transform:translate(-55%,55%)}to{transform:translate(55%,-55%)}}
 .promo-card .banner.is-error img{opacity:0!important;visibility:hidden}
 html[data-skip-motion="1"] .promo-card .banner.is-skeleton .banner-shimmer{animation:none!important;display:none}
 html[data-skip-motion="1"] .promo-card .banner img{transition:none}
