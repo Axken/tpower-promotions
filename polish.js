@@ -153,9 +153,70 @@
       requestAnimationFrame(step);
     });
   }
+  /* ---------- Category list scroll cue ---------- */
+  function syncCategoryScroll(nav) {
+    const wrap = nav && nav.closest('.category-nav-wrap');
+    const bar = wrap && wrap.querySelector('.category-scroll');
+    const thumb = bar && bar.querySelector('.category-scroll-thumb');
+    if (!nav || !bar || !thumb) return;
+    const overflow = nav.scrollHeight - nav.clientHeight > 1;
+    bar.hidden = !overflow;
+    if (!overflow) return;
+    const trackH = bar.clientHeight;
+    const thumbH = Math.max(18, Math.round(trackH * (nav.clientHeight / nav.scrollHeight)));
+    const maxTop = Math.max(0, trackH - thumbH);
+    const maxScroll = nav.scrollHeight - nav.clientHeight;
+    const top = maxScroll > 0 ? Math.round((nav.scrollTop / maxScroll) * maxTop) : 0;
+    thumb.style.height = thumbH + 'px';
+    thumb.style.top = top + 'px';
+  }
+  function bindCategoryScroll() {
+    const nav = document.querySelector('.category-nav');
+    const bar = document.querySelector('.category-scroll');
+    const thumb = bar && bar.querySelector('.category-scroll-thumb');
+    if (!nav || !bar || !thumb) return;
+    syncCategoryScroll(nav);
+    if (nav.dataset.catScrollBound === '1') return;
+    nav.dataset.catScrollBound = '1';
+    nav.addEventListener('scroll', () => syncCategoryScroll(nav), { passive: true });
+    if (typeof ResizeObserver === 'function') {
+      new ResizeObserver(() => syncCategoryScroll(nav)).observe(nav);
+    }
+    const maxThumbTop = () => Math.max(0, bar.clientHeight - thumb.offsetHeight);
+    const scrollFromPointer = (clientY, offset) => {
+      const rect = bar.getBoundingClientRect();
+      const maxTop = maxThumbTop();
+      const top = Math.max(0, Math.min(maxTop, clientY - rect.top - offset));
+      const maxScroll = nav.scrollHeight - nav.clientHeight;
+      nav.scrollTop = maxTop > 0 ? (top / maxTop) * maxScroll : 0;
+    };
+    let dragging = false, grab = 0;
+    bar.addEventListener('pointerdown', e => {
+      if (!e.isPrimary) return;
+      e.preventDefault();
+      const thumbRect = thumb.getBoundingClientRect();
+      const onThumb = e.clientY >= thumbRect.top && e.clientY <= thumbRect.bottom;
+      grab = onThumb ? e.clientY - thumbRect.top : thumb.offsetHeight / 2;
+      dragging = true;
+      try { bar.setPointerCapture(e.pointerId); } catch {}
+      scrollFromPointer(e.clientY, grab);
+    });
+    bar.addEventListener('pointermove', e => {
+      if (!dragging || !e.isPrimary) return;
+      scrollFromPointer(e.clientY, grab);
+    });
+    const stopDrag = () => { dragging = false; };
+    bar.addEventListener('pointerup', stopDrag);
+    bar.addEventListener('pointercancel', stopDrag);
+  }
+  window.addEventListener('resize', () => {
+    const nav = document.querySelector('.category-nav');
+    if (nav) syncCategoryScroll(nav);
+  });
+
   const app = document.getElementById('app');
   let queued = false;
-  const run = () => { queued = false; obs.disconnect(); enhance(app); enhance(document.getElementById('modal-body')); obs.observe(app, { childList: true, subtree: true }); obs.observe(document.getElementById('modal-body'), { childList: true, subtree: true }); };
+  const run = () => { queued = false; obs.disconnect(); enhance(app); enhance(document.getElementById('modal-body')); bindCategoryScroll(); obs.observe(app, { childList: true, subtree: true }); obs.observe(document.getElementById('modal-body'), { childList: true, subtree: true }); };
   const obs = new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(run); } });
   run();
 })();
