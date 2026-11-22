@@ -166,7 +166,8 @@
     const thumbH = Math.max(18, Math.round(trackH * (nav.clientHeight / nav.scrollHeight)));
     const maxTop = Math.max(0, trackH - thumbH);
     const maxScroll = nav.scrollHeight - nav.clientHeight;
-    const top = maxScroll > 0 ? Math.round((nav.scrollTop / maxScroll) * maxTop) : 0;
+    const raw = maxScroll > 0 ? Math.round((nav.scrollTop / maxScroll) * maxTop) : 0;
+    const top = Math.max(0, Math.min(maxTop, raw));
     thumb.style.height = thumbH + 'px';
     thumb.style.top = top + 'px';
   }
