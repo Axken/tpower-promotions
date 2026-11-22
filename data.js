@@ -1,6 +1,6 @@
 // Content transcribed from the user's 14 screenshots (IMG_4080–IMG_4093).
 // These are presentation snapshots, never a live member account or live draw result.
-const CATEGORIES=[['all','全部活动','gift'],['free','新人免费','adduser'],['first','首次充值','cash'],['daily','每日存款','calendar'],['invite','邀请好友','friends'],['turnover','投注流水','slot'],['returning','老用户','user'],['vip','VIP权益','crown']];
+const CATEGORIES=[['all','全部活动','gift'],['free','新人免费','adduser'],['first','首次充值','cash'],['daily','每日存款','calendar'],['invite','邀请好友','friends'],['turnover','幸运大抽奖','slot'],['returning','特别福利','user'],['vip','VIP权益','crown']];
 const PROMOS=[
 {id:'newcomer-free-challenge',title:'免费试玩赢MYR100',fullTitle:'免费试玩赢MYR100',category:'free',tag:'免费试玩',banner:'photo',summary:'免费MYR100试玩，达标兑换MYR100现金',secondary:'完成试玩挑战后，兑换现金奖励。',badge:'新注册会员 · 终身限领一次',tabs:['活动详情','活动规则']},
 {id:'newcomer',title:'新人专享挑战',fullTitle:'新人专享挑战',category:'free',tag:'新人专享',banner:'new',summary:'实名认证领取 MYR88',secondary:'完成挑战，充值解锁最高 MYR1,888，并启动成长彩金200%。',badge:'每位新会员限一次',tabs:['活动详情','活动规则']},

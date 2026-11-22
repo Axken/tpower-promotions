@@ -8,8 +8,8 @@ const UI_TRANSLATION_ROWS=`促销活动|促銷活動|Promotions|Promosi|Ưu đã
 首次充值|首次充值|First deposit|Deposit pertama|Nạp lần đầu|ฝากครั้งแรก|Deposit pertama|पहली जमा
 每日存款|每日存款|Daily deposit|Deposit harian|Nạp mỗi ngày|ฝากรายวัน|Deposit harian|दैनिक जमा
 邀请好友|邀請好友|Invite friends|Jemput rakan|Mời bạn bè|ชวนเพื่อน|Undang teman|मित्रों को आमंत्रित करें
-投注流水|投注流水|Turnover|Pusing ganti|Doanh số cược|ยอดเทิร์น|Turnover|टर्नओवर
-老用户|老用戶|Returning users|Pengguna lama|Người dùng cũ|ผู้ใช้เดิม|Pengguna lama|पुराने उपयोगकर्ता
+幸运大抽奖|幸運大抽獎|Lucky Draw|Cabutan Bertuah|Xổ số may mắn|จับรางวัลโชคดี|Undian berhadiah|लकी ड्रॉ
+特别福利|特別福利|Special benefits|Faedah istimewa|Ưu đãi đặc biệt|สิทธิพิเศษ|Manfaat khusus|विशेष लाभ
 VIP权益|VIP權益|VIP benefits|Faedah VIP|Đặc quyền VIP|สิทธิ์ VIP|Manfaat VIP|VIP लाभ
 免费试玩赢MYR100|免費試玩贏MYR100|Free play win MYR100|Main percuma menang MYR100|Chơi thử miễn phí thắng MYR100|เล่นฟรีลุ้น MYR100|Main gratis menangkan MYR100|फ्री प्ले जीतें MYR100
 每日转盘赢MYR888|每日轉盤贏MYR888|Daily wheel win MYR888|Roda harian menang MYR888|Vòng quay mỗi ngày thắng MYR888|วงล้อนรายวันลุ้น MYR888|Roda harian menangkan MYR888|दैनिक व्हील जीतें MYR888
