@@ -12,7 +12,60 @@ function card(p){if(p.id==='newcomer-free-challenge')return trialCard(p);if(p.id
 function groupedCards(list){
   return list.length?`<div class="cards">${list.map(card).join('')}</div>`:'<div class="compact-empty"><h4>暂无活动</h4></div>';
 }
-function renderList(){const current=CATEGORIES.find(c=>c[0]===state.category)||CATEGORIES[0],filtered=PROMOS.filter(p=>state.category==='all'||p.category===state.category);$('#app').innerHTML=`<div class="activity-layout"><div class="category-nav-wrap"><aside class="category-nav" aria-label="活动分类">${CATEGORIES.map(c=>`<button data-category="${c[0]}" class="${c[0]===state.category?'active':''}" aria-pressed="${c[0]===state.category}">${icon(c[2])}<span>${c[1]}</span></button>`).join('')}</aside><div class="category-scroll" hidden aria-hidden="true"><i class="category-scroll-thumb"></i></div></div><section aria-label="活动列表"><div class="list-top"><h2>${current[1]}</h2><span>${filtered.length} 项活动</span></div>${groupedCards(filtered)}${footer()}</section></div>`}
+function fillCards(box,list){
+  const keep=new Map([...box.querySelectorAll('[data-promo]')].map(el=>[el.getAttribute('data-promo'),el]));
+  const frag=document.createDocumentFragment();
+  for(const p of list){
+    const node=keep.get(p.id);
+    if(node){node.classList.remove('fx-stagger');frag.append(node)}
+    else{const w=document.createElement('div');w.innerHTML=card(p).trim();frag.append(w.firstElementChild)}
+  }
+  box.replaceChildren(frag);
+}
+function renderList(){
+  const current=CATEGORIES.find(c=>c[0]===state.category)||CATEGORIES[0];
+  const filtered=PROMOS.filter(p=>state.category==='all'||p.category===state.category);
+  const app=$('#app');
+  const layout=app&&app.querySelector('.activity-layout');
+  const nav=layout&&layout.querySelector('.category-nav');
+  const section=layout&&layout.querySelector(':scope > section');
+  if(layout&&nav&&section){
+    nav.querySelectorAll('[data-category]').forEach(btn=>{
+      const on=btn.dataset.category===state.category;
+      btn.classList.toggle('active',on);
+      btn.setAttribute('aria-pressed',String(on));
+    });
+    const top=section.querySelector('.list-top');
+    if(top){
+      const h2=top.querySelector('h2');
+      const count=top.querySelector('span');
+      if(h2)h2.textContent=current[1];
+      if(count)count.textContent=filtered.length+' 项活动';
+    }
+    let cards=section.querySelector('.cards');
+    const empty=section.querySelector('.compact-empty');
+    const before=section.querySelector('.preview-note');
+    if(!filtered.length){
+      if(cards)cards.remove();
+      if(!empty){
+        const w=document.createElement('div');
+        w.innerHTML='<div class="compact-empty"><h4>暂无活动</h4></div>';
+        section.insertBefore(w.firstElementChild,before);
+      }
+    }else{
+      if(empty)empty.remove();
+      if(!cards){
+        cards=document.createElement('div');
+        cards.className='cards';
+        section.insertBefore(cards,before);
+      }
+      cards.classList.remove('fx-stagger');
+      fillCards(cards,filtered);
+    }
+    return;
+  }
+  app.innerHTML=`<div class="activity-layout"><div class="category-nav-wrap"><aside class="category-nav" aria-label="活动分类">${CATEGORIES.map(c=>`<button data-category="${c[0]}" class="${c[0]===state.category?'active':''}" aria-pressed="${c[0]===state.category}">${icon(c[2])}<span>${c[1]}</span></button>`).join('')}</aside><div class="category-scroll" hidden aria-hidden="true"><i class="category-scroll-thumb"></i></div></div><section class="list-panel" aria-label="活动列表"><div class="list-top"><h2>${current[1]}</h2><span>${filtered.length} 项活动</span></div>${groupedCards(filtered)}${footer()}</section></div>`;
+}
 function statRow(data,cls=''){return `<div class="stat-row ${cls}">${data.map(([label,val])=>`<div><span>${label}</span><strong>${val}</strong></div>`).join('')}</div>`}
 function action(label,actionName,disabled=false){return `<button class="primary" ${disabled?'disabled':''} data-action="${actionName}">${label}</button>`}
 function stepView(){const s=NEW_STEPS[state.step];return `<div class="step-heading"><span class="step-kicker">0${state.step+1} / 05</span><h4>${s.heading}</h4></div><p>${s.text}</p>`}

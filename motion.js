@@ -115,6 +115,7 @@
     if (!ps && ns) return 'forward';
     if (!pa && na) return 'forward';
     if (pa && na && pa !== na) return 'forward';
+    if (!pa && !na) return 'category';
     return 'fade';
   }
 
@@ -227,13 +228,44 @@
     fadeGuide();
     animateAmounts(app);
     if (app && app.querySelector('.cards') && !listStaggered && !Motion.skip() && !Motion.reduce()) {
-      app.querySelector('.cards').classList.add('fx-stagger');
+      const box = app.querySelector('.cards');
+      box.classList.add('fx-stagger');
       listStaggered = true;
+      setTimeout(() => box.classList.remove('fx-stagger'), 600);
     }
     if (dir === 'demo-toggle' && app && !Motion.skip() && !Motion.reduce()) {
       app.classList.add('fx-demo-swap');
       setTimeout(() => app.classList.remove('fx-demo-swap'), 360);
     }
+  }
+
+  let listFxTimer = 0;
+  function playCategory(raw) {
+    const reduce = Motion.skip() || Motion.reduce();
+    const dur = Motion.skip() ? 0 : (Motion.reduce() ? 80 : 220);
+    const panel = document.querySelector('.activity-layout > section');
+    if (panel) {
+      if (!reduce) panel.style.minHeight = Math.ceil(panel.getBoundingClientRect().height) + 'px';
+      panel.classList.remove('fx-list-in');
+    }
+    raw();
+    lastHash = location.hash;
+    const next = document.querySelector('.activity-layout > section');
+    if (next) {
+      next.querySelector('.cards')?.classList.remove('fx-stagger');
+      if (dur > 0) {
+        void next.offsetWidth;
+        next.classList.add('fx-list-in');
+        clearTimeout(listFxTimer);
+        listFxTimer = setTimeout(() => {
+          next.classList.remove('fx-list-in');
+          next.style.minHeight = '';
+        }, dur + 20);
+      } else {
+        next.style.minHeight = '';
+      }
+    }
+    afterRender('category');
   }
 
   function playRoute(raw, dir) {
@@ -253,6 +285,10 @@
     route = function () {
       const dir = navDir();
       const app = document.getElementById('app');
+      if (dir === 'category') {
+        playCategory(raw);
+        return;
+      }
       if (Motion.skip() || Motion.reduce() || !app || dir === 'same' || navBusy) {
         const y = dir === 'tab' && app ? app.scrollTop : null;
         raw();
